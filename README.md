@@ -1,4 +1,4 @@
-# 通维 AIPM / Tongwei AIPM
+#  AIPM /  AIPM
 
 **AIPM（AI-PM · 智能项目管理系统）** is an AI-augmented project-management platform built for the PMI China AI Project-Management community, developed by 北京通维管理咨询有限公司 (Beijing Tongwei Management Consulting Co., Ltd.).
 
