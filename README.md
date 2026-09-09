@@ -61,7 +61,7 @@ npm run dev                # dev server
 npm run build              # production build -> dist/
 ```
 
-> **Note / 提示**：数据库 `backend/tw_ai_pms.db` 为种子库（本仓库未包含，请从部署环境获取）。`.env` 需自行配置（参考 `.env.example`）。
+> **Note / 提示**：仓库已附带种子库 `backend/data/tw_ai_pms.db`（含 130 Agent / 49 Skill / Workflow 种子数据），首次启动自动加载；无需额外获取。`.env` 需自行配置（参考 `.env.example`）。
 
 ### 演示账号 / Demo Credentials
 
