@@ -17,6 +17,6 @@ else
     exit 1
 fi
 
-# 清理7天前的备份
-find $BACKUP_DIR -name '*.backup' -mtime +7 -delete
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] 已清理7天前的旧备份" >> /var/log/aipm_backup.log
+# 清理3天前的备份(保留3天)
+find $BACKUP_DIR -name '*.backup' -mtime +3 -delete
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] 已清理3天前的旧备份(保留3天)" >> /var/log/aipm_backup.log

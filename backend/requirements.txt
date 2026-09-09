@@ -32,3 +32,7 @@ urllib3==2.1.0
 certifi==2024.2.2
 reportlab==4.1.0
 numpy==1.26.3
+
+# ---- 重要：torch 必须用 CPU 版（本服务器无GPU，避免再装 4.7G 的 nvidia CUDA 全家桶）----
+# 安装时请用：pip install torch --index-url https://download.pytorch.org/whl/cpu
+# 并排除：pip install ... --no-deps 或 忽略 nvidia-* / triton（CPU 版无需它们）
