@@ -1,0 +1,45 @@
+{
+  "name": "pmi-china-aipm",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "PMI中国AI项目管理社区 - 前端 SPA",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.3.6",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@tiptap/extension-image": "^3.27.3",
+    "@tiptap/extension-placeholder": "^3.27.3",
+    "@tiptap/react": "^3.27.3",
+    "@tiptap/starter-kit": "^3.27.3",
+    "antd": "^5.16.0",
+    "axios": "^1.6.8",
+    "dayjs": "^1.11.10",
+    "dompurify": "^3.4.12",
+    "echarts": "^6.1.0",
+    "echarts-for-react": "^3.0.6",
+    "framer-motion": "^12.42.2",
+    "i18next": "^26.3.6",
+    "qrcode.react": "^4.2.0",
+    "react": "^18.2.0",
+    "react-big-calendar": "^1.20.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^17.0.11",
+    "react-router-dom": "^6.22.3",
+    "reactflow": "^11.11.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.4.3",
+    "vite": "^5.2.0"
+  }
+}

@@ -1,0 +1,207 @@
+[
+  {
+    "id": "PR-V8-P0",
+    "code": "P0",
+    "layer": "principle",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·原则",
+    "name_cn": "项目管理思维",
+    "name_en": "The Project Management Mindset",
+    "is_meta": true,
+    "statement": "以系统、整体、价值导向的思维方式看待项目及其所处的更大系统。",
+    "v8_note": "第8版以「原则+绩效域+裁剪」取代第6版的过程组/知识领域二元结构",
+    "injection_target": [
+      "agent_system_prompt",
+      "quality_rubric",
+      "workflow_gate"
+    ],
+    "rubric": [
+      "是否将项目置于组织与价值交付系统中考量",
+      "是否识别了项目对上下层级的依赖与影响",
+      "决策是否体现系统思考而非局部最优"
+    ],
+    "enabling_skills": [
+      "SK-PMBOK-168",
+      "SK-PMBOK-175",
+      "SK-PMBOK-165",
+      "SK-PMBOK-166",
+      "SK-PMBOK-155"
+    ],
+    "usage_rule": "不可作为独立功能卡片存在；必须注入 Agent 系统提示词与质量评估 Rubric，并在 Workflow 关口节点作为评审依据。"
+  },
+  {
+    "id": "PR-V8-P1",
+    "code": "P1",
+    "layer": "principle",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·原则",
+    "name_cn": "采用整体视角",
+    "name_en": "Adopt a Holistic View",
+    "is_meta": false,
+    "statement": "将项目置于组织、战略、环境与社会的整体系统中考量，而非孤立看待。",
+    "v8_note": "AI 可辅助绘制干系人与依赖图谱，识别系统性影响",
+    "injection_target": [
+      "agent_system_prompt",
+      "quality_rubric",
+      "workflow_gate"
+    ],
+    "rubric": [
+      "是否识别了项目所处的组织、战略与环境背景",
+      "是否覆盖全部关键干系人及其诉求",
+      "是否评估了项目对社会的广泛影响"
+    ],
+    "enabling_skills": [
+      "SK-PMBOK-152",
+      "SK-PMBOK-169",
+      "SK-PMBOK-170",
+      "SK-PMBOK-157"
+    ],
+    "usage_rule": "不可作为独立功能卡片存在；必须注入 Agent 系统提示词与质量评估 Rubric，并在 Workflow 关口节点作为评审依据。"
+  },
+  {
+    "id": "PR-V8-P2",
+    "code": "P2",
+    "layer": "principle",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·原则",
+    "name_cn": "聚焦价值",
+    "name_en": "Focus on Value",
+    "is_meta": false,
+    "statement": "在项目的每一决策中识别、量化并交付对干系人与组织有价值的成果。",
+    "v8_note": "数据驱动：用真实绩效数据持续度量价值实现程度",
+    "injection_target": [
+      "agent_system_prompt",
+      "quality_rubric",
+      "workflow_gate"
+    ],
+    "rubric": [
+      "是否明确了可量化的价值与成功标准",
+      "收益实现计划是否落地到责任人与时点",
+      "是否有价值实现程度的持续度量机制"
+    ],
+    "enabling_skills": [
+      "SK-PMBOK-164",
+      "SK-PMBOK-154",
+      "SK-PMBOK-160",
+      "SK-PMBOK-156"
+    ],
+    "usage_rule": "不可作为独立功能卡片存在；必须注入 Agent 系统提示词与质量评估 Rubric，并在 Workflow 关口节点作为评审依据。"
+  },
+  {
+    "id": "PR-V8-P3",
+    "code": "P3",
+    "layer": "principle",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·原则",
+    "name_cn": "将质量嵌入过程与可交付物",
+    "name_en": "Embed Quality Into Processes and Deliverables",
+    "is_meta": false,
+    "statement": "质量是设计与过程的结果，须内建于工作过程与产出，而非事后检验。",
+    "v8_note": "AI 可自动进行代码/文档质量扫描与一致性校验",
+    "injection_target": [
+      "agent_system_prompt",
+      "quality_rubric",
+      "workflow_gate"
+    ],
+    "rubric": [
+      "质量要求是否在过程设计阶段就被内建",
+      "是否有防错与持续过程改进机制",
+      "质量证据是否可追溯"
+    ],
+    "enabling_skills": [
+      "SK-PMBOK-171",
+      "SK-PMBOK-173",
+      "SK-PMBOK-179",
+      "SK-PMBOK-162"
+    ],
+    "usage_rule": "不可作为独立功能卡片存在；必须注入 Agent 系统提示词与质量评估 Rubric，并在 Workflow 关口节点作为评审依据。"
+  },
+  {
+    "id": "PR-V8-P4",
+    "code": "P4",
+    "layer": "principle",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·原则",
+    "name_cn": "成为负责任的领导者",
+    "name_en": "Be an Accountable Leader",
+    "is_meta": false,
+    "statement": "项目经理与发起人以身作则，对结果负责并赋能团队做出正确决策。",
+    "v8_note": "AI 治理：明确人机决策边界与算法问责",
+    "injection_target": [
+      "agent_system_prompt",
+      "quality_rubric",
+      "workflow_gate"
+    ],
+    "rubric": [
+      "角色与决策权是否清晰（RACI）",
+      "是否建立了问责与透明决策机制",
+      "人机决策边界是否明确（AI 场景）"
+    ],
+    "enabling_skills": [
+      "SK-PMBOK-153",
+      "SK-PMBOK-176",
+      "SK-PMBOK-178",
+      "SK-PMBOK-174"
+    ],
+    "usage_rule": "不可作为独立功能卡片存在；必须注入 Agent 系统提示词与质量评估 Rubric，并在 Workflow 关口节点作为评审依据。"
+  },
+  {
+    "id": "PR-V8-P5",
+    "code": "P5",
+    "layer": "principle",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·原则",
+    "name_cn": "在所有项目领域融入可持续性",
+    "name_en": "Integrate Sustainability Within All Project Areas",
+    "is_meta": false,
+    "statement": "在范围、进度、财务、资源等所有领域考量环境、社会与经济的长期可持续性。",
+    "v8_note": "将 ESG/碳足迹纳入项目评价与选型",
+    "injection_target": [
+      "agent_system_prompt",
+      "quality_rubric",
+      "workflow_gate"
+    ],
+    "rubric": [
+      "是否评估了环境、社会、经济三重底线影响",
+      "ESG 要求是否被纳入评价与选型",
+      "是否考虑了长期影响与负外部性"
+    ],
+    "enabling_skills": [
+      "SK-PMBOK-177",
+      "SK-PMBOK-167",
+      "SK-PMBOK-158",
+      "SK-PMBOK-172"
+    ],
+    "usage_rule": "不可作为独立功能卡片存在；必须注入 Agent 系统提示词与质量评估 Rubric，并在 Workflow 关口节点作为评审依据。"
+  },
+  {
+    "id": "PR-V8-P6",
+    "code": "P6",
+    "layer": "principle",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·原则",
+    "name_cn": "建立赋能型文化",
+    "name_en": "Build an Empowered Culture",
+    "is_meta": false,
+    "statement": "营造心理安全、授权自治、多元包容的团队文化，激发集体创造力。",
+    "v8_note": "AI 协作工具降低沟通摩擦，放大个体贡献",
+    "injection_target": [
+      "agent_system_prompt",
+      "quality_rubric",
+      "workflow_gate"
+    ],
+    "rubric": [
+      "团队心理安全感是否被关注",
+      "是否有授权与自治机制",
+      "是否有持续学习与认可机制"
+    ],
+    "enabling_skills": [
+      "SK-PMBOK-054",
+      "SK-TAI-001",
+      "SK-PMBOK-163",
+      "SK-PMBOK-159",
+      "SK-PMBOK-161"
+    ],
+    "usage_rule": "不可作为独立功能卡片存在；必须注入 Agent 系统提示词与质量评估 Rubric，并在 Workflow 关口节点作为评审依据。"
+  }
+]

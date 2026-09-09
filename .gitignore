@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+# Node
+node_modules/
+dist/
+.vite/
+# Runtime data (excluded - large DB / logs)
+*.log
+uploads/
+backups/
+logs/
+*.db
+*.sqlite*
+# Misc
+.DS_Store
+Thumbs.db
+# History / dead copies
+*.bak*
+src_old_*/
+src/src/
+backend/frontend/

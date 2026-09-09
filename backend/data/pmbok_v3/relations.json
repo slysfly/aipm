@@ -1,0 +1,4537 @@
+{
+  "agent_skills": [
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "skill_id": "SK-PMBOK-005",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "skill_id": "SK-PMBOK-007",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "skill_id": "SK-PMBOK-011",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "skill_id": "SK-PMBOK-024",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-005",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-007",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-011",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-022",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-024",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "skill_id": "SK-PMBOK-123",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.3",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.3",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-013",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-030",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-048",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-116",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-134",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "skill_id": "SK-PMBOK-141",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-006",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-010",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-018",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-016",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-027",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-026",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "skill_id": "SK-PMBOK-037",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-006",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-016",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-041",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-135",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-081",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "skill_id": "SK-PMBOK-113",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "skill_id": "SK-PMBOK-021",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "skill_id": "SK-PMBOK-062",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "skill_id": "SK-PMBOK-077",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "skill_id": "SK-PMBOK-019",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-005",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-006",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-007",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-008",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-014",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-024",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-052",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-060",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-125",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-112",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-065",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "skill_id": "SK-PMBOK-066",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "skill_id": "SK-PMBOK-008",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "skill_id": "SK-PMBOK-017",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "skill_id": "SK-PMBOK-133",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "skill_id": "SK-PMBOK-058",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.5",
+      "skill_id": "SK-PMBOK-006",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.5",
+      "skill_id": "SK-PMBOK-028",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.6",
+      "skill_id": "SK-PMBOK-021",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.6",
+      "skill_id": "SK-PMBOK-037",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "skill_id": "SK-PMBOK-019",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "skill_id": "SK-PMBOK-058",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "skill_id": "SK-PMBOK-140",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "skill_id": "SK-PMBOK-032",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "skill_id": "SK-PMBOK-144",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "skill_id": "SK-PMBOK-142",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "skill_id": "SK-PMBOK-132",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "skill_id": "SK-PMBOK-033",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "skill_id": "SK-PMBOK-031",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "skill_id": "SK-PMBOK-056",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "skill_id": "SK-PMBOK-114",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "skill_id": "SK-PMBOK-067",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-032",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-035",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-038",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-057",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-150",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-146",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-149",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-147",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-148",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "skill_id": "SK-PMBOK-139",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-020",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-018",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-032",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-027",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-036",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-035",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-057",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-146",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-149",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-147",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-090",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "skill_id": "SK-PMBOK-148",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "skill_id": "SK-PMBOK-019",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-006",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-015",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-033",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-031",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-039",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-056",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "skill_id": "SK-PMBOK-059",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "skill_id": "SK-PMBOK-015",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "skill_id": "SK-PMBOK-070",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "skill_id": "SK-PMBOK-075",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "skill_id": "SK-PMBOK-068",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "skill_id": "SK-PMBOK-098",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "skill_id": "SK-PMBOK-018",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "skill_id": "SK-PMBOK-015",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "skill_id": "SK-PMBOK-027",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "skill_id": "SK-PMBOK-036",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "skill_id": "SK-PMBOK-137",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-005",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-007",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-008",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-026",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-039",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-063",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-072",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "skill_id": "SK-PMBOK-094",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-008",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-010",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-013",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-016",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-022",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-025",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-030",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-048",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-055",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-084",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-145",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-096",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-097",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-089",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "skill_id": "SK-PMBOK-124",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-010",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-020",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-022",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-028",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-023",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-093",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-102",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-110",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-105",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-104",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-109",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "skill_id": "SK-PMBOK-106",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "skill_id": "SK-PMBOK-014",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "skill_id": "SK-PMBOK-017",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "skill_id": "SK-PMBOK-017",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "skill_id": "SK-PMBOK-033",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "skill_id": "SK-PMBOK-031",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "skill_id": "SK-PMBOK-059",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "skill_id": "SK-PMBOK-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "skill_id": "SK-PMBOK-008",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "skill_id": "SK-PMBOK-012",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "skill_id": "SK-PMBOK-053",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "skill_id": "SK-PMBOK-130",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-012",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-011",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-029",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-053",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-054",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-049",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-126",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-127",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-129",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "skill_id": "SK-PMBOK-122",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "skill_id": "SK-PMBOK-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "skill_id": "SK-PMBOK-012",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "skill_id": "SK-PMBOK-011",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "skill_id": "SK-PMBOK-030",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "skill_id": "SK-PMBOK-049",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-012",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-020",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-016",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-021",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-026",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "skill_id": "SK-PMBOK-055",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-013",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-029",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-050",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-046",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-115",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-121",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-101",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "skill_id": "SK-PMBOK-120",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-029",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-043",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-045",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-042",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-046",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-044",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "skill_id": "SK-PMBOK-117",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "skill_id": "SK-PMBOK-047",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "skill_id": "SK-PMBOK-051",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "skill_id": "SK-PMBOK-111",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "skill_id": "SK-PMBOK-019",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-005",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-007",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-010",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-023",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-034",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-085",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-138",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "skill_id": "SK-PMBOK-071",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-005",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-151",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-103",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-108",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-091",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-087",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "skill_id": "SK-PMBOK-073",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-005",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-038",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-074",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-083",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-080",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "skill_id": "SK-PMBOK-099",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-005",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-006",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-017",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-041",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-069",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "skill_id": "SK-PMBOK-136",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.6",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.6",
+      "skill_id": "SK-PMBOK-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.6",
+      "skill_id": "SK-PMBOK-012",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "skill_id": "SK-PMBOK-015",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "skill_id": "SK-PMBOK-025",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "skill_id": "SK-PMBOK-082",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "skill_id": "SK-PMBOK-014",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "skill_id": "SK-PMBOK-088",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "skill_id": "SK-PMBOK-092",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "skill_id": "SK-PMBOK-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "skill_id": "SK-PMBOK-131",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "skill_id": "SK-PMBOK-061",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "skill_id": "SK-PMBOK-079",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "skill_id": "SK-PMBOK-020",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "skill_id": "SK-PMBOK-018",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "skill_id": "SK-PMBOK-021",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "skill_id": "SK-PMBOK-028",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "skill_id": "SK-PMBOK-025",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "skill_id": "SK-PMBOK-143",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-007",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-023",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-107",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-100",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-064",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "skill_id": "SK-PMBOK-078",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "skill_id": "SK-PMBOK-008",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "skill_id": "SK-PMBOK-014",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "skill_id": "SK-PMBOK-034",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "skill_id": "SK-PMBOK-040",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "skill_id": "SK-PMBOK-086",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-013",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-011",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-043",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-045",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-042",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-050",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-052",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-044",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-119",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-128",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "skill_id": "SK-PMBOK-118",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-006",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-010",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-013",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-043",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-045",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-047",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-042",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-040",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-051",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-044",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-119",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-076",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "skill_id": "SK-PMBOK-118",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "skill_id": "SK-CPMAI-015",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "skill_id": "SK-CPMAI-034",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "skill_id": "SK-CPMAI-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "skill_id": "SK-CPMAI-028",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "skill_id": "SK-CPMAI-008",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "skill_id": "SK-CPMAI-020",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "skill_id": "SK-CPMAI-013",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "skill_id": "SK-CPMAI-016",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "skill_id": "SK-CPMAI-031",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "skill_id": "SK-CPMAI-017",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "skill_id": "SK-CPMAI-019",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "skill_id": "SK-CPMAI-029",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "skill_id": "SK-CPMAI-021",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "skill_id": "SK-CPMAI-024",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "skill_id": "SK-CPMAI-018",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "skill_id": "SK-CPMAI-035",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "skill_id": "SK-CPMAI-022",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "skill_id": "SK-CPMAI-005",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "skill_id": "SK-CPMAI-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "skill_id": "SK-CPMAI-030",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "skill_id": "SK-CPMAI-026",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "skill_id": "SK-CPMAI-003",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "skill_id": "SK-CPMAI-036",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "skill_id": "SK-CPMAI-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "skill_id": "SK-CPMAI-006",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "skill_id": "SK-CPMAI-027",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "skill_id": "SK-CPMAI-012",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "skill_id": "SK-CPMAI-032",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "skill_id": "SK-CPMAI-010",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "skill_id": "SK-CPMAI-001",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "skill_id": "SK-CPMAI-033",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "skill_id": "SK-CPMAI-023",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "skill_id": "SK-CPMAI-025",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "skill_id": "SK-CPMAI-011",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "skill_id": "SK-CPMAI-007",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "skill_id": "SK-CPMAI-014",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-010",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-004",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-003",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-016",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-008",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-025",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-020",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "skill_id": "SK-TAI-005",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "skill_id": "SK-TAI-007",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "skill_id": "SK-TAI-006",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "skill_id": "SK-TAI-015",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "skill_id": "SK-TAI-027",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "skill_id": "SK-TAI-011",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "skill_id": "SK-TAI-026",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "skill_id": "SK-TAI-019",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "skill_id": "SK-TAI-014",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "skill_id": "SK-TAI-002",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "skill_id": "SK-TAI-009",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "skill_id": "SK-TAI-018",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "skill_id": "SK-TAI-017",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "skill_id": "SK-TAI-028",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "skill_id": "SK-TAI-021",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "skill_id": "SK-TAI-013",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "skill_id": "SK-TAI-012",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "skill_id": "SK-TAI-023",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "skill_id": "SK-TAI-024",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "skill_id": "SK-TAI-022",
+      "role": "supporting"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "skill_id": "SK-PMBOK-001",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "skill_id": "SK-PMBOK-017",
+      "role": "primary"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "skill_id": "SK-PMBOK-002",
+      "role": "primary"
+    }
+  ],
+  "workflow_nodes": [
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-4.1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-4.2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-4.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "node_seq": 5,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-4.4",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "node_seq": 6,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-4.5",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "node_seq": 8,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-4.6",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "node_seq": 9,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-4.7",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-5.1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-5.2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-5.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "node_seq": 4,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-5.4",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "node_seq": 6,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-5.5",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "node_seq": 8,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-5.6",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-V8-DSCHED",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-6.5",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "node_seq": 4,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-6.6",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "node_seq": 5,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-057",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "node_seq": 6,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-146",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "node_seq": 7,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-148",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-7.1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "node_seq": 2,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-095",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-7.2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "node_seq": 4,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-7.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "node_seq": 6,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-7.4",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "node_seq": 7,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-015",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "node_seq": 8,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-098",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-13.1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-13.2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-10.1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 5,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-13.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 6,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-13.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 7,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-10.2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 8,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-13.4",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "node_seq": 9,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-10.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-9.1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-9.2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-9.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "node_seq": 5,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-9.4",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "node_seq": 6,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-9.5",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "node_seq": 7,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-9.6",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-11.1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-11.2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-11.3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "node_seq": 4,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-11.4",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "node_seq": 5,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-11.5",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "node_seq": 7,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-11.6",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "node_seq": 8,
+      "node_type": "agent",
+      "ref_id": "AG-PMBOK-11.7",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-T1",
+      "node_seq": 1,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-182",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-T1",
+      "node_seq": 2,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-183",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-T1",
+      "node_seq": 3,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-184",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-T1",
+      "node_seq": 5,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-181",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-V8-T1",
+      "node_seq": 6,
+      "node_type": "skill",
+      "ref_id": "SK-PMBOK-180",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-CPMAI-C1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-CPMAI-C2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-CPMAI-C3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "node_seq": 4,
+      "node_type": "agent",
+      "ref_id": "AG-CPMAI-C4",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "node_seq": 6,
+      "node_type": "agent",
+      "ref_id": "AG-CPMAI-C5",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "node_seq": 7,
+      "node_type": "agent",
+      "ref_id": "AG-CPMAI-C6",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "node_seq": 9,
+      "node_type": "agent",
+      "ref_id": "AG-CPMAI-C7",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-TAI-REVIEW",
+      "node_seq": 1,
+      "node_type": "agent",
+      "ref_id": "AG-TAI-TA1",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-TAI-REVIEW",
+      "node_seq": 2,
+      "node_type": "agent",
+      "ref_id": "AG-TAI-TA2",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-TAI-REVIEW",
+      "node_seq": 3,
+      "node_type": "agent",
+      "ref_id": "AG-TAI-TA3",
+      "is_pending": false
+    },
+    {
+      "workflow_id": "WF-TAI-REVIEW",
+      "node_seq": 4,
+      "node_type": "agent",
+      "ref_id": "AG-TAI-TA4",
+      "is_pending": false
+    }
+  ],
+  "agent_principles": [
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.3",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.4",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.5",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.6",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-4.7",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.3",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.4",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.5",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.5",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.5",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.5",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.6",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.6",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.6",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-5.6",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.3",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.4",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.5",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-6.6",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.3",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-7.4",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-8.3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.3",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.4",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.5",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-9.6",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-10.3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.3",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.4",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.5",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.6",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.6",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.6",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.6",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-11.7",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.1",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-12.3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.2",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.3",
+      "principle_id": "PR-V8-P6"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-PMBOK-13.4",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C3",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C4",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C5",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C6",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-CPMAI-C7",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-TAI-TA1",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-TAI-TA2",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-TAI-TA3",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "agent_id": "AG-TAI-TA4",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "agent_id": "AG-V8-DSCHED",
+      "principle_id": "PR-V8-P6"
+    }
+  ],
+  "workflow_principles": [
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-V8-D-Gov",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-V8-D-Scope",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-V8-D-Sched",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-V8-D-Fin",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-V8-D-Stake",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-V8-D-Res",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-V8-D-Risk",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-V8-T1",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-V8-T1",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "principle_id": "PR-V8-P0"
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "principle_id": "PR-V8-P2"
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "principle_id": "PR-V8-P3"
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "workflow_id": "WF-CPMAI-MAIN",
+      "principle_id": "PR-V8-P5"
+    },
+    {
+      "workflow_id": "WF-TAI-REVIEW",
+      "principle_id": "PR-V8-P1"
+    },
+    {
+      "workflow_id": "WF-TAI-REVIEW",
+      "principle_id": "PR-V8-P4"
+    },
+    {
+      "workflow_id": "WF-TAI-REVIEW",
+      "principle_id": "PR-V8-P5"
+    }
+  ],
+  "agent_links": [
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-4.1",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-4.2",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-4.3",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.6",
+      "to_agent_id": "AG-PMBOK-4.3",
+      "artifact": "批准的变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-4.4",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-4.4",
+      "artifact": "可交付成果",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-5.5",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-5.6",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-6.6",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-7.4",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-8.3",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-9.6",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-10.3",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-11.7",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.3",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-13.4",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "工作绩效信息",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-4.5",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.5",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "工作绩效报告",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-5.5",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-5.6",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-6.2",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-6.5",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-6.6",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-7.4",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-8.2",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-8.3",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-9.3",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-9.4",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-9.5",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-9.6",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-10.3",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-11.5",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-11.6",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-11.7",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.1",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.3",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-13.1",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-13.3",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-13.4",
+      "to_agent_id": "AG-PMBOK-4.6",
+      "artifact": "变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-4.7",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-4.7",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-4.7",
+      "artifact": "可交付成果",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-5.5",
+      "to_agent_id": "AG-PMBOK-4.7",
+      "artifact": "验收的可交付成果",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-4.7",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-5.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-5.1",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-5.2",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-5.2",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-13.1",
+      "to_agent_id": "AG-PMBOK-5.2",
+      "artifact": "干系人登记册",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-5.2",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-5.3",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-5.3",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-5.4",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-5.5",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-8.3",
+      "to_agent_id": "AG-PMBOK-5.5",
+      "artifact": "核实的可交付成果",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-5.5",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-5.6",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-5.6",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-6.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-6.1",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-6.5",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-6.6",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-7.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-7.1",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-7.3",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-7.4",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-8.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-8.1",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-8.3",
+      "artifact": "可交付成果",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.6",
+      "to_agent_id": "AG-PMBOK-8.3",
+      "artifact": "批准的变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-8.3",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-9.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-9.1",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.5",
+      "to_agent_id": "AG-PMBOK-9.5",
+      "artifact": "工作绩效报告",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-9.4",
+      "to_agent_id": "AG-PMBOK-9.5",
+      "artifact": "团队绩效评价",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-9.6",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-9.6",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-10.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-10.1",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.5",
+      "to_agent_id": "AG-PMBOK-10.2",
+      "artifact": "工作绩效报告",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-10.3",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-11.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-11.1",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-11.2",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-11.6",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-11.7",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.5",
+      "to_agent_id": "AG-PMBOK-11.7",
+      "artifact": "工作绩效报告",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-11.7",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-12.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-12.3",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.6",
+      "to_agent_id": "AG-PMBOK-12.3",
+      "artifact": "批准的变更请求",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-12.3",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-13.1",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-13.1",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.1",
+      "to_agent_id": "AG-PMBOK-13.2",
+      "artifact": "项目章程",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.2",
+      "to_agent_id": "AG-PMBOK-13.2",
+      "artifact": "项目管理计划",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-12.2",
+      "to_agent_id": "AG-PMBOK-13.2",
+      "artifact": "协议",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-PMBOK-4.3",
+      "to_agent_id": "AG-PMBOK-13.4",
+      "artifact": "工作绩效数据",
+      "link_type": "artifact_flow"
+    },
+    {
+      "from_agent_id": "AG-CPMAI-C4",
+      "to_agent_id": "AG-CPMAI-C5",
+      "artifact": "候选模型",
+      "link_type": "artifact_flow"
+    }
+  ],
+  "counts": {
+    "agent_skills": 423,
+    "workflow_nodes": 63,
+    "agent_principles": 298,
+    "workflow_principles": 38,
+    "agent_links": 103
+  }
+}

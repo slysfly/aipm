@@ -1,0 +1,2189 @@
+[
+  {
+    "id": "WF-V8-D-Gov",
+    "code": "D-Gov",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·绩效域",
+    "name_cn": "治理绩效域工作流",
+    "name_en": "Governance Performance Domain Workflow",
+    "summary": "建立并维护项目治理，使各绩效域的计划与执行对齐组织目标并受控。含7个过程。",
+    "v8_note": "治理域是 7 个绩效域的核心协调者，对应第6版整合管理+部分监控",
+    "itto": {
+      "inputs": [
+        "治理模型(集中/分散/混合)",
+        "项目章程",
+        "各域计划组件",
+        "商业目标 linking"
+      ],
+      "outputs": [
+        "治理决策记录",
+        "统一项目管理计划",
+        "绩效监督报告",
+        "变更与收尾证据"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.1",
+        "name": "授权项目启动",
+        "note": "PMBOK第8版表述，对应第6版过程 4.1「制定项目章程」"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.2",
+        "name": "整合对齐项目计划",
+        "note": "PMBOK第8版表述，对应第6版过程 4.2「制定项目管理计划」"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.3",
+        "name": "指导管理项目执行",
+        "note": "PMBOK第8版表述，对应第6版过程 4.3「指导与管理项目工作」"
+      },
+      {
+        "seq": 4,
+        "type": "gate",
+        "ref": "",
+        "name": "阶段关口：项目管理计划基线审批"
+      },
+      {
+        "seq": 5,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.4",
+        "name": "管理项目知识"
+      },
+      {
+        "seq": 6,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.5",
+        "name": "监控控制项目绩效",
+        "note": "PMBOK第8版表述，对应第6版过程 4.5「监控项目工作」"
+      },
+      {
+        "seq": 7,
+        "type": "gate",
+        "ref": "",
+        "name": "变更控制委员会(CCB)审批"
+      },
+      {
+        "seq": 8,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.6",
+        "name": "管理项目变更",
+        "note": "PMBOK第8版表述，对应第6版过程 4.6「实施整体变更控制」"
+      },
+      {
+        "seq": 9,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.7",
+        "name": "收尾项目或阶段",
+        "note": "PMBOK第8版表述，对应第6版过程 4.7「结束项目或阶段」"
+      }
+    ],
+    "node_count": 9,
+    "node_stats": {
+      "agent": 7,
+      "skill": 0,
+      "gate": 2
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1",
+      "PR-V8-P2",
+      "PR-V8-P3"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-V8-D-Scope",
+    "code": "D-Scope",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·绩效域",
+    "name_cn": "范围绩效域工作流",
+    "name_en": "Scope Performance Domain Workflow",
+    "summary": "确保交付正确的成果集合，需求被完整识别、定义、验证与控制。",
+    "v8_note": "AI 辅助从文档/纪要中自动抽取需求并生成 WBS",
+    "itto": {
+      "inputs": [
+        "产品/服务描述",
+        "商业需求",
+        "干系人需求"
+      ],
+      "outputs": [
+        "范围管理计划",
+        "需求文件与跟踪矩阵",
+        "WBS/范围基准",
+        "验收的范围"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.1",
+        "name": "规划范围管理"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.2",
+        "name": "收集需求"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.3",
+        "name": "定义范围"
+      },
+      {
+        "seq": 4,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.4",
+        "name": "创建WBS"
+      },
+      {
+        "seq": 5,
+        "type": "gate",
+        "ref": "",
+        "name": "范围基准确认"
+      },
+      {
+        "seq": 6,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.5",
+        "name": "确认范围"
+      },
+      {
+        "seq": 7,
+        "type": "gate",
+        "ref": "",
+        "name": "可交付物正式验收"
+      },
+      {
+        "seq": 8,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.6",
+        "name": "管理控制范围",
+        "note": "PMBOK第8版表述，对应第6版过程 5.6「控制范围」"
+      }
+    ],
+    "node_count": 8,
+    "node_stats": {
+      "agent": 6,
+      "skill": 0,
+      "gate": 2
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1",
+      "PR-V8-P2",
+      "PR-V8-P3"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-V8-D-Sched",
+    "code": "D-Sched",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·绩效域",
+    "name_cn": "进度绩效域工作流",
+    "name_en": "Schedule Performance Domain Workflow",
+    "summary": "建立并维护可信的进度计划，按时交付并动态响应变化。",
+    "v8_note": "AI 基于依赖与资源自动排程并预警偏差",
+    "itto": {
+      "inputs": [
+        "活动清单",
+        "依赖关系",
+        "资源与工期估算",
+        "开发方法"
+      ],
+      "outputs": [
+        "进度管理计划",
+        "进度基准",
+        "进度预测与维护记录"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-V8-DSCHED",
+        "name": "设计进度(Design Schedule)",
+        "note": "PMBOK第8版表述，对应第6版过程 DSCHED「设计进度模型」"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.5",
+        "name": "制定进度(Develop Schedule)",
+        "note": "PMBOK第8版表述，对应第6版过程 6.5「制定进度计划」"
+      },
+      {
+        "seq": 3,
+        "type": "gate",
+        "ref": "",
+        "name": "进度基准批准"
+      },
+      {
+        "seq": 4,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.6",
+        "name": "维护进度(Maintain Schedule)",
+        "note": "PMBOK第8版表述，对应第6版过程 6.6「控制进度」"
+      },
+      {
+        "seq": 5,
+        "type": "skill",
+        "ref": "SK-PMBOK-057",
+        "name": "关键路径法"
+      },
+      {
+        "seq": 6,
+        "type": "skill",
+        "ref": "SK-PMBOK-146",
+        "name": "资源优化",
+        "note": "父方法，展开为：资源优化·平滑、资源优化·平衡"
+      },
+      {
+        "seq": 7,
+        "type": "skill",
+        "ref": "SK-PMBOK-148",
+        "name": "进度压缩",
+        "note": "父方法，展开为：进度压缩·快速跟进、进度压缩·赶工"
+      }
+    ],
+    "node_count": 7,
+    "node_stats": {
+      "agent": 3,
+      "skill": 3,
+      "gate": 1
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1",
+      "PR-V8-P2",
+      "PR-V8-P3"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-V8-D-Fin",
+    "code": "D-Fin",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·绩效域",
+    "name_cn": "财务绩效域工作流",
+    "name_en": "Finance Performance Domain Workflow",
+    "summary": "管理项目资金与成本，确保财务可控并与商业价值论证一致（第6版成本管理的演进）。",
+    "v8_note": "第8版将第6版「成本管理」升级为「财务」，强调资金与商业论证联动",
+    "itto": {
+      "inputs": [
+        "商业论证",
+        "成本要素",
+        "资金限制",
+        "自制或外购考量"
+      ],
+      "outputs": [
+        "财务管理计划",
+        "成本估算与依据",
+        "成本基准",
+        "财务预测"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.1",
+        "name": "规划财务管理",
+        "note": "PMBOK第8版表述，对应第6版过程 7.1「规划成本管理」"
+      },
+      {
+        "seq": 2,
+        "type": "skill",
+        "ref": "SK-PMBOK-095",
+        "name": "自制或外购分析"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.2",
+        "name": "估算成本"
+      },
+      {
+        "seq": 4,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.3",
+        "name": "确定预算",
+        "note": "PMBOK第8版表述，对应第6版过程 7.3「制定预算」"
+      },
+      {
+        "seq": 5,
+        "type": "gate",
+        "ref": "",
+        "name": "成本基准批准"
+      },
+      {
+        "seq": 6,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.4",
+        "name": "控制财务",
+        "note": "PMBOK第8版表述，对应第6版过程 7.4「控制成本」"
+      },
+      {
+        "seq": 7,
+        "type": "skill",
+        "ref": "SK-PMBOK-015",
+        "name": "数据分析·储备分析"
+      },
+      {
+        "seq": 8,
+        "type": "skill",
+        "ref": "SK-PMBOK-098",
+        "name": "资金限制平衡"
+      }
+    ],
+    "node_count": 8,
+    "node_stats": {
+      "agent": 4,
+      "skill": 3,
+      "gate": 1
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1",
+      "PR-V8-P2",
+      "PR-V8-P3"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-V8-D-Stake",
+    "code": "D-Stake",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·绩效域",
+    "name_cn": "干系人绩效域工作流",
+    "name_en": "Stakeholders Performance Domain Workflow",
+    "summary": "识别并有效参与干系人，管理沟通，使期望对齐、支持最大化（整合第6版干系人+沟通管理）。",
+    "v8_note": "AI 从沟通记录中自动发现潜在干系人并度量情绪",
+    "itto": {
+      "inputs": [
+        "干系人登记册",
+        "沟通需求",
+        "发起人与客户期望"
+      ],
+      "outputs": [
+        "干系人参与计划",
+        "沟通管理计划",
+        "参与度评估",
+        "干系人满意度"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.1",
+        "name": "识别干系人"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.2",
+        "name": "规划干系人参与"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-PMBOK-10.1",
+        "name": "规划沟通管理"
+      },
+      {
+        "seq": 4,
+        "type": "gate",
+        "ref": "",
+        "name": "干系人参与策略评审"
+      },
+      {
+        "seq": 5,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.3",
+        "name": "管理发起人参与",
+        "note": "PMBOK第8版表述，对应第6版过程 13.3「管理干系人参与」"
+      },
+      {
+        "seq": 6,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.3",
+        "name": "管理干系人参与"
+      },
+      {
+        "seq": 7,
+        "type": "agent",
+        "ref": "AG-PMBOK-10.2",
+        "name": "管理沟通"
+      },
+      {
+        "seq": 8,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.4",
+        "name": "监督干系人参与"
+      },
+      {
+        "seq": 9,
+        "type": "agent",
+        "ref": "AG-PMBOK-10.3",
+        "name": "监督沟通"
+      }
+    ],
+    "node_count": 9,
+    "node_stats": {
+      "agent": 8,
+      "skill": 0,
+      "gate": 1
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1",
+      "PR-V8-P2",
+      "PR-V8-P3"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-V8-D-Res",
+    "code": "D-Res",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·绩效域",
+    "name_cn": "资源绩效域工作流",
+    "name_en": "Resources Performance Domain Workflow",
+    "summary": "规划、获取、发展与管理团队及物质资源，支撑项目高效交付。",
+    "v8_note": "数据驱动：基于负载热力识别资源瓶颈",
+    "itto": {
+      "inputs": [
+        "资源需求",
+        "资源日历",
+        "团队与物质资源"
+      ],
+      "outputs": [
+        "资源管理计划",
+        "团队章程",
+        "资源分配与绩效",
+        "团队效能评价"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.1",
+        "name": "规划资源管理"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.2",
+        "name": "估算活动资源"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.3",
+        "name": "获取资源"
+      },
+      {
+        "seq": 4,
+        "type": "gate",
+        "ref": "",
+        "name": "资源分配审批"
+      },
+      {
+        "seq": 5,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.4",
+        "name": "建设团队"
+      },
+      {
+        "seq": 6,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.5",
+        "name": "管理团队"
+      },
+      {
+        "seq": 7,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.6",
+        "name": "控制资源"
+      }
+    ],
+    "node_count": 7,
+    "node_stats": {
+      "agent": 6,
+      "skill": 0,
+      "gate": 1
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1",
+      "PR-V8-P2",
+      "PR-V8-P3"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-V8-D-Risk",
+    "code": "D-Risk",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·绩效域",
+    "name_cn": "风险绩效域工作流",
+    "name_en": "Risk Performance Domain Workflow",
+    "summary": "系统性地识别、分析与应对不确定性，提升项目韧性（含第8版新增的机会管理取向）。",
+    "v8_note": "AI 扫描任务/日程/外部信号自动识别风险与机会",
+    "itto": {
+      "inputs": [
+        "风险偏好与阈值",
+        "不确定性来源",
+        "假设与制约"
+      ],
+      "outputs": [
+        "风险管理计划",
+        "风险登记册与报告",
+        "应对策略",
+        "残余与次生风险"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.1",
+        "name": "规划风险管理"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.2",
+        "name": "识别风险"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.3",
+        "name": "实施定性风险分析"
+      },
+      {
+        "seq": 4,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.4",
+        "name": "实施定量风险分析"
+      },
+      {
+        "seq": 5,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.5",
+        "name": "规划风险应对"
+      },
+      {
+        "seq": 6,
+        "type": "gate",
+        "ref": "",
+        "name": "风险应对方案审批"
+      },
+      {
+        "seq": 7,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.6",
+        "name": "实施风险应对"
+      },
+      {
+        "seq": 8,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.7",
+        "name": "监督风险"
+      }
+    ],
+    "node_count": 8,
+    "node_stats": {
+      "agent": 7,
+      "skill": 0,
+      "gate": 1
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1",
+      "PR-V8-P2",
+      "PR-V8-P3"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-V8-T1",
+    "code": "T1",
+    "layer": "workflow",
+    "system": "PMBOKv8",
+    "system_label": "PMBOK第8版·裁剪",
+    "name_cn": "裁剪工作流",
+    "name_en": "Tailoring Workflow",
+    "summary": "根据项目特性、开发与交付方法、组织环境，对各绩效域的过程进行合理裁剪与持续调整。 进入本工作流的前置条件是已识别项目特性、开发方法与组织治理要求；本工作流输出「适用的过程组合」，作为各绩效域工作流的执行依据。",
+    "v8_note": "裁剪是第8版核心能力：没有一成不变的过程组合，须随项目演进调整 本工作流为元流程，作用于其余 7 条绩效域工作流之上。",
+    "itto": {
+      "inputs": [
+        "项目背景与制约",
+        "开发方法(预测/自适应/混合)",
+        "组织治理要求",
+        "团队能力与成熟度"
+      ],
+      "outputs": [
+        "裁剪决策记录",
+        "适用的过程组合",
+        "轻量化/强化说明"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "skill",
+        "ref": "SK-PMBOK-182",
+        "name": "按组织裁剪"
+      },
+      {
+        "seq": 2,
+        "type": "skill",
+        "ref": "SK-PMBOK-183",
+        "name": "按项目裁剪"
+      },
+      {
+        "seq": 3,
+        "type": "skill",
+        "ref": "SK-PMBOK-184",
+        "name": "过程适用性评估"
+      },
+      {
+        "seq": 4,
+        "type": "gate",
+        "ref": "",
+        "name": "裁剪方案评审与发起人批准"
+      },
+      {
+        "seq": 5,
+        "type": "skill",
+        "ref": "SK-PMBOK-181",
+        "name": "持续渐进明细"
+      },
+      {
+        "seq": 6,
+        "type": "skill",
+        "ref": "SK-PMBOK-180",
+        "name": "持续改进"
+      }
+    ],
+    "node_count": 6,
+    "node_stats": {
+      "agent": 0,
+      "skill": 5,
+      "gate": 1
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P1"
+    ],
+    "is_meta": true,
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-CPMAI-MAIN",
+    "code": "CPMAI-MAIN",
+    "layer": "workflow",
+    "system": "CPMAI",
+    "system_label": "CPMAI·AI项目全生命周期",
+    "name_cn": "CPMAI AI项目全生命周期工作流",
+    "name_en": "CPMAI End-to-End AI Project Workflow",
+    "summary": "覆盖业务理解→数据理解→数据准备→模型开发→模型评估→模型运营化→持续判定七个阶段的端到端 AI 项目主流程。",
+    "v8_note": "CPMAI 七阶段主干道，可与 PMBOK 绩效域工作流并行嵌套。",
+    "itto": {
+      "inputs": [
+        "业务问题",
+        "成功标准与 KPI",
+        "数据可用性初判",
+        "合规与伦理约束"
+      ],
+      "outputs": [
+        "价值实现报告",
+        "模型迭代/退役决策",
+        "经验教训",
+        "可信 AI 证据"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-CPMAI-C1",
+        "name": "业务理解"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-CPMAI-C2",
+        "name": "数据理解"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-CPMAI-C3",
+        "name": "数据准备"
+      },
+      {
+        "seq": 4,
+        "type": "agent",
+        "ref": "AG-CPMAI-C4",
+        "name": "模型开发"
+      },
+      {
+        "seq": 5,
+        "type": "gate",
+        "ref": "",
+        "name": "模型上线决策门：业务与合规双标尺评审"
+      },
+      {
+        "seq": 6,
+        "type": "agent",
+        "ref": "AG-CPMAI-C5",
+        "name": "模型评估"
+      },
+      {
+        "seq": 7,
+        "type": "agent",
+        "ref": "AG-CPMAI-C6",
+        "name": "模型运营化"
+      },
+      {
+        "seq": 8,
+        "type": "gate",
+        "ref": "",
+        "name": "投产验收门：SLA 与回滚预案确认"
+      },
+      {
+        "seq": 9,
+        "type": "agent",
+        "ref": "AG-CPMAI-C7",
+        "name": "模型判定与持续运营"
+      }
+    ],
+    "node_count": 9,
+    "node_stats": {
+      "agent": 7,
+      "skill": 0,
+      "gate": 2
+    },
+    "principle_ids": [
+      "PR-V8-P0",
+      "PR-V8-P2",
+      "PR-V8-P3",
+      "PR-V8-P4",
+      "PR-V8-P5"
+    ],
+    "difficulty": "高级"
+  },
+  {
+    "id": "WF-TAI-REVIEW",
+    "code": "TAI-REVIEW",
+    "layer": "workflow",
+    "system": "TAI",
+    "system_label": "CPMAI·可信AI框架",
+    "name_cn": "可信AI审查链工作流",
+    "name_en": "Trustworthy AI Review Chain Workflow",
+    "summary": "社会伦理→负责任→系统性透明→治理四层串行审查，是 AI 项目各阶段必须挂载的合规子流程。",
+    "v8_note": "非独立主流程，作为审查子链嵌入 CPMAI 主干的 C4/C5/C6/C7 阶段。",
+    "itto": {
+      "inputs": [
+        "人类价值观",
+        "受益与可控性",
+        "尊严与自由",
+        "公平与多元",
+        "环境"
+      ],
+      "outputs": [
+        "治理框架",
+        "审计轨迹",
+        "监测看板",
+        "认证证据"
+      ]
+    },
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-TAI-TA1",
+        "name": "社会伦理 AI 原则"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-TAI-TA2",
+        "name": "负责任 AI 原则"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-TAI-TA3",
+        "name": "系统性 AI 透明原则"
+      },
+      {
+        "seq": 4,
+        "type": "agent",
+        "ref": "AG-TAI-TA4",
+        "name": "AI 治理原则"
+      },
+      {
+        "seq": 5,
+        "type": "gate",
+        "ref": "",
+        "name": "可信AI审查签署：责任人与合规官双签"
+      }
+    ],
+    "node_count": 5,
+    "node_stats": {
+      "agent": 4,
+      "skill": 0,
+      "gate": 1
+    },
+    "principle_ids": [
+      "PR-V8-P1",
+      "PR-V8-P4",
+      "PR-V8-P5"
+    ],
+    "is_subflow": true,
+    "difficulty": "高级"
+  },
+  {
+    "id": "pmbok_full_process",
+    "code": "PMI_FULL",
+    "layer": "workflow",
+    "system": "PMBOK",
+    "system_label": "PMBOK全流程",
+    "name_cn": "PMI全流程自动执行工作流",
+    "name_en": "PMI Full Process Workflow",
+    "summary": "基于PMBOK十大知识领域和五大过程组的标准化项目执行全流程，覆盖全部50个PMBOK Agent",
+    "difficulty": "高",
+    "node_count": 57,
+    "created_at": "2026-09-03",
+    "updated_at": "2026-09-04",
+    "nodes": [
+      {
+        "seq": 1,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.1",
+        "name": "识别干系人",
+        "note": "AI辅助：从沟通记录中自动发现潜在干系人",
+        "x": 0,
+        "y": 50,
+        "process_group": "启动",
+        "knowledge_area": "干系人"
+      },
+      {
+        "seq": 2,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.1",
+        "name": "制定项目章程",
+        "note": "AI辅助：基于商业论证自动草拟章程要点；数据驱动：校验立项依据完整性",
+        "x": 195,
+        "y": 50,
+        "process_group": "启动",
+        "knowledge_area": "整合"
+      },
+      {
+        "seq": 3,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.2",
+        "name": "规划干系人参与",
+        "note": "AI辅助：依据参与度评估推荐差异化参与策略",
+        "x": 0,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "干系人"
+      },
+      {
+        "seq": 4,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.1",
+        "name": "规划成本管理",
+        "note": "AI辅助：按行业基线推荐成本估算方法与精度",
+        "x": 195,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "成本"
+      },
+      {
+        "seq": 5,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.2",
+        "name": "估算成本",
+        "note": "数据驱动：结合历史单价与参数模型生成成本估算建议",
+        "x": 390,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "成本"
+      },
+      {
+        "seq": 6,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.3",
+        "name": "制定预算",
+        "note": "数据驱动：自动汇总估算并校验资金限制与储备",
+        "x": 585,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "成本"
+      },
+      {
+        "seq": 7,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.2",
+        "name": "制定项目管理计划",
+        "note": "AI辅助：依据章程与各子计划自动生成计划骨架",
+        "x": 780,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "整合"
+      },
+      {
+        "seq": 8,
+        "type": "agent",
+        "ref": "AG-PMBOK-10.1",
+        "name": "规划沟通管理",
+        "note": "AI辅助：基于干系人画像推荐沟通频率与渠道组合",
+        "x": 975,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "沟通"
+      },
+      {
+        "seq": 9,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.1",
+        "name": "规划范围管理",
+        "note": "AI辅助：根据项目类型推荐范围与需求管理模板",
+        "x": 1170,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "范围"
+      },
+      {
+        "seq": 10,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.2",
+        "name": "收集需求",
+        "note": "AI辅助：从纪要/文档中自动抽取需求",
+        "x": 1365,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "范围"
+      },
+      {
+        "seq": 11,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.3",
+        "name": "定义范围",
+        "note": "AI辅助：基于需求文件草拟范围边界与排除项说明",
+        "x": 1560,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "范围"
+      },
+      {
+        "seq": 12,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.4",
+        "name": "创建WBS",
+        "note": "AI辅助：依据范围说明书自动生成 WBS 分解",
+        "x": 1755,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "范围"
+      },
+      {
+        "seq": 13,
+        "type": "agent",
+        "ref": "AG-PMBOK-8.1",
+        "name": "规划质量管理",
+        "note": "AI辅助：依据质量要求推荐测量指标与检查项模板",
+        "x": 1950,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "质量"
+      },
+      {
+        "seq": 14,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.1",
+        "name": "规划资源管理",
+        "note": "AI辅助：按角色技能模型推荐资源规划模板",
+        "x": 2145,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "资源"
+      },
+      {
+        "seq": 15,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.2",
+        "name": "估算活动资源",
+        "note": "数据驱动：基于活动与资源历史给出资源需求建议",
+        "x": 2340,
+        "y": 200,
+        "process_group": "规划",
+        "knowledge_area": "资源"
+      },
+      {
+        "seq": 16,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.1",
+        "name": "规划进度管理",
+        "note": "AI辅助：按项目规模与开发方法推荐进度管理模板",
+        "x": 0,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "进度"
+      },
+      {
+        "seq": 17,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.2",
+        "name": "定义活动",
+        "note": "AI辅助：基于 WBS 自动建议活动清单与里程碑",
+        "x": 195,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "进度"
+      },
+      {
+        "seq": 18,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.3",
+        "name": "排列活动顺序",
+        "note": "数据驱动：依据依赖关系自动生成网络图草稿",
+        "x": 390,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "进度"
+      },
+      {
+        "seq": 19,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.4",
+        "name": "估算活动持续时间",
+        "note": "数据驱动：基于历史工期与三点估算给出工期参考区间",
+        "x": 585,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "进度"
+      },
+      {
+        "seq": 20,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.5",
+        "name": "制定进度计划",
+        "note": "AI辅助：基于资源与依赖自动排程并给出关键路径",
+        "x": 780,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "进度"
+      },
+      {
+        "seq": 21,
+        "type": "agent",
+        "ref": "AG-PMBOK-12.1",
+        "name": "规划采购管理",
+        "note": "数据驱动：基于自制外购分析与市场行情给出采购建议",
+        "x": 975,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "采购"
+      },
+      {
+        "seq": 22,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.1",
+        "name": "规划风险管理",
+        "note": "AI辅助：按项目特征推荐风险管理模板与阈值",
+        "x": 1170,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "风险"
+      },
+      {
+        "seq": 23,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.2",
+        "name": "识别风险",
+        "note": "AI辅助：扫描任务/日程自动识别风险",
+        "x": 1365,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "风险"
+      },
+      {
+        "seq": 24,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.3",
+        "name": "实施定性风险分析",
+        "note": "数据驱动：基于历史与专家打分自动计算风险优先级",
+        "x": 1560,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "风险"
+      },
+      {
+        "seq": 25,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.4",
+        "name": "实施定量风险分析",
+        "note": "数据驱动：蒙特卡洛模拟自动量化进度/成本风险敞口",
+        "x": 1755,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "风险"
+      },
+      {
+        "seq": 26,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.5",
+        "name": "规划风险应对",
+        "note": "AI辅助：对高优先级风险推荐应对方案与责任归属",
+        "x": 1950,
+        "y": 240,
+        "process_group": "规划",
+        "knowledge_area": "风险"
+      },
+      {
+        "seq": 27,
+        "type": "gate",
+        "ref": "",
+        "name": "阶段关口：项目启动批准",
+        "note": "",
+        "x": 50,
+        "y": 250,
+        "process_group": "关卡"
+      },
+      {
+        "seq": 28,
+        "type": "gate",
+        "ref": "",
+        "name": "阶段关口：范围基准审批",
+        "note": "",
+        "x": 200,
+        "y": 600,
+        "process_group": "关卡"
+      },
+      {
+        "seq": 29,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.3",
+        "name": "管理干系人参与",
+        "note": "数据驱动：监测干系人情绪与互动以辅助沟通干预",
+        "x": 0,
+        "y": 850,
+        "process_group": "执行",
+        "knowledge_area": "干系人"
+      },
+      {
+        "seq": 30,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.3",
+        "name": "指导与管理项目工作",
+        "note": "数据驱动：自动汇总任务进度与工时生成工作绩效数据",
+        "x": 195,
+        "y": 850,
+        "process_group": "执行",
+        "knowledge_area": "整合"
+      },
+      {
+        "seq": 31,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.4",
+        "name": "管理项目知识",
+        "note": "AI/RAG：将项目经验自动沉淀为可检索知识库",
+        "x": 390,
+        "y": 850,
+        "process_group": "执行",
+        "knowledge_area": "整合"
+      },
+      {
+        "seq": 32,
+        "type": "gate",
+        "ref": "",
+        "name": "执行起点：基线批准后进入执行",
+        "note": "",
+        "x": 500,
+        "y": 850,
+        "process_group": "关卡"
+      },
+      {
+        "seq": 33,
+        "type": "agent",
+        "ref": "AG-PMBOK-10.2",
+        "name": "管理沟通",
+        "note": "AI辅助：自动生成项目状态沟通材料",
+        "x": 585,
+        "y": 850,
+        "process_group": "执行",
+        "knowledge_area": "沟通"
+      },
+      {
+        "seq": 34,
+        "type": "agent",
+        "ref": "AG-PMBOK-8.2",
+        "name": "管理质量",
+        "note": "AI辅助：自动扫描过程与文档以发现质量与合规偏差",
+        "x": 780,
+        "y": 850,
+        "process_group": "执行",
+        "knowledge_area": "质量"
+      },
+      {
+        "seq": 35,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.3",
+        "name": "获取资源",
+        "note": "数据驱动：结合资源日历与可用性给出匹配与获取建议",
+        "x": 0,
+        "y": 890,
+        "process_group": "执行",
+        "knowledge_area": "资源"
+      },
+      {
+        "seq": 36,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.4",
+        "name": "建设团队",
+        "note": "数据驱动：通过协作与情绪信号度量团队效能趋势",
+        "x": 195,
+        "y": 890,
+        "process_group": "执行",
+        "knowledge_area": "资源"
+      },
+      {
+        "seq": 37,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.5",
+        "name": "管理团队",
+        "note": "数据驱动：监测团队负荷与冲突信号辅助干预决策",
+        "x": 390,
+        "y": 890,
+        "process_group": "执行",
+        "knowledge_area": "资源"
+      },
+      {
+        "seq": 38,
+        "type": "agent",
+        "ref": "AG-PMBOK-12.2",
+        "name": "实施采购",
+        "note": "AI辅助：结构化评估卖方建议书并给出比选提示",
+        "x": 585,
+        "y": 890,
+        "process_group": "执行",
+        "knowledge_area": "采购"
+      },
+      {
+        "seq": 39,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.6",
+        "name": "实施风险应对",
+        "note": "数据驱动：跟踪应对措施执行与效果并更新风险状态",
+        "x": 780,
+        "y": 890,
+        "process_group": "执行",
+        "knowledge_area": "风险"
+      },
+      {
+        "seq": 40,
+        "type": "gate",
+        "ref": "",
+        "name": "阶段关口：进度基准审批",
+        "note": "",
+        "x": 200,
+        "y": 900,
+        "process_group": "关卡"
+      },
+      {
+        "seq": 41,
+        "type": "agent",
+        "ref": "AG-PMBOK-13.4",
+        "name": "监督干系人参与",
+        "note": "数据驱动：对比实际与计划参与度自动识别偏离",
+        "x": 0,
+        "y": 1100,
+        "process_group": "监控",
+        "knowledge_area": "干系人"
+      },
+      {
+        "seq": 42,
+        "type": "agent",
+        "ref": "AG-PMBOK-7.4",
+        "name": "控制成本",
+        "note": "数据驱动：实时 EVM 指标监控成本偏差",
+        "x": 195,
+        "y": 1100,
+        "process_group": "监控",
+        "knowledge_area": "成本"
+      },
+      {
+        "seq": 43,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.5",
+        "name": "监控项目工作",
+        "note": "数据驱动：实时汇聚多源绩效数据生成监控报告",
+        "x": 390,
+        "y": 1100,
+        "process_group": "监控",
+        "knowledge_area": "整合"
+      },
+      {
+        "seq": 44,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.6",
+        "name": "实施整体变更控制",
+        "note": "AI辅助：依据影响评估对变更请求给出优先级与影响提示",
+        "x": 585,
+        "y": 1100,
+        "process_group": "监控",
+        "knowledge_area": "整合"
+      },
+      {
+        "seq": 45,
+        "type": "agent",
+        "ref": "AG-PMBOK-10.3",
+        "name": "监督沟通",
+        "note": "数据驱动：分析沟通触达与反馈以评估沟通有效性",
+        "x": 780,
+        "y": 1100,
+        "process_group": "监控",
+        "knowledge_area": "沟通"
+      },
+      {
+        "seq": 46,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.5",
+        "name": "确认范围",
+        "note": "数据驱动：对照需求跟踪矩阵自动标记待验收与偏差项",
+        "x": 0,
+        "y": 1140,
+        "process_group": "监控",
+        "knowledge_area": "范围"
+      },
+      {
+        "seq": 47,
+        "type": "agent",
+        "ref": "AG-PMBOK-5.6",
+        "name": "控制范围",
+        "note": "数据驱动：监控范围变更频次与蔓延趋势并预警",
+        "x": 195,
+        "y": 1140,
+        "process_group": "监控",
+        "knowledge_area": "范围"
+      },
+      {
+        "seq": 48,
+        "type": "agent",
+        "ref": "AG-PMBOK-8.3",
+        "name": "控制质量",
+        "note": "数据驱动：汇总检验结果自动生成质量偏差与帕累托分析",
+        "x": 390,
+        "y": 1140,
+        "process_group": "监控",
+        "knowledge_area": "质量"
+      },
+      {
+        "seq": 49,
+        "type": "agent",
+        "ref": "AG-PMBOK-9.6",
+        "name": "控制资源",
+        "note": "数据驱动：基于负载热力自动识别资源瓶颈",
+        "x": 585,
+        "y": 1140,
+        "process_group": "监控",
+        "knowledge_area": "资源"
+      },
+      {
+        "seq": 50,
+        "type": "agent",
+        "ref": "AG-PMBOK-6.6",
+        "name": "控制进度",
+        "note": "数据驱动：实时跟踪进度偏差并预测完工日期",
+        "x": 780,
+        "y": 1140,
+        "process_group": "监控",
+        "knowledge_area": "进度"
+      },
+      {
+        "seq": 51,
+        "type": "gate",
+        "ref": "",
+        "name": "监控循环：持续监控与调整",
+        "note": "",
+        "x": 500,
+        "y": 1150,
+        "process_group": "关卡"
+      },
+      {
+        "seq": 52,
+        "type": "agent",
+        "ref": "AG-PMBOK-12.3",
+        "name": "控制采购",
+        "note": "数据驱动：跟踪合同履约与绩效偏差并提示索赔风险",
+        "x": 0,
+        "y": 1180,
+        "process_group": "监控",
+        "knowledge_area": "采购"
+      },
+      {
+        "seq": 53,
+        "type": "agent",
+        "ref": "AG-PMBOK-11.7",
+        "name": "监督风险",
+        "note": "数据驱动：持续监测风险指标并预警残余与新生风险",
+        "x": 195,
+        "y": 1180,
+        "process_group": "监控",
+        "knowledge_area": "风险"
+      },
+      {
+        "seq": 54,
+        "type": "gate",
+        "ref": "",
+        "name": "阶段关口：成本基准审批",
+        "note": "",
+        "x": 200,
+        "y": 1200,
+        "process_group": "关卡"
+      },
+      {
+        "seq": 55,
+        "type": "agent",
+        "ref": "AG-PMBOK-4.7",
+        "name": "结束项目或阶段",
+        "note": "数据驱动：自动汇集验收与绩效数据生成收尾核对清单",
+        "x": 0,
+        "y": 1350,
+        "process_group": "收尾",
+        "knowledge_area": "整合"
+      },
+      {
+        "seq": 56,
+        "type": "gate",
+        "ref": "",
+        "name": "变更控制委员会(CCB)终审",
+        "note": "",
+        "x": 50,
+        "y": 1350,
+        "process_group": "关卡"
+      },
+      {
+        "seq": 57,
+        "type": "gate",
+        "ref": "",
+        "name": "阶段关口：质量管理计划审批",
+        "note": "",
+        "x": 200,
+        "y": 1500,
+        "process_group": "关卡"
+      }
+    ],
+    "node_stats": {
+      "agent": 49,
+      "skill": 0,
+      "gate": 8
+    },
+    "process_group_stats": {
+      "启动": 2,
+      "规划": 24,
+      "执行": 10,
+      "监控": 12,
+      "收尾": 1
+    },
+    "edges": [
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-4.2",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-4.7",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-5.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-5.2",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-5.3",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-6.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-7.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-8.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-9.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-10.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-11.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-12.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-13.1",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.1",
+        "target": "AG-PMBOK-13.2",
+        "output": "项目章程",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-4.3",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-4.4",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-4.5",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-4.6",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-4.7",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-5.1",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-5.2",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-5.3",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-5.4",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-5.5",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-5.6",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-6.1",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-7.1",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-8.1",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-9.1",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-10.1",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-11.1",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-11.6",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.2",
+        "target": "AG-PMBOK-13.2",
+        "output": "项目管理计划",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-4.4",
+        "output": "可交付成果",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-4.7",
+        "output": "可交付成果",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-8.3",
+        "output": "可交付成果",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-5.5",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-5.6",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-6.6",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-7.4",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-8.3",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-9.6",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-10.3",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-11.7",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-12.3",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-13.4",
+        "output": "工作绩效数据",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.3",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.5",
+        "target": "AG-PMBOK-4.6",
+        "output": "工作绩效报告",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.5",
+        "target": "AG-PMBOK-9.5",
+        "output": "工作绩效报告",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.5",
+        "target": "AG-PMBOK-10.2",
+        "output": "工作绩效报告",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.5",
+        "target": "AG-PMBOK-11.7",
+        "output": "工作绩效报告",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.5",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.6",
+        "target": "AG-PMBOK-4.3",
+        "output": "批准的变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.6",
+        "target": "AG-PMBOK-8.3",
+        "output": "批准的变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-4.6",
+        "target": "AG-PMBOK-12.3",
+        "output": "批准的变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-5.5",
+        "target": "AG-PMBOK-4.7",
+        "output": "验收的可交付成果",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-5.5",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-5.5",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-5.6",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-5.6",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-6.2",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-6.5",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-6.6",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-6.6",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-7.4",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-7.4",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-8.2",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-8.3",
+        "target": "AG-PMBOK-5.5",
+        "output": "核实的可交付成果",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-8.3",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-8.3",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-9.3",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-9.4",
+        "target": "AG-PMBOK-9.5",
+        "output": "团队绩效评价",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-9.4",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-9.5",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-9.6",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-9.6",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-10.3",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-10.3",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-11.5",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-11.6",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-11.7",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-11.7",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.1",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-4.1",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-4.5",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-4.7",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-5.2",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-6.5",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-7.3",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-8.3",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-9.6",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-11.2",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-11.7",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-12.3",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-13.1",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-13.2",
+        "output": "协议",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.2",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.3",
+        "target": "AG-PMBOK-4.6",
+        "output": "变更请求",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-12.3",
+        "target": "AG-PMBOK-4.5",
+        "output": "工作绩效信息",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-13.1",
+        "target": "AG-PMBOK-5.2",
+        "output": "干系人登记册",
+        "type": "itto"
+      },
+      {
+        "source": "AG-PMBOK-7.1",
+        "target": "AG-PMBOK-7.2",
+        "output": "成本估算依据"
+      },
+      {
+        "source": "AG-PMBOK-7.2",
+        "target": "AG-PMBOK-7.3",
+        "output": "成本估算"
+      },
+      {
+        "source": "AG-PMBOK-9.1",
+        "target": "AG-PMBOK-9.2",
+        "output": "资源管理计划"
+      },
+      {
+        "source": "AG-PMBOK-9.2",
+        "target": "AG-PMBOK-9.3",
+        "output": "资源需求"
+      },
+      {
+        "source": "AG-PMBOK-6.2",
+        "target": "AG-PMBOK-6.3",
+        "output": "活动清单"
+      },
+      {
+        "source": "AG-PMBOK-6.3",
+        "target": "AG-PMBOK-6.4",
+        "output": "项目网络图"
+      },
+      {
+        "source": "AG-PMBOK-6.4",
+        "target": "AG-PMBOK-6.5",
+        "output": "活动持续时间估算"
+      },
+      {
+        "source": "AG-PMBOK-11.1",
+        "target": "AG-PMBOK-11.3",
+        "output": "风险管理计划"
+      },
+      {
+        "source": "AG-PMBOK-11.2",
+        "target": "AG-PMBOK-11.3",
+        "output": "风险登记册"
+      },
+      {
+        "source": "AG-PMBOK-11.3",
+        "target": "AG-PMBOK-11.4",
+        "output": "风险优先级"
+      },
+      {
+        "source": "AG-PMBOK-11.3",
+        "target": "AG-PMBOK-11.5",
+        "output": "风险优先级"
+      },
+      {
+        "source": "AG-PMBOK-11.4",
+        "target": "AG-PMBOK-11.5",
+        "output": "定量风险结果"
+      },
+      {
+        "source": "AG-PMBOK-13.2",
+        "target": "AG-PMBOK-13.3",
+        "output": "干系人参与计划"
+      },
+      {
+        "source": "AG-PMBOK-13.3",
+        "target": "AG-PMBOK-13.4",
+        "output": "干系人参与情况"
+      }
+    ],
+    "edge_count": 114
+  }
+]

@@ -1,0 +1,159 @@
+{
+  "openai": {
+    "provider_name": "openai",
+    "models": [
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+      "gpt-5.6-luna",
+      "gpt-5.5",
+      "gpt-5.4-mini",
+      "gpt-5.4-nano",
+      "gpt-5.1",
+      "o3-pro"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.9690793
+  },
+  "deepseek": {
+    "provider_name": "deepseek",
+    "models": [
+      "deepseek-v4-flash",
+      "deepseek-v4-pro",
+      "deepseek-v3.2",
+      "deepseek-v3.2-speciale",
+      "deepseek-r2",
+      "deepseek-coder-2.0"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.9694622
+  },
+  "anthropic": {
+    "provider_name": "anthropic",
+    "models": [
+      "claude-fable-5",
+      "claude-opus-4-8",
+      "claude-sonnet-5",
+      "claude-haiku-4-5"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.9699423
+  },
+  "baidu": {
+    "provider_name": "baidu",
+    "models": [
+      "ernie-5.1",
+      "ernie-5.0",
+      "ernie-x1.1"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.9703279
+  },
+  "aliyun": {
+    "provider_name": "aliyun",
+    "models": [
+      "qwen3.7-max",
+      "qwen3.7-plus",
+      "qwen3.6-max",
+      "qwen3.6-plus",
+      "qwen3.6-flash",
+      "qwen3.5-max",
+      "qwen3.5-plus",
+      "qwen3.5-flash",
+      "qwen3-coder",
+      "qwen-long"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.97074
+  },
+  "tencent": {
+    "provider_name": "tencent",
+    "models": [
+      "hunyuan-hy3-preview",
+      "hunyuan-turbo-s",
+      "hunyuan-t1",
+      "hunyuan-large"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.9711292
+  },
+  "zhipu": {
+    "provider_name": "zhipu",
+    "models": [
+      "glm-5.2",
+      "glm-5.1",
+      "glm-5",
+      "glm-4.7-flash",
+      "glm-4.7",
+      "glm-4.6v"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.9715161
+  },
+  "moonshot": {
+    "provider_name": "moonshot",
+    "models": [
+      "kimi-k3",
+      "kimi-k2.7-code",
+      "kimi-k2.6",
+      "kimi-k2.5",
+      "moonshot-v1-8k",
+      "moonshot-v1-32k",
+      "moonshot-v1-128k",
+      "moonshot-v1-auto"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.971897
+  },
+  "siliconflow": {
+    "provider_name": "siliconflow",
+    "models": [
+      "deepseek-ai/DeepSeek-V4-Pro",
+      "deepseek-ai/DeepSeek-V4-Flash",
+      "Qwen/Qwen3.6-72B-Instruct",
+      "Qwen/Qwen3.6-32B-Instruct",
+      "Qwen/Qwen3.6-7B-Instruct",
+      "Zhipu/GLM-5.2",
+      "Zhipu/GLM-5.1",
+      "moonshotai/Kimi-K2.7",
+      "moonshotai/Kimi-K2.6",
+      "MiniMax/MiniMax-M2.5",
+      "LongCat/LongCat-2.0"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.972265
+  },
+  "minimax": {
+    "provider_name": "minimax",
+    "models": [
+      "MiniMax-M3",
+      "MiniMax-M2.7",
+      "MiniMax-M2.7-highspeed",
+      "MiniMax-M2.5",
+      "MiniMax-M2.1",
+      "MiniMax-M2",
+      "MiniMax-Text-01",
+      "abab6.5s-chat"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886002.9726226
+  },
+  "openai_compatible": {
+    "provider_name": "openai_compatible",
+    "models": [
+      "custom-model"
+    ],
+    "source": "static",
+    "raw_count": 0,
+    "updated_at": 1788886003.597808
+  }
+}

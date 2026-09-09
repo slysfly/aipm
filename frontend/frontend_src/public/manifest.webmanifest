@@ -1,0 +1,62 @@
+{
+  "name": "通维 AI-PM 智能项目管理系统",
+  "short_name": "AI-PM",
+  "description": "全球唯一私有化+EVM+13LLM×8Agent+PMBOK代码层对齐的 AI 原生企业级项目管理平台",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6B35",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "我的项目",
+      "short_name": "项目",
+      "description": "查看项目列表",
+      "url": "/projects"
+    },
+    {
+      "name": "我的任务",
+      "short_name": "任务",
+      "description": "查看我的任务",
+      "url": "/tasks"
+    },
+    {
+      "name": "AI 助手",
+      "short_name": "AI",
+      "description": "AI 助手对话",
+      "url": "/ai"
+    },
+    {
+      "name": "仪表盘",
+      "short_name": "首页",
+      "description": "打开仪表盘",
+      "url": "/dashboard"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

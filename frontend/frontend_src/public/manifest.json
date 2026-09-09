@@ -1,0 +1,23 @@
+{
+  "name": "AI-PM 智能项目管理系统",
+  "short_name": "AI-PM",
+  "description": "AI 原生、私有可部署、覆盖项目管理全知识域的一体化项目管理系统：多智能体编排、经验教训知识沉淀、RAG 问答。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0891B2",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": ["any", "maskable"]
+    }
+  ],
+  "categories": ["productivity", "business"],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

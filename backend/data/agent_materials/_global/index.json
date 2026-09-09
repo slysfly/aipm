@@ -1,0 +1,25 @@
+{
+  "inputs": {},
+  "outputs": [
+    {
+      "ref": "5fd8851c1958",
+      "title": "x·O1",
+      "kind": "file",
+      "source": "output",
+      "agent_id": "x",
+      "file": "5fd8851c1958.md",
+      "mime": "text/markdown",
+      "generated_at": "2026-07-27T13:59:37.267432"
+    },
+    {
+      "ref": "70862143e613",
+      "title": "x·O1",
+      "kind": "file",
+      "source": "output",
+      "agent_id": "x",
+      "file": "70862143e613.md",
+      "mime": "text/markdown",
+      "generated_at": "2026-07-27T13:59:55.727662"
+    }
+  ]
+}
