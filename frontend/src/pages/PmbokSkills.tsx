@@ -89,6 +89,16 @@ const PmbokSkills: React.FC = () => {
 
   // 列表过滤 / 分页
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // 防抖搜索：延迟500ms后执行搜索
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [sourceSystem, setSourceSystem] = useState<string | undefined>(undefined);
   const [pgFilter, setPgFilter] = useState<string | undefined>(undefined);

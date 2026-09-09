@@ -5,7 +5,7 @@
 // - HTML 导航：网络优先，失败回退到离线页
 // - WS（/api/v1/ws/）：不缓存，直接放行
 
-const CACHE_VERSION = "ai-pm-v9";
+const CACHE_VERSION = "ai-pm-v10";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_URLS = [
