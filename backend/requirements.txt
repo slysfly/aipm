@@ -36,3 +36,11 @@ numpy==1.26.3
 # ---- 重要：torch 必须用 CPU 版（本服务器无GPU，避免再装 4.7G 的 nvidia CUDA 全家桶）----
 # 安装时请用：pip install torch --index-url https://download.pytorch.org/whl/cpu
 # 并排除：pip install ... --no-deps 或 忽略 nvidia-* / triton（CPU 版无需它们）
+
+# ---- RAG 向量检索（本地 bge 模型推理；服务器无GPU，torch 装 CPU 版，见文件顶部说明）----
+torch==2.13.0
+transformers==5.14.1
+sentence-transformers==5.7.0
+scikit-learn==1.9.0
+scipy==1.18.0
+pymupdf==1.28.2
