@@ -126,6 +126,8 @@ class Settings(BaseSettings):
     # 初始管理员（首次启动自动创建，仅在系统中无超级用户时生效）
     INITIAL_ADMIN_USERNAME: str = Field(default="admin", env="INITIAL_ADMIN_USERNAME")
     INITIAL_ADMIN_PASSWORD: str = Field(default="", env="INITIAL_ADMIN_PASSWORD")
+    # 社区/演示环境可显式允许弱初始口令（跳过告警；生产环境禁止置1）
+    WEAK_ADMIN_PASSWORD_ALLOW: bool = Field(default=False, env="WEAK_ADMIN_PASSWORD_ALLOW")
     INITIAL_ADMIN_EMAIL: str = Field(default="admin@tongweizx.com", env="INITIAL_ADMIN_EMAIL")
     INITIAL_ADMIN_FULL_NAME: str = Field(default="系统管理员", env="INITIAL_ADMIN_FULL_NAME")
 
@@ -316,7 +318,7 @@ class Settings(BaseSettings):
                 and any(not c.isalnum() for c in _pwd)
             )
         )
-        if _pwd_weak:
+        if _pwd_weak and not self.WEAK_ADMIN_PASSWORD_ALLOW:
             msg = (
                 "INITIAL_ADMIN_PASSWORD 为弱口令（需长度≥12 且同时包含字母、数字与特殊字符），"
                 "生产环境请设置强密码"
