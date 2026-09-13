@@ -6,8 +6,10 @@ import sqlite3
 from datetime import datetime
 
 from app.config import settings
+from app.core.security import get_current_user
 
-router = APIRouter(tags=['Skills管理'])
+# 该路由挂载在生产前缀 /api/v1/skills 下，且含写操作，必须至少要求登录
+router = APIRouter(tags=['Skills管理'], dependencies=[Depends(get_current_user)])
 
 SKILLS_FILE = settings.PMBOK_SKILLS_V1_FILE
 DB_FILE = settings.SKILLS_SQLITE_FILE

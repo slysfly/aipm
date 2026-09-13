@@ -1,7 +1,7 @@
 """
 工具技术API路由
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import json
@@ -9,8 +9,10 @@ from pathlib import Path
 import uuid
 
 from app.config import settings
+from app.core.security import get_current_user
 
-router = APIRouter(prefix='/tools', tags=['工具技术'])
+# 该路由含无认证写盘/创建 Agent 等操作，必须至少要求登录
+router = APIRouter(prefix='/tools', tags=['工具技术'], dependencies=[Depends(get_current_user)])
 
 class GenerateOutputRequest(BaseModel):
     tool_id: str
