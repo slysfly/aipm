@@ -5,10 +5,12 @@ import os
 import sqlite3
 from datetime import datetime
 
+from app.config import settings
+
 router = APIRouter(tags=['Skills管理'])
 
-SKILLS_FILE = '/opt/aipm-install/backend/data/skills/pmbok_skills_v1.json'
-DB_FILE = '/opt/aipm-install/backend/test.db'
+SKILLS_FILE = settings.PMBOK_SKILLS_V1_FILE
+DB_FILE = settings.SKILLS_SQLITE_FILE
 
 def get_db():
     conn = sqlite3.connect(DB_FILE)
@@ -175,7 +177,7 @@ async def get_agents_by_skill(skill_id: str):
         skill = next((s for s in skills_data.get('skills', []) if s.get('id') == skill_id), None)
         if not skill:
             raise HTTPException(status_code=404, detail='Skill不存在')
-        agents_file = '/opt/aipm-install/backend/data/agent_library_v2/pmbok_agents_v2.json'
+        agents_file = settings.AGENT_LIBRARY_V2_FILE
         with open(agents_file, 'r', encoding='utf-8') as f:
             agents_data = json.load(f)
         agents = [

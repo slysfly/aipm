@@ -885,9 +885,11 @@ print(f"涉及过程数：{len(PROCESS_TOOLS)} 个")
 import json
 import os
 
+from app.config import settings
+
 def load_pmbok_tools_from_json():
     """从JSON文件加载PMBOK工具"""
-    json_path = "/opt/AI-PM/backend/data/tool_library/pmbok_tools_full.json"
+    json_path = settings.PMBOK_TOOLS_FULL_FILE
     if os.path.exists(json_path):
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
