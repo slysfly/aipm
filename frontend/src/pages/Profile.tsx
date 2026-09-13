@@ -196,7 +196,8 @@ const Profile: React.FC = () => {
 
   const handleUpdateUserRole = async (userId: string, values: any) => {
     try {
-      await put(`/api/v1/profile/users/${userId}/role`, values);
+      // http 客户端 baseURL 已含 /api/v1 前缀，此处用相对路径，避免双重前缀 404
+      await put(`/profile/users/${userId}/role`, values);
       message.success("用户角色已更新");
       setRoleModalOpen(false);
       await loadAdminUsers();

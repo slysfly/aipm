@@ -179,6 +179,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     ],
     onClick: ({ key }: { key: string }) => {
       if (key === "logout") { logout(); navigate("/login"); }
+      if (key === "profile") navigate("/profile");
     },
   };
 
