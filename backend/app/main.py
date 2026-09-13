@@ -23,6 +23,7 @@ from app.core.exceptions import (
 )
 from app.core.response import ok_dict, error_dict
 from app.core.lifespan_factory import create_lifespan
+from app.core.observability import setup_observability
 from app.middleware.monitoring import MonitoringMiddleware
 from app.middleware.response_format import ResponseFormatMiddleware
 
@@ -105,19 +106,23 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    """请求日志"""
+    """请求日志（request_id 已由 RequestContextMiddleware 注入日志上下文）"""
     start_time = datetime.now()
     logger.info(f"➡️ {request.method} {request.url.path}")
-    
+
     response = await call_next(request)
-    
+
     duration = (datetime.now() - start_time).total_seconds()
     logger.info(
         f"⬅️ {request.method} {request.url.path} "
         f"状态码: {response.status_code} 耗时: {duration:.3f}s"
     )
-    
+
     return response
+
+
+# 可观测性：X-Request-ID / Prometheus 指标 / 可选 OTel（默认关闭，配置见 .env.example）
+setup_observability(app)
 
 
 # 注册异常处理器（统一响应格式）
@@ -148,7 +153,13 @@ async def authorization_exception_handler(request: Request, exc: AuthorizationEx
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    logger.error(f"未处理的异常: {str(exc)}", exc_info=True)
+    # extra 显式携带 request_id：异常穿过中间件时 contextvar 已被 reset，
+    # 但 request.state.request_id 仍在，保证最需要排查的 500 日志不丢链路 ID
+    logger.error(
+        f"未处理的异常: {str(exc)}",
+        exc_info=True,
+        extra={"request_id": getattr(request.state, "request_id", None) or "-"},
+    )
     return JSONResponse(status_code=500, content=error_dict(code=500, message="服务器内部错误，请稍后重试"))
 
 

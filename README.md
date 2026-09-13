@@ -74,6 +74,33 @@ npm run build              # production build -> dist/
 
 ---
 
+## 🔭 可观测性 / Observability
+
+Prometheus 指标与 OTel 链路追踪由环境变量门控且**默认关闭**；日志关联（X-Request-ID 注入）始终开启——默认文本日志格式会追加 `[request_id]` 段，`LOG_JSON=true` 切换为结构化 JSON（配置见 `backend/.env.example`）。request_id 与 JSON 格式作用于应用日志（uvicorn 自身 access 日志有独立通道，不在此列）：
+
+| 能力 | 开关 | 说明 |
+|---|---|---|
+| **日志关联** | 始终开启 | 每个请求自动生成/透传 `X-Request-ID`（响应头可见；经外层网关改写响应的场景除外），并注入应用日志行；文本模式 `[request_id]`，JSON 模式为独立字段 |
+| **结构化日志** | `LOG_JSON=true` | 每行一个 JSON 对象（ts/level/logger/request_id/msg/exc），便于 Loki/ELK 直接采集；配合既有轮转文件（logs/app.log、error.log） |
+| **Prometheus 指标** | `METRICS_ENABLED=true` | 暴露 `GET /metrics`（Prometheus 文本格式）：`aipm_http_requests_total{method,route,status}`、`aipm_http_request_duration_seconds` 直方图、在途请求、异常计数；route 标签为路由模板，无基数爆炸；探活/抓取请求自身不计入 |
+| **链路追踪** | `OTEL_ENABLED=true` | OpenTelemetry OTLP 导出（FastAPI/httpx/SQLAlchemy 自动插桩），依赖：`pip install -r requirements.txt -r requirements-observability.txt`（两文件需同步安装，避免单独安装抬高 fastapi/starlette 版本） |
+
+```bash
+# 快速体验
+METRICS_ENABLED=true python -m app.main
+curl -s localhost:8000/metrics | grep aipm_http
+
+# 带访问令牌（推荐）
+METRICS_ENABLED=true METRICS_TOKEN=$(openssl rand -hex 16) python -m app.main
+curl -s -H "Authorization: Bearer <token>" localhost:8000/metrics
+```
+
+与既有监控体系的关系：`/api/v1/monitoring/*`（内存聚合的 QPS/p95/慢查询 JSON 端点）与 `/api/v1/ai/monitor/*`（LLM 调用监控）保持不变；本层补充的是标准 Prometheus 暴露与跨日志/跨服务的请求关联。`/metrics` 建议仅在内网放行或配置 `METRICS_TOKEN`。
+
+> 注：`serve.py` 多 worker 部署时 `/metrics` 为单 worker 视角（内存指标不跨进程聚合），如需精确全局指标可后续切换 prometheus_client 的 multiprocess 模式。
+
+---
+
 ## ⚖️ License / 开源协议
 
 This project is licensed under the **MIT License** — see [LICENSE](./LICENSE).

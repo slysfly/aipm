@@ -44,3 +44,5 @@ sentence-transformers==5.7.0
 scikit-learn==1.9.0
 scipy==1.18.0
 pymupdf==1.28.2
+# ---- 可观测性：Prometheus 指标（/metrics，METRICS_ENABLED 开启）----
+prometheus-client==0.19.1

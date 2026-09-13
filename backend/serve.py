@@ -27,6 +27,7 @@ from app.core.exceptions import (
 )
 from app.core.response import success, error_dict
 from app.core.lifespan_factory import create_lifespan
+from app.core.observability import setup_observability
 from app.middleware.monitoring import MonitoringMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 
@@ -174,7 +175,13 @@ async def authorization_exception_handler(request: Request, exc: AuthorizationEx
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    logger.error(f"未处理的异常: {str(exc)}", exc_info=True)
+    # extra 显式携带 request_id：异常穿过中间件时 contextvar 已被 reset，
+    # 但 request.state.request_id 仍在，保证最需要排查的 500 日志不丢链路 ID
+    logger.error(
+        f"未处理的异常: {str(exc)}",
+        exc_info=True,
+        extra={"request_id": getattr(request.state, "request_id", None) or "-"},
+    )
     return JSONResponse(status_code=500, content=error_dict(code=500, message="服务器内部错误，请稍后重试"))
 
 
@@ -247,6 +254,12 @@ if FRONTEND_DIST.exists():
             resp.headers["Pragma"] = "no-cache"
             return resp
         return response
+
+
+# 可观测性：X-Request-ID / Prometheus 指标 / 可选 OTel（配置见 .env.example）。
+# 放在所有中间件注册之后调用，确保 RequestContextMiddleware 位于最外层——
+# 否则 spa_fallback 等外层中间件改写响应时会丢失 X-Request-ID 头且指标记为改写前状态码。
+setup_observability(app)
 
 
 if __name__ == "__main__":
