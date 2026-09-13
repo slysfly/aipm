@@ -1,0 +1,11 @@
+# 可观测性可选依赖（OpenTelemetry 链路追踪，OTEL_ENABLED=true 时需要）
+# 重要：请与 requirements.txt 同步安装，避免单独安装时抬高被锁定的 fastapi/starlette 版本：
+#   pip install -r requirements.txt -r requirements-observability.txt
+# 依赖未安装时开启 OTEL_ENABLED 仅记录 warning 并跳过，不影响启动。
+# 上界说明：instrumentation 系列后续版本会抬高 fastapi/starlette 依赖下限，
+# 升级上界前请先确认与 requirements.txt 锁定栈兼容。
+opentelemetry-sdk>=1.22.0,<2.0.0
+opentelemetry-exporter-otlp>=1.22.0,<2.0.0
+opentelemetry-instrumentation-fastapi>=0.43b0,<0.50b0
+opentelemetry-instrumentation-httpx>=0.43b0,<0.50b0
+opentelemetry-instrumentation-sqlalchemy>=0.43b0,<0.50b0

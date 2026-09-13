@@ -301,7 +301,20 @@ class Settings(BaseSettings):
 
     # 日志配置
     LOG_LEVEL: str = "INFO"
+    # 注意：日志格式实际由 app/core/logging.py 的模块级常量控制（文本模式已含 [request_id] 段），
+    # JSON 模式由 LOG_JSON 接管；此字段保留作兼容声明，当前不参与格式化
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # 可观测性（见 app/core/observability.py，默认全部关闭）
+    # LOG_JSON=true 时日志输出结构化 JSON（便于 Loki/ELK 采集）；request_id 注入始终开启
+    LOG_JSON: bool = Field(default=False, env="LOG_JSON")
+    # Prometheus /metrics 端点开关；METRICS_TOKEN 非空时要求 Bearer Token 访问
+    METRICS_ENABLED: bool = Field(default=False, env="METRICS_ENABLED")
+    METRICS_TOKEN: str = Field(default="", env="METRICS_TOKEN")
+    # OpenTelemetry 链路追踪（依赖见 requirements-observability.txt）
+    OTEL_ENABLED: bool = Field(default=False, env="OTEL_ENABLED")
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = Field(
+        default="http://localhost:4317", env="OTEL_EXPORTER_OTLP_ENDPOINT"
+    )
 
     # 分页配置
     DEFAULT_PAGE_SIZE: int = 20
