@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, Text, JSON, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -20,8 +19,8 @@ class AutomationRule(Base):
     project_id = Column(String(36), ForeignKey("projects.id"), nullable=True, index=True)
     is_global = Column(Boolean, default=False)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     project = relationship("Project")
     creator = relationship("User")

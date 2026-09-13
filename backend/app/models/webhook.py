@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, Integer, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -22,8 +21,8 @@ class Webhook(Base):
     is_active = Column(Boolean, default=True)
     project_id = Column(String(36), ForeignKey("projects.id"), nullable=True, index=True)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     last_triggered_at = Column(DateTime(timezone=True))
     last_status = Column(String(20), default="pending")
     failure_count = Column(Integer, default=0)
@@ -53,7 +52,7 @@ class WebhookDelivery(Base):
     success = Column(Boolean, default=False)
     retry_count = Column(Integer, default=0)
     error_message = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     webhook = relationship("Webhook")
 

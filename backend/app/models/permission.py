@@ -1,4 +1,3 @@
-from sqlalchemy import text
 import enum
 import uuid
 
@@ -44,8 +43,8 @@ class Role(Base):
     description = Column(String(500))
     permissions = Column(JSON, default=list)
     is_system = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     members = relationship("ProjectMember", back_populates="role")
 
@@ -65,7 +64,7 @@ class ProjectMember(Base):
     project_id = Column(String(36), ForeignKey("projects.id"), nullable=False, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
     role_id = Column(String(36), ForeignKey("roles.id"), nullable=False, index=True)
-    joined_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    joined_at = Column(DateTime(timezone=True), server_default=func.now())
     invited_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     is_active = Column(Boolean, default=True)
 

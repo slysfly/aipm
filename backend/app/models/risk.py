@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 风险预警记录模型
 """
@@ -48,7 +47,7 @@ class RiskAlert(Base):
     details = Column(Text)
 
     status = Column(String(20), default=RiskAlertStatus.ACTIVE.value)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     resolved_at = Column(DateTime(timezone=True))
 
     project = relationship("Project")

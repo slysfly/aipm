@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 知识库模型
 支持向量存储（pgvector）和文本匹配降级
@@ -38,7 +37,7 @@ class KnowledgeBaseShare(Base):
     target_id = Column(String(36), nullable=True, index=True)  # user_id 或 group_id；system 时为 NULL
     permission = Column(String(20), default=SharePermission.READ.value, nullable=False)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     kb = relationship("KnowledgeBase", backref="shares")
 
@@ -51,8 +50,8 @@ class UserGroup(Base):
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     members = relationship("UserGroupMember", back_populates="group", cascade="all, delete-orphan")
 
@@ -64,7 +63,7 @@ class UserGroupMember(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     group_id = Column(String(36), ForeignKey("user_groups.id", ondelete="CASCADE"), nullable=False, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     group = relationship("UserGroup", back_populates="members")
 
@@ -111,8 +110,8 @@ class KnowledgeBase(Base):
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
 
     # 时间戳
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 关系
     project = relationship("Project")
@@ -177,8 +176,8 @@ class KnowledgeDocument(Base):
     meta_data = Column(JSON, default=dict)
 
     # 时间戳
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 关系
     knowledge_base = relationship("KnowledgeBase", back_populates="documents")
@@ -235,7 +234,7 @@ class KnowledgeChunk(Base):
     meta_data = Column(JSON, default=dict)
 
     # 时间戳
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # 关系
     document = relationship("KnowledgeDocument", back_populates="chunks")

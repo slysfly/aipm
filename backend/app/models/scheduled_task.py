@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 定时任务模型
 支持基于Cron表达式的定时任务调度
@@ -53,8 +52,8 @@ class ScheduledJob(Base):
     # 创建者
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 关系
     creator = relationship("User", foreign_keys=[created_by])

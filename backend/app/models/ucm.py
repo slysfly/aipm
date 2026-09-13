@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 用户管理子系统 (UCM) 数据模型
 包含：组织树 / 部门 / 用户组织关联 / 功能模块 / 套餐 / 套餐功能 / 单项开通 /
@@ -38,8 +37,8 @@ class Organization(Base):
     max_seats = Column(Integer, default=5)  # 席位数上限
     used_seats = Column(Integer, default=0)  # 已用席位
     expire_at = Column(DateTime(timezone=True), nullable=True)  # 套餐到期
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     parent = relationship("Organization", remote_side=[id], backref="children")
     owner = relationship("User", foreign_keys=[owner_user_id])
@@ -63,7 +62,7 @@ class Department(Base):
     name = Column(String(255), nullable=False)
     parent_id = Column(String(36), ForeignKey("departments.id"), nullable=True)  # 部门树
     leader_user_id = Column(String(36), ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     organization = relationship("Organization", backref="departments")
     parent = relationship("Department", remote_side=[id], backref="children")
@@ -86,7 +85,7 @@ class UserOrganization(Base):
     org_id = Column(String(36), ForeignKey("organizations.id"), nullable=False, index=True)
     department_id = Column(String(36), ForeignKey("departments.id"), nullable=True)
     role_in_org = Column(String(20), default="member")  # org_admin/dept_manager/member
-    joined_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    joined_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", backref="org_memberships")
     organization = relationship("Organization", back_populates="members")
@@ -114,7 +113,7 @@ class Feature(Base):
     category = Column(String(50), default="general")  # ai/project/analysis/collab
     is_addon = Column(Boolean, default=False)  # 是否支持单项增购
     price_monthly = Column(Numeric(10, 2), default=0)  # 单项月价
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
         return f"<Feature {self.code}>"
@@ -132,8 +131,8 @@ class Plan(Base):
     max_seats = Column(Integer, default=5)
     description = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     features = relationship("PlanFeature", back_populates="plan", cascade="all, delete-orphan")
 
@@ -170,7 +169,7 @@ class UserFeatureGrant(Base):
     org_id = Column(String(36), ForeignKey("organizations.id"), nullable=False, index=True)
     feature_id = Column(String(36), ForeignKey("features.id"), nullable=False, index=True)
     granted_by = Column(String(36), ForeignKey("users.id"), nullable=True)
-    granted_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    granted_at = Column(DateTime(timezone=True), server_default=func.now())
     expire_at = Column(DateTime(timezone=True), nullable=True)
     reason = Column(Text, nullable=True)
 
@@ -205,8 +204,8 @@ class Order(Base):
     paid_at = Column(DateTime(timezone=True), nullable=True)
     remark = Column(Text, nullable=True)
     invoice_no = Column(String(50), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     organization = relationship("Organization", backref="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
@@ -230,7 +229,7 @@ class OrderItem(Base):
     name = Column(String(255), nullable=False)
     amount = Column(Numeric(12, 2), default=0)
     quantity = Column(Integer, default=1)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     order = relationship("Order", back_populates="items")
 
@@ -251,8 +250,8 @@ class Refund(Base):
     status = Column(String(20), default="pending", index=True)  # pending/approved/rejected/done
     handled_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     handled_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     order = relationship("Order", backref="refunds")
     organization = relationship("Organization", backref="refunds")
@@ -276,7 +275,7 @@ class Transaction(Base):
     amount = Column(Numeric(12, 2), default=0)
     balance_after = Column(Numeric(12, 2), default=0)  # 组织账户余额
     operator = Column(String(36), ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     organization = relationship("Organization", backref="transactions")
 
@@ -302,7 +301,7 @@ class UserLevel(Base):
     min_points = Column(Integer, default=0)  # 晋升积分阈值
     benefits = Column(Text, nullable=True)  # 权益说明
     icon = Column(String(50), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
         return f"<UserLevel {self.code}>"
@@ -318,7 +317,7 @@ class UserLevelRecord(Base):
     to_level = Column(String(20), nullable=False)
     reason = Column(String(50), nullable=True)  # pay/growth/manual
     operator = Column(String(36), ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", foreign_keys=[user_id], backref="level_records")
 

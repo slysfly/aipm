@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from sqlalchemy import Column, String, DateTime, JSON, Index
 from sqlalchemy.sql import func
 from app.db.session import Base
@@ -20,8 +19,8 @@ class Integration(Base):
     expires_at = Column(DateTime(timezone=True))
     status = Column(String(20), default="disconnected")
     config = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
         Index("ix_integration_user_provider", "user_id", "provider", unique=True),

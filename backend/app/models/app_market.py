@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 应用市场/插件生态模型
 """
@@ -57,8 +56,8 @@ class AppPlugin(Base):
     rating = Column(Integer, default=0)
     install_count = Column(Integer, default=0)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
         Index("ix_app_plugin_category_status", "category", "status"),
@@ -81,7 +80,7 @@ class AppInstallation(Base):
     config = Column(JSON, default=dict)
     status = Column(String(20), default=InstallationStatus.ACTIVE.value, index=True)
     installed_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    installed_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    installed_at = Column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (
         Index("ix_app_installation_org_plugin", "organization_id", "plugin_id", unique=True),

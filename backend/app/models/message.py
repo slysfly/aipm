@@ -1,4 +1,3 @@
-from sqlalchemy import text
 import enum
 from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Boolean, JSON, Index, Enum
 from sqlalchemy.orm import relationship
@@ -39,7 +38,7 @@ class Message(Base):
     mentions = Column(JSON, default=list)
     edited_at = Column(DateTime(timezone=True))
     is_deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     sender = relationship("User", foreign_keys=[sender_id])
     receiver = relationship("User", foreign_keys=[receiver_id])
@@ -64,7 +63,7 @@ class Channel(Base):
     project_id = Column(String(36), ForeignKey("projects.id"), nullable=True, index=True)
     member_ids = Column(JSON, default=list)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     messages = relationship("Message", back_populates="channel", cascade="all, delete-orphan")
     members = relationship("ChannelMember", back_populates="channel", cascade="all, delete-orphan")
@@ -83,7 +82,7 @@ class ChannelMember(Base):
     channel_id = Column(String(36), ForeignKey("channels.id"), primary_key=True)
     user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
     role = Column(String(20), default=ChannelMemberRole.MEMBER.value)
-    joined_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    joined_at = Column(DateTime(timezone=True), server_default=func.now())
     last_read_at = Column(DateTime(timezone=True))
 
     channel = relationship("Channel", back_populates="members")
@@ -101,7 +100,7 @@ class MessageReaction(Base):
     message_id = Column(String(36), ForeignKey("messages.id"), nullable=False, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
     emoji = Column(String(50), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     message = relationship("Message", back_populates="reactions")
     user = relationship("User")

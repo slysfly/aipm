@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - AI Agent会话模型
 """
@@ -18,8 +17,8 @@ class AgentSession(Base):
     project_id = Column(String(36), ForeignKey("projects.id"), nullable=True, index=True)
     title = Column(String(255), nullable=False, default="新对话")
     messages = Column(JSON, default=list)  # [{role, content, timestamp, action_type, executed_steps, result}]
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     def __repr__(self):
         return f"<AgentSession {self.title}>"

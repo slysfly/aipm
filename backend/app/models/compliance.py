@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - SOC2/ISO27001 合规模型
 包含合规策略、控制措施、审计记录和证据管理
@@ -74,8 +73,8 @@ class CompliancePolicy(Base):
     owner_id = Column(String(36), ForeignKey("users.id"), nullable=True)
     document_url = Column(String(500))
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 关系
     owner = relationship("User")
@@ -110,7 +109,7 @@ class ComplianceControl(Base):
     next_test_due = Column(DateTime(timezone=True))
     risk_level = Column(String(20), default=RiskLevel.MEDIUM.value, index=True)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # 关系
     policy = relationship("CompliancePolicy", back_populates="controls")
@@ -140,7 +139,7 @@ class ComplianceAudit(Base):
     evidence_links = Column(JSON, default=list)
     conducted_at = Column(DateTime(timezone=True))
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # 关系
     control = relationship("ComplianceControl", back_populates="audits")
@@ -166,7 +165,7 @@ class ComplianceEvidence(Base):
     description = Column(Text)
     uploaded_by = Column(String(36), ForeignKey("users.id"), nullable=False)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # 关系
     control = relationship("ComplianceControl", back_populates="evidences")

@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 异步任务模型 —— 支撑「后台执行 + 实时进度推送」能力。
 所有耗时操作（AI 总结经验教训、生成 WBS、风险分析等）拆为异步任务，
@@ -35,8 +34,8 @@ class AsyncTask(Base):
     result = Column(JSON, default=None)
     error = Column(Text, default=None)
     params = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     def to_dict(self):
         return {

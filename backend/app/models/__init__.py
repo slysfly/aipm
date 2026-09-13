@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 数据模型
 包含所有核心实体的数据库模型
@@ -34,8 +33,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     last_login = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 用户管理子系统扩展字段
     organization_id = Column(String(36), ForeignKey("organizations.id"), nullable=True, index=True)  # 主组织
@@ -122,8 +121,8 @@ class Project(Base):
     deleted_at = Column(DateTime(timezone=True))
     
     # 时间戳
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
     # 关系
     owner = relationship("User", back_populates="owned_projects", foreign_keys=[owner_id])
@@ -216,8 +215,8 @@ class Task(Base):
     deleted_at = Column(DateTime(timezone=True))
     
     # 时间戳
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 乐观锁版本号：每次更新自增；离线编辑回放时携带 X-Base-Version，
     # 与服务端不一致则 409 冲突，交由前端冲突合并流程处理。
@@ -287,7 +286,7 @@ class TaskDependency(Base):
     dependency_type = Column(String(2), default=DependencyType.FS.value)
     lag_time = Column(Integer, default=0)  # 延迟天数，正值延迟，负值提前
     
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # 关系
     predecessor = relationship("Task", foreign_keys=[predecessor_id], back_populates="dependencies_from")
@@ -319,8 +318,8 @@ class Portfolio(Base):
     is_deleted = Column(Boolean, default=False)
     deleted_at = Column(DateTime(timezone=True))
     
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
     # 关系
     owner = relationship("User")
@@ -353,8 +352,8 @@ class Resource(Base):
     avatar_url = Column(String(500))
     
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
     # 关系
     user = relationship("User")
@@ -407,8 +406,8 @@ class ResourceAllocation(Base):
     original_hours_per_day = Column(Numeric(10, 2))
     optimization_reason = Column(String(512), default="")
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 关系
     task = relationship("Task")
@@ -481,8 +480,8 @@ class Risk(Base):
     # AI分析
     ai_analysis = Column(JSON)  # AI风险分析结果
     
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
     # 关系
     project = relationship("Project", back_populates="risks")
@@ -522,7 +521,7 @@ class EVMSnapshot(Base):
     # AI分析
     ai_predictions = Column(JSON)  # AI预测结果
     
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # 关系
     project = relationship("Project", back_populates="evm_snapshots")
@@ -556,8 +555,8 @@ class Milestone(Base):
     
     sort_order = Column(Integer, default=0)
     
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
     # 关系
     project = relationship("Project", back_populates="milestones")
@@ -625,7 +624,7 @@ class AuditLog(Base):
     ip_address = Column(String(45))
     user_agent = Column(String(500))
     
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # 关系
     user = relationship("User")
