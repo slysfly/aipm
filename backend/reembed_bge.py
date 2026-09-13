@@ -1,9 +1,12 @@
-import sys, json, sqlite3, logging, time
-logging.basicConfig(filename="/opt/AI-PM/reembed.log", level=logging.INFO,
+import sys, json, sqlite3, logging, time, os
+# 路径默认相对本脚本所在目录，可用环境变量 AIPM_LOG_FILE / AIPM_DB_FILE 覆盖
+_HERE = os.path.dirname(os.path.abspath(__file__))
+logging.basicConfig(filename=os.environ.get("AIPM_LOG_FILE", os.path.join(_HERE, "reembed.log")),
+                    level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("reembed")
 model_name = sys.argv[1] if len(sys.argv) > 1 else "BAAI/bge-base-zh"
-db = "/opt/AI-PM/backend/tw_ai_pms.db"
+db = os.environ.get("AIPM_DB_FILE", os.path.join(_HERE, "tw_ai_pms.db"))
 log.info("reembed start model=%s", model_name)
 from sentence_transformers import SentenceTransformer
 m = SentenceTransformer(model_name)

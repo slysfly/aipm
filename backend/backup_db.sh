@@ -1,9 +1,11 @@
 #!/bin/bash
 # AIPM数据库备份脚本（PMI版本）
+# 路径默认相对本脚本所在目录（backend/），可用环境变量 AIPM_BACKUP_DIR / AIPM_DB_FILE 覆盖
 
-BACKUP_DIR="/opt/aipm-install/backend/backups"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BACKUP_DIR="${AIPM_BACKUP_DIR:-$SCRIPT_DIR/backups}"
 TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-DB_FILE="/opt/aipm-install/backend/tw_ai_pms.db"
+DB_FILE="${AIPM_DB_FILE:-$SCRIPT_DIR/tw_ai_pms.db}"
 BACKUP_FILE="$BACKUP_DIR/tw_ai_pms.db.$TIMESTAMP.backup"
 
 # 创建备份目录

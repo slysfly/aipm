@@ -7,6 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, model_validator
 from typing import List, Optional
 from functools import lru_cache
+from pathlib import Path
 import os
 import base64
 import secrets
@@ -14,6 +15,11 @@ import warnings
 import logging
 
 logger = logging.getLogger(__name__)
+
+# backend/ 仓库根目录（app/config.py 的上上级目录）。
+# 运行时数据文件的默认路径均以此为基准（部分数据文件仓库未附带，需部署方自行提供，见 .env.example）；
+# 部署环境可用同名环境变量指向外部路径。
+BACKEND_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _decode_seed_key(encoded: str) -> str:
@@ -150,6 +156,41 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = Field(
         default="http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173",
         env="CORS_ORIGINS"
+    )
+
+    # 运行时数据文件路径（默认相对 backend/ 仓库，部署环境可用环境变量覆盖，
+    # 避免硬编码服务器绝对路径导致自部署时相关功能静默降级为空）
+    AGENT_LIBRARY_V2_FILE: Path = Field(
+        default=BACKEND_ROOT / "data" / "agent_library_v2" / "pmbok_agents_v2.json",
+        env="AGENT_LIBRARY_V2_FILE",
+    )
+    AGENT_LIBRARY_V1_FILE: Path = Field(
+        default=BACKEND_ROOT / "data" / "agent_library" / "pmbok_agents.json",
+        env="AGENT_LIBRARY_V1_FILE",
+    )
+    PMBOK_TOOLS_FULL_FILE: Path = Field(
+        default=BACKEND_ROOT / "data" / "tool_library" / "pmbok_tools_full.json",
+        env="PMBOK_TOOLS_FULL_FILE",
+    )
+    PMBOK_SKILLS_V1_FILE: Path = Field(
+        default=BACKEND_ROOT / "data" / "skills" / "pmbok_skills_v1.json",
+        env="PMBOK_SKILLS_V1_FILE",
+    )
+    SKILLS_SQLITE_FILE: Path = Field(
+        default=BACKEND_ROOT / "data" / "skills_usage.db",
+        env="SKILLS_SQLITE_FILE",
+    )
+    TOOL_OUTPUTS_DIR: Path = Field(
+        default=BACKEND_ROOT / "data" / "tool_outputs",
+        env="TOOL_OUTPUTS_DIR",
+    )
+    CASE_INDEX_FILE: Path = Field(
+        default=BACKEND_ROOT / "data" / "case_index.json",
+        env="CASE_INDEX_FILE",
+    )
+    CASE_LIBRARY_DIR: Path = Field(
+        default=BACKEND_ROOT / "data" / "case_library",
+        env="CASE_LIBRARY_DIR",
     )
 
     @property

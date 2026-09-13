@@ -9,6 +9,8 @@ from typing import Dict, Any, List, Optional
 from pathlib import Path
 from datetime import datetime
 
+from app.config import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +35,7 @@ class AgentRegistry:
     
     def _load_from_library(self):
         """从v2 Agent库加载"""
-        library_path = Path('/opt/aipm-install/backend/data/agent_library_v2/pmbok_agents_v2.json')
+        library_path = settings.AGENT_LIBRARY_V2_FILE
         
         if not library_path.exists():
             logger.warning(f'Agent库文件不存在: {library_path}')

@@ -10,8 +10,10 @@ from typing import Dict, Any, List, Optional
 from pathlib import Path
 from datetime import datetime
 
+from app.config import settings
+
 logger = logging.getLogger(__name__)
-AGENT_LIBRARY_V2 = Path('/opt/AI-PM/backend/data/agent_library_v2/pmbok_agents_v2.json')
+AGENT_LIBRARY_V2 = settings.AGENT_LIBRARY_V2_FILE
 
 class ToolAgent:
     def __init__(self, agent_id: str, config: dict):

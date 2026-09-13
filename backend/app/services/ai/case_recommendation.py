@@ -8,13 +8,15 @@ import os
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
+from app.config import settings
+
 class CaseRecommendationService:
     """案例推荐服务"""
 
-    def __init__(self, case_index_path: str = "data/case_index.json"):
-        self.case_index_path = case_index_path
+    def __init__(self, case_index_path: Optional[str] = None):
+        self.case_index_path = case_index_path or str(settings.CASE_INDEX_FILE)
         self.case_index = self._load_case_index()
-        self.case_library_path = Path('/home/ubuntu/.openclaw/workspace/twzx-website/library')
+        self.case_library_path = settings.CASE_LIBRARY_DIR
 
     def _load_case_index(self) -> Dict:
         """加载案例索引"""

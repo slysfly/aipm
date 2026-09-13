@@ -12,6 +12,8 @@ from dataclasses import dataclass, field
 import json
 import os
 
+from app.config import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -54,7 +56,7 @@ class AgentFactory:
 
     def _load_pmbok_agents(self):
         """从JSON文件加载PMBOK专业Agent配置"""
-        agent_file = "/opt/AI-PM/backend/data/agent_library/pmbok_agents.json"
+        agent_file = settings.AGENT_LIBRARY_V1_FILE
         if not os.path.exists(agent_file):
             logger.warning(f"PMBOK Agent库不存在: {agent_file}")
             return
