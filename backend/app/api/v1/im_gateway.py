@@ -403,7 +403,7 @@ async def inbound_message(
     if not config:
         raise HTTPException(status_code=503, detail=f"平台 {payload.provider} 未启用或未配置")
 
-    # TODO: 签名验证（根据各平台规则）
+    # TODO: 签名验证（根据各平台规则实现 HMAC 校验，未配置密钥时应 fail-closed 拒绝）
 
     # Step 2: 查找用户绑定（用户隔离核心）
     binding_result = await db.execute(
@@ -416,34 +416,19 @@ async def inbound_message(
     binding = binding_result.scalar_one_or_none()
 
     if not binding:
-        # 未绑定的用户：自动绑定到管理员账号（首次使用自动开通）
-        logger.info(f"IM 用户 {payload.im_user_id}@{payload.provider} 无绑定，尝试自动绑定")
-        # 查找系统中的管理员/活跃用户作为默认绑定目标
-        admin_result = await db.execute(
-            select(User).where(User.is_active == True).limit(1)
-        )
-        default_user = admin_result.scalar_one_or_none()
-        if default_user:
-            binding = UserIMBinding(
-                user_id=default_user.id,
-                provider=payload.provider,
-                im_user_id=payload.im_user_id,
-                im_user_name=f"IM用户_{payload.im_user_id[:8]}",
-                status="active",
-            )
-            db.add(binding)
-            # 立即 flush 以分配 binding.id，供后续会话的 binding_id 外键使用
-            await db.flush()
-            logger.info(f"已自动绑定 {payload.im_user_id}@{payload.provider} → 用户 {default_user.username}")
-        else:
-            return IMCommandResult(
-                success=True,
-                reply_text=(
-                    f"您好！欢迎使用PMI中国 AI-PM 智能助手。\n\n"
-                    f"系统中暂无可用用户账号，请联系管理员。"
-                ),
-                reply_type="text",
-            ).model_dump()
+        # 安全策略：绝不自动绑定。此前逻辑会把未绑定的 IM 用户自动绑定到
+        # 系统中第一个活跃用户（通常是管理员），导致任意 IM 用户可以该身份
+        # 执行 AI 命令（建任务/查数据），用户隔离被架空。现在仅返回绑定引导。
+        logger.warning(f"IM 用户 {payload.im_user_id}@{payload.provider} 未绑定，已拒绝执行并返回绑定引导")
+        return IMCommandResult(
+            success=True,
+            reply_text=(
+                f"您好！欢迎使用PMI中国 AI-PM 智能助手。\n\n"
+                f"当前 IM 账号尚未绑定 AIPM 用户，暂无法执行操作。\n"
+                f"请先在 AIPM 系统内完成账号绑定后再试。"
+            ),
+            reply_type="text",
+        ).model_dump()
 
     user_result = await db.execute(select(User).where(User.id == binding.user_id))
     aipm_user = user_result.scalar_one_or_none()
@@ -467,8 +452,9 @@ async def inbound_message(
     except Exception as e:
         logger.exception("IM AI processing failed")
         ai_ms = (time.time() - ai_start) * 1000
+        # 对外回复不携带 str(e)（可能泄漏内部路径/SQL 等敏感信息），明细仅进日志与 error_message 字段
         ai_result = {
-            "reply_text": f"抱歉，处理您的请求时出错了：{str(e)}。请稍后重试或在系统中直接操作。",
+            "reply_text": "抱歉，处理您的请求时出错了，请稍后重试或在系统中直接操作。",
             "actions_taken": [],
             "conflict_alerts": [],
             "result_status": "error",
