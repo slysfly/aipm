@@ -41,6 +41,7 @@ const PmbokSkills = lazy(() => import("./pages/PmbokSkills"));
 const WorkflowAugmented = lazy(() => import("./pages/WorkflowAugmented/WorkflowAugmented"));
 const ProductRoadmap = lazy(() => import("./pages/ProductRoadmap"));
 const ApprovalFlow = lazy(() => import("./pages/ApprovalFlow"));
+const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // 用户管理子系统 (UCM) 页面
@@ -131,6 +132,7 @@ const App: React.FC = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/knowledge" element={<KnowledgeBase />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/organizations" element={<OrganizationManagement />} />
         <Route path="/admin/users" element={<UserManagement />} />
