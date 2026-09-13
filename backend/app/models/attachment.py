@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -21,7 +20,7 @@ class Attachment(Base):
     comment_id = Column(String(36), ForeignKey("comments.id"), nullable=True, index=True)
     uploaded_by = Column(String(36), ForeignKey("users.id"), nullable=False)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     task = relationship("Task", back_populates="attachments")
     project = relationship("Project")

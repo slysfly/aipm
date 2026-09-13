@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - OpenClaw 配置持久化模型
 替代原有的全局变量，将 OpenClaw 接入地址与开关存入数据库。
@@ -18,8 +17,8 @@ class OpenClawConfig(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     base_url = Column(String(500), nullable=False, default="http://localhost:18888")
     enabled = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     def to_dict(self) -> dict:
         return {

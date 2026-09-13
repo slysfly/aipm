@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - LLM 调用日志模型
 
@@ -44,7 +43,7 @@ class LLMCallLog(Base):
     status = Column(String(20), default="success", index=True)      # success / error
     error_message = Column(Text, nullable=True)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     __table_args__ = (
         Index("ix_llm_provider_model", "provider", "model"),

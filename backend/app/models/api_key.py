@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 对外 API Key 模型
 供外部系统（含本地 OpenClaw）免登录调用本系统统一对外 API。
@@ -39,8 +38,8 @@ class ApiKey(Base):
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     is_active = Column(Boolean, default=True)
     last_used_at = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     def to_dict(self, include_key: bool = False) -> dict:
         data = {

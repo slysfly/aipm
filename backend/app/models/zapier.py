@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
 
@@ -17,4 +16,4 @@ class ZapierSubscription(Base):
     hook_url = Column(String(500), nullable=False)
     secret = Column(String(255))
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

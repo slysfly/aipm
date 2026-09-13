@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """经验教训 / 变更控制 数据库模型
 
 字段命名与前端页面完全一致（to_dict 输出 camelCase），避免脆弱映射。
@@ -27,7 +26,7 @@ class Lesson(Base):
     action_items = Column(Text, default="")
     rating = Column(Integer, default=3)
     created_by = Column(String(128), default="")
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def to_dict(self):
         return {
@@ -61,7 +60,7 @@ class ChangeRequest(Base):
     category = Column(String(64), default="范围变更")
     requested_by = Column(String(128), default="")
     approved_by = Column(String(128), default="")
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     resolved_at = Column(String(32), default="")
 
     # ── 结构化变更明细 + 执行结果（CCB 强校验） ────────────────────────────────

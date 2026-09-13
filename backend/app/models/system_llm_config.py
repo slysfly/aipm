@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - 系统级 LLM 默认配置模型
 由管理员在"系统设置 > 大模型设置"中配置，作为全局 AI 能力的默认引擎。
@@ -28,8 +27,8 @@ class SystemLLMConfig(Base):
     max_tokens = Column(Integer, default=2000)
     # 是否作为系统当前生效的默认大模型（全局 AI 能力使用它）
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     @property
     def api_key(self) -> str:

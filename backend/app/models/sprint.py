@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from sqlalchemy import Column, String, DateTime, ForeignKey, Integer, Date, Index, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -22,8 +21,8 @@ class Sprint(Base):
     acceptance_plan = Column(Text, nullable=True, default=None)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     project = relationship("Project")
     creator = relationship("User", foreign_keys=[created_by])
@@ -62,7 +61,7 @@ class SprintTask(Base):
     sprint_id = Column(String(36), ForeignKey("sprints.id"), nullable=False, index=True)
     task_id = Column(String(36), ForeignKey("tasks.id"), nullable=False, index=True)
     status = Column(String(20), default="active")
-    added_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True))
 
     sprint = relationship("Sprint", back_populates="sprint_tasks")

@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """OKR / 白板 / 文档 数据库模型（替代原内存存储）"""
 import uuid
 from sqlalchemy import Column, String, Integer, Text, JSON, DateTime, ForeignKey
@@ -22,7 +21,7 @@ class Objective(Base):
     owner = Column(String(128), default="")
     progress = Column(Integer, default=0)
     key_results = Column(JSON, default=list)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def to_dict(self):
         return {
@@ -45,7 +44,7 @@ class Whiteboard(Base):
     id = Column(String(36), primary_key=True, default=_uuid)
     title = Column(String(255), default="未命名白板")
     notes = Column(JSON, default=list)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def to_dict(self):
         return {
@@ -65,7 +64,7 @@ class Document(Base):
     content = Column(Text, default="")
     folder = Column(String(128), default="通用")
     author = Column(String(128), default="")
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     def to_dict(self):
         return {

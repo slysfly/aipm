@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Boolean, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -18,7 +17,7 @@ class Notification(Base):
     related_id = Column(String(36))
     is_read = Column(Boolean, default=False)
     read_at = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User")
 

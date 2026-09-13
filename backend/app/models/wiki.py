@@ -1,4 +1,3 @@
-from sqlalchemy import text
 """
 PMI中国AI项目管理社区 - Wiki知识库模型
 """
@@ -24,8 +23,8 @@ class WikiSpace(Base):
     owner_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     member_ids = Column(JSON, default=list)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     owner = relationship("User")
     pages = relationship("WikiPage", back_populates="space", cascade="all, delete-orphan")
@@ -51,8 +50,8 @@ class WikiPage(Base):
     lock_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     lock_expires_at = Column(DateTime(timezone=True), nullable=True)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     space = relationship("WikiSpace", back_populates="pages")
     parent = relationship("WikiPage", remote_side="WikiPage.id", backref="children")
@@ -81,7 +80,7 @@ class WikiPageVersion(Base):
     editor_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     edit_summary = Column(String(500))
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     page = relationship("WikiPage", back_populates="versions")
     editor = relationship("User")
@@ -104,8 +103,8 @@ class WikiComment(Base):
     author_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     parent_id = Column(String(36), ForeignKey("wiki_comments.id"), nullable=True, index=True)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     page = relationship("WikiPage", back_populates="comments")
     author = relationship("User")
