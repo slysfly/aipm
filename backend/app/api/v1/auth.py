@@ -154,7 +154,7 @@ async def login(
     )
     refresh_token = create_refresh_token(data={"sub": user.id})
     
-    # 设置 httpOnly Cookie（防 XSS 窃取，生产环境建议加上 Secure 和 SameSite=Lax）
+    # 设置 httpOnly Cookie（防 XSS 窃取；Secure 跟随环境自动启用，可用 COOKIE_SECURE 显式覆盖）
     cookie_max_age = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     response.set_cookie(
         key="access_token",
@@ -162,7 +162,7 @@ async def login(
         max_age=cookie_max_age,
         httponly=True,
         samesite="lax",
-        # secure=True,  # 生产环境启用 HTTPS 时取消注释
+        secure=settings.cookie_secure,
     )
     response.set_cookie(
         key="refresh_token",
@@ -170,7 +170,7 @@ async def login(
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
         httponly=True,
         samesite="lax",
-        # secure=True,
+        secure=settings.cookie_secure,
     )
     
     return {
@@ -242,11 +242,13 @@ async def refresh_token(
         response.set_cookie(
             key="access_token", value=new_access_token,
             max_age=cookie_max_age, httponly=True, samesite="lax",
+            secure=settings.cookie_secure,
         )
         response.set_cookie(
             key="refresh_token", value=new_refresh_token,
             max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
             httponly=True, samesite="lax",
+            secure=settings.cookie_secure,
         )
         
         return {
@@ -270,6 +272,6 @@ async def logout(response: Response):
     只能由本次请求经后端删除，从根本上杜绝 XSS 窃取持久令牌。
     该端点不强制鉴权，确保任何状态下都能安全清 Cookie。
     """
-    response.delete_cookie("access_token", samesite="lax")
-    response.delete_cookie("refresh_token", samesite="lax")
+    response.delete_cookie("access_token", samesite="lax", secure=settings.cookie_secure)
+    response.delete_cookie("refresh_token", samesite="lax", secure=settings.cookie_secure)
     return {"code": 200, "message": "已退出登录", "data": None}

@@ -4,7 +4,7 @@ PMI中国AI项目管理社区 - 配置文件
 """
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from typing import List, Optional
 from functools import lru_cache
 import os
@@ -112,6 +112,17 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     APP_NAME: str = "PMI中国AI项目管理社区"
     ENVIRONMENT: str = Field(default="development", env="ENVIRONMENT")
+    # 认证 Cookie 是否强制 Secure（仅经 HTTPS 传输）。
+    # 不设置该变量时自动跟随 ENVIRONMENT：production 开启、其余关闭；也可显式设 true/false 覆盖。
+    COOKIE_SECURE: Optional[bool] = Field(default=None, env="COOKIE_SECURE")
+
+    @field_validator("COOKIE_SECURE", mode="before")
+    @classmethod
+    def _cookie_secure_blank_to_none(cls, v):
+        """.env 中显式留空（如 COOKIE_SECURE=）视为未设置，避免 Optional[bool] 校验失败"""
+        if isinstance(v, str) and not v.strip():
+            return None
+        return v
 
     # API配置
     API_V1_PREFIX: str = "/api/v1"
@@ -156,6 +167,13 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         """将CORS_ORIGINS字符串转换为列表"""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+
+    @property
+    def cookie_secure(self) -> bool:
+        """认证 Cookie 的 Secure 标志：显式配置 COOKIE_SECURE 优先，否则生产环境自动开启"""
+        if self.COOKIE_SECURE is not None:
+            return self.COOKIE_SECURE
+        return self.ENVIRONMENT == "production"
 
     # AI配置
     OPENAI_API_KEY: str = Field(default="", env="OPENAI_API_KEY")
