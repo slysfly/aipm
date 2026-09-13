@@ -5,7 +5,10 @@ import os
 import sqlite3
 from datetime import datetime
 
-router = APIRouter(tags=['Skills管理'])
+from app.core.security import get_current_user
+
+# 该路由挂载在生产前缀 /api/v1/skills 下，且含写操作，必须至少要求登录
+router = APIRouter(tags=['Skills管理'], dependencies=[Depends(get_current_user)])
 
 SKILLS_FILE = '/opt/aipm-install/backend/data/skills/pmbok_skills_v1.json'
 DB_FILE = '/opt/aipm-install/backend/test.db'
