@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.core.security import get_current_user
 from app.models import User
-from app.models.ucm import Organization, Plan, Order, OrderItem, Refund, Transaction
+from app.models.ucm import Organization, Plan, Order, OrderItem, Refund, Transaction, UserOrganization
 from app.api.v1.ucm.deps import require_ucm_admin, require_org_access
 
 router = APIRouter()
