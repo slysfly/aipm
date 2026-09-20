@@ -74,6 +74,26 @@ npm run build              # production build -> dist/
 
 ---
 
+## 🙌 贡献者 / Contributors
+
+### 代码贡献 / Code Contributors
+
+<a href="https://github.com/slysfly"><img src="https://avatars.githubusercontent.com/u/47839584?s=64&v=4" width="48" height="48" alt="slysfly"></a> <a href="https://github.com/Thneoly"><img src="https://avatars.githubusercontent.com/u/23535249?s=64&v=4" width="48" height="48" alt="Thneoly"></a>
+
+### Issue 反馈 / Issue Contributors
+
+感谢以下用户报告问题、提出改进建议 / Thanks to everyone who reported issues:
+
+<a href="https://github.com/zzy09126"><img src="https://avatars.githubusercontent.com/u/259508891?s=64&v=4" width="48" height="48" alt="zzy09126"></a> <a href="https://github.com/Thneoly"><img src="https://avatars.githubusercontent.com/u/23535249?s=64&v=4" width="48" height="48" alt="Thneoly"></a> <a href="https://github.com/Caleb-Cai"><img src="https://avatars.githubusercontent.com/u/69239514?s=64&v=4" width="48" height="48" alt="Caleb-Cai"></a>
+
+| 贡献者 | Issue 数 |
+|--------|---------|
+| [zzy09126](https://github.com/zzy09126) | 5 |
+| [Thneoly](https://github.com/Thneoly) | 8 |
+| [Caleb-Cai](https://github.com/Caleb-Cai) | 2 |
+
+完整名单见 [CONTRIBUTORS.md](./CONTRIBUTORS.md) / See [CONTRIBUTORS.md](./CONTRIBUTORS.md) for the full list.
+
 ## ⚖️ License / 开源协议
 
 This project is licensed under the **MIT License** — see [LICENSE](./LICENSE).
