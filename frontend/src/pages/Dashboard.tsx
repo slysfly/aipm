@@ -110,10 +110,18 @@ const Dashboard: React.FC = () => {
         const avgProgress = taskItems.length > 0
           ? Math.round((doneTasks / taskItems.length) * 100)
           : 0;
+        // #21 数据一致性：「进行中项目」不仅看 status=active，还要纳入「存在未完成任务」的项目，
+        // 避免出现「项目总数 10、进行中 0」却又「任务 55」的自相矛盾观感。
+        const openTaskProjectIds = new Set(
+          taskItems.filter((t: any) => t.status !== "done" && t.status !== "cancelled" && t.project_id).map((t: any) => t.project_id),
+        );
+        const activeProjects = projItems.filter(
+          (p: any) => p.status === "active" || openTaskProjectIds.has(p.id),
+        ).length;
         setProjects(projItems.slice(0, 6));
         setStats({
           totalProjects: projItems.length,
-          activeProjects: projItems.filter((p: any) => p.status === "active").length,
+          activeProjects,
           totalTasks: taskRes?.total ?? taskItems.length,
           doneTasks,
           overdue: taskItems.filter((t: any) => t.due_date && new Date(t.due_date) < new Date() && t.status !== "done").length,
@@ -163,7 +171,7 @@ const Dashboard: React.FC = () => {
           type="default"
           ghost
           icon={<PlusOutlined />}
-          onClick={() => navigate("/projects")}
+          onClick={() => navigate("/projects?new=1")}
           style={{ borderRadius: 10, borderColor: "rgba(255,255,255,0.3)", color: "#fff" }}
         >
           新建项目
@@ -378,7 +386,7 @@ const Dashboard: React.FC = () => {
                   <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
                   <h3>暂无项目</h3>
                   <p>创建一个项目，开始你的项目管理之旅</p>
-                  <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate("/projects")}>
+                  <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate("/projects?new=1")}>
                     创建项目
                   </Button>
                 </div>
@@ -507,7 +515,7 @@ const Dashboard: React.FC = () => {
         >
           <Row gutter={[12, 12]}>
             {[
-              { icon: <PlusOutlined />, label: "新建项目", color: "#4F46E5", onClick: () => navigate("/projects") },
+              { icon: <PlusOutlined />, label: "新建项目", color: "#4F46E5", onClick: () => navigate("/projects?new=1") },
               { icon: <ProfileOutlined />, label: "创建任务", color: "#3B82F6", onClick: () => navigate("/tasks") },
               { icon: <RobotOutlined />, label: "AI 智能体", color: "#8B5CF6", onClick: () => navigate("/ai/wbs") },
               { icon: <FundProjectionScreenOutlined />, label: "项目组合", color: "#7C3AED", onClick: () => navigate("/portfolio") },

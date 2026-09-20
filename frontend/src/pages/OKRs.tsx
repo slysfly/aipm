@@ -57,6 +57,7 @@ const KrRow: React.FC<KrRowProps> = ({ kr, index, onUpdate, onDelete }) => {
     return (
       <motion.div
         initial={{ opacity: 0.8 }}
+        onClick={(e) => e.stopPropagation()}
         style={{
           padding: "14px 18px", background: "#EEF2FF",
           borderRadius: 10, border: "2px solid #6366F1",

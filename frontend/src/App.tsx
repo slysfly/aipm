@@ -104,6 +104,7 @@ const App: React.FC = () => {
         ) : (
           <>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/tasks" element={<Tasks />} />

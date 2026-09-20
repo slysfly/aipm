@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Card, Typography, Tag, Button, Space, Modal, Form, Input, Select, DatePicker, App, Spin, Row, Col, Progress, InputNumber, Empty, Popconfirm } from "antd";
 import AIAssistButton from "../components/AIAssistButton";
 import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, FundProjectionScreenOutlined, FilterOutlined, ClearOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { projectApi, projectTypeApi } from "../api";
 import dayjs from "dayjs";
@@ -11,6 +11,7 @@ const { Title, Text } = Typography;
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { message } = App.useApp();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
@@ -30,6 +31,18 @@ const Projects: React.FC = () => {
   };
 
   useEffect(() => { loadTypes(); }, []);
+
+  // #25 从仪表板点「新建项目」跳过来带 ?new=1：自动打开新建弹窗，省去在列表里再点一次
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      handleCreate();
+      // 清掉 query，避免 F5 / 返回时反复弹窗
+      const next = new URLSearchParams(searchParams);
+      next.delete("new");
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const typeMap: Record<string, any> = {};
   types.forEach((t) => { typeMap[t.code] = t; });
@@ -73,6 +86,15 @@ const Projects: React.FC = () => {
 
   const handleSave = async (values: any) => {
     try {
+      // #24 校验：结束日期不能早于开始日期（两个都填时才校验）
+      if (values.start_date && values.end_date) {
+        const s = dayjs(values.start_date);
+        const e = dayjs(values.end_date);
+        if (s.isValid() && e.isValid() && e.isBefore(s, "day")) {
+          message.error("结束日期不能早于开始日期");
+          return;
+        }
+      }
       const payload = { ...values };
       if (values.start_date) payload.start_date = values.start_date.format("YYYY-MM-DD");
       if (values.end_date) payload.end_date = values.end_date.format("YYYY-MM-DD");
@@ -174,10 +196,10 @@ const Projects: React.FC = () => {
                 <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 12, height: 36, overflow: "hidden" }} ellipsis>
                   {p.description || "暂无描述"}
                 </Text>
-                <Progress percent={p.progress || 0} size="small" strokeColor={{ from: "#4F46E5", to: "#7C3AED" }} showInfo={false} />
+                <Progress percent={p.status === "done" ? 100 : (p.progress || 0)} size="small" strokeColor={{ from: "#4F46E5", to: "#7C3AED" }} showInfo={false} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
                   <Text type="secondary" style={{ fontSize: 11 }}>{p.start_date || "—"} ~ {p.end_date || "—"}</Text>
-                  <Text type="secondary" style={{ fontSize: 11 }}>{p.progress || 0}%</Text>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{p.status === "done" ? 100 : (p.progress || 0)}%</Text>
                 </div>
               </Card>
             </motion.div>
