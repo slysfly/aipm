@@ -1,20 +1,21 @@
 from fastapi import APIRouter, HTTPException, Depends
+from app.core.security import require_superuser, get_current_active_user
 from typing import List, Optional
 import json
 import os
-import sqlite3
 from datetime import datetime
+from app import paths
 
-router = APIRouter(tags=['Skills管理'])
+# [安全修复 Issue #11] 此前该文件仅对写操作加了 require_superuser，
+# 全部读操作（GET /、/stats、/groups、/detail/{id}、/{id}/agents 等）
+# 仍零鉴权暴露全量 Skills 目录。现路由级强制认证，
+# 写操作在此基础上仍保留 require_superuser（双保险）。
+router = APIRouter(
+    tags=['Skills管理'],
+    dependencies=[Depends(get_current_active_user)],
+)
 
-SKILLS_FILE = '/opt/aipm-install/backend/data/skills/pmbok_skills_v1.json'
-DB_FILE = '/opt/aipm-install/backend/test.db'
-
-def get_db():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    return conn
-
+SKILLS_FILE = str(paths.data_path('skills', 'pmbok_skills_v1.json'))
 @router.get('/')
 async def list_skills(
     domain: Optional[str] = None,
@@ -105,7 +106,7 @@ async def get_skill(skill_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post('/')
-async def create_skill(skill: dict):
+async def create_skill(skill: dict, user=Depends(require_superuser)):
     try:
         with open(SKILLS_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -127,7 +128,7 @@ async def create_skill(skill: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put('/{skill_id}')
-async def update_skill(skill_id: str, skill_update: dict):
+async def update_skill(skill_id: str, skill_update: dict, user=Depends(require_superuser)):
     try:
         with open(SKILLS_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -149,7 +150,7 @@ async def update_skill(skill_id: str, skill_update: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete('/{skill_id}')
-async def delete_skill(skill_id: str):
+async def delete_skill(skill_id: str, user=Depends(require_superuser)):
     try:
         with open(SKILLS_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -175,7 +176,7 @@ async def get_agents_by_skill(skill_id: str):
         skill = next((s for s in skills_data.get('skills', []) if s.get('id') == skill_id), None)
         if not skill:
             raise HTTPException(status_code=404, detail='Skill不存在')
-        agents_file = '/opt/aipm-install/backend/data/agent_library_v2/pmbok_agents_v2.json'
+        agents_file = str(paths.data_path('agent_library_v2', 'pmbok_agents_v2.json'))
         with open(agents_file, 'r', encoding='utf-8') as f:
             agents_data = json.load(f)
         agents = [

@@ -23,6 +23,8 @@ const Automations = lazy(() => import("./pages/Automations"));
 const Webhooks = lazy(() => import("./pages/Webhooks"));
 const Whiteboard = lazy(() => import("./pages/Whiteboard"));
 const Notifications = lazy(() => import("./pages/Notifications"));
+// FIX #9: 个人信息页（A 机已有，B 机缺失）
+const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Portfolio = lazy(() => import("./pages/Portfolio"));
 const RiskRegister = lazy(() => import("./pages/RiskRegister"));
@@ -39,8 +41,6 @@ const PmbokAgents = lazy(() => import("./pages/PmbokAgents"));
 const AIMonitor = lazy(() => import("./pages/AIMonitor"));
 const PmbokSkills = lazy(() => import("./pages/PmbokSkills"));
 const WorkflowAugmented = lazy(() => import("./pages/WorkflowAugmented/WorkflowAugmented"));
-const ProductRoadmap = lazy(() => import("./pages/ProductRoadmap"));
-const ApprovalFlow = lazy(() => import("./pages/ApprovalFlow"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // 用户管理子系统 (UCM) 页面
@@ -85,8 +85,6 @@ const App: React.FC = () => {
       <Suspense fallback={<LoadingSkeleton type="form" rows={1} columns={1} header={false} />}>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/roadmap" element={<ProductRoadmap />} />
-        <Route path="/approvals" element={<ApprovalFlow />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Suspense>
@@ -104,7 +102,6 @@ const App: React.FC = () => {
         ) : (
           <>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/tasks" element={<Tasks />} />
@@ -132,6 +129,8 @@ const App: React.FC = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/knowledge" element={<KnowledgeBase />} />
         <Route path="/settings" element={<Settings />} />
+        {/* FIX #9: 注册个人信息页路由 */}
+        <Route path="/profile" element={<Profile />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/organizations" element={<OrganizationManagement />} />
         <Route path="/admin/users" element={<UserManagement />} />
@@ -140,6 +139,8 @@ const App: React.FC = () => {
         <Route path="/admin/billing" element={<BillingManagement />} />
         <Route path="/admin/levels" element={<LevelManagement />} />
         <Route path="/ai-monitor" element={<AIMonitor />} />
+        {/* FIX #22: 已登录时访问 /login 不应落到 * (404)，应回首页 */}
+        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
           </>

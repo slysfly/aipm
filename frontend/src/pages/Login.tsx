@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Typography, message } from "antd";
 import { MailOutlined, LockOutlined, ArrowRightOutlined, RobotOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,9 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { logoUrl, hasLogo } = useBrandLogo();
-  const { login } = useAuth();
+  const { login, token } = useAuth();
+  // FIX #22: 已登录用户直达 /login 时直接回首页，避免异常态
+  useEffect(() => { if (token) navigate("/", { replace: true }); }, [token, navigate]);
 
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true);
@@ -112,7 +114,7 @@ const Login: React.FC = () => {
           style={styles.quote}
         >
           <Text style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, fontStyle: "italic" }}>
-            © 2026 北京通维管理咨询有限公司（PMI中国授权机构） 版权所有
+            © 2026 北京通维管理咨询有限公司 版权所有
           </Text>
         </motion.div>
       </motion.div>

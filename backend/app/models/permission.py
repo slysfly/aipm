@@ -44,8 +44,8 @@ class Role(Base):
     description = Column(String(500))
     permissions = Column(JSON, default=list)
     is_system = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     members = relationship("ProjectMember", back_populates="role")
 
@@ -65,7 +65,7 @@ class ProjectMember(Base):
     project_id = Column(String(36), ForeignKey("projects.id"), nullable=False, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
     role_id = Column(String(36), ForeignKey("roles.id"), nullable=False, index=True)
-    joined_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    joined_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     invited_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     is_active = Column(Boolean, default=True)
 

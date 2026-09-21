@@ -999,7 +999,7 @@ class AgentEngine:
         all_messages = system_msgs + messages
 
         try:
-            async for chunk in self.engine.stream_chat(
+            async for chunk in self.engine.chat_stream(
                 messages=all_messages,
                 provider=self.provider_name,
                 temperature=0.7,

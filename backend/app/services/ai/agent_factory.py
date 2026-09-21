@@ -1,5 +1,5 @@
 """
-通维AI项目管理系统 - Agent工厂系统
+PMI中国AI项目管理社区 - Agent工厂系统
 支持动态Agent注册、发现和实例化
 基于PMBOK 128个工具技术构建专业Agent
 """
@@ -11,6 +11,7 @@ from datetime import datetime
 from dataclasses import dataclass, field
 import json
 import os
+from app import paths
 
 logger = logging.getLogger(__name__)
 
@@ -54,10 +55,15 @@ class AgentFactory:
 
     def _load_pmbok_agents(self):
         """从JSON文件加载PMBOK专业Agent配置"""
-        agent_file = "/opt/AI-PM/backend/data/agent_library/pmbok_agents.json"
+        agent_file = str(paths.data_path('agent_library', 'pmbok_agents.json'))
         if not os.path.exists(agent_file):
-            logger.warning(f"PMBOK Agent库不存在: {agent_file}")
-            return
+            # v1 库已在两台服务器下线，回退到 v2 库（同样含 agents 数组，字段向后兼容）
+            v2_file = str(paths.data_path('agent_library_v2', 'pmbok_agents_v2.json'))
+            if os.path.exists(v2_file):
+                agent_file = v2_file
+            else:
+                logger.warning(f"PMBOK Agent库不存在: {agent_file}（v2 回退也缺失）")
+                return
         with open(agent_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
         for agent_cfg in data.get('agents', []):

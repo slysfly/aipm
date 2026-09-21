@@ -1,5 +1,5 @@
 """
-通维AI项目管理系统 - AI自然语言任务创建API
+PMI中国AI项目管理社区 - AI自然语言任务创建API
 提供自然语言解析、需求拆分和工时估算能力
 
 [PMBOK KA: 范围管理 | PG: 规划 (Scope/Planning) — AI需求解析、WBS分解、范围定义]

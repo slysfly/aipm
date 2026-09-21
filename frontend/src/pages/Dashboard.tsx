@@ -100,29 +100,44 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const [projRes, taskRes] = await Promise.all([
-          projectApi.list({ page_size: 100 }),
-          taskApi.list({ page_size: 100 }),
+        // FIX #21: 原来只取单页（page_size=100），项目/任务超过 100 条时
+        // 「项目总数」用的是截断后的 items.length，「平均进度」分母也是截断后的条数，
+        // 与「任务总数」卡片（用后端 total）口径不一致。改为按 total 翻页补全（上限 CAP 条）。
+        const PAGE_SIZE = 100;
+        const CAP = 2000;
+        const fetchAll = async (listFn: (p: any) => Promise<any>) => {
+          const acc: any[] = [];
+          let page = 1;
+          let total = 0;
+          for (;;) {
+            const res: any = await listFn({ page, page_size: PAGE_SIZE });
+            const items: any[] = res?.items || [];
+            acc.push(...items);
+            total = res?.total ?? acc.length;
+            if (items.length === 0 || acc.length >= total || acc.length >= CAP) break;
+            page += 1;
+          }
+          return { items: acc, total };
+        };
+        const [projAll, taskAll] = await Promise.all([
+          fetchAll((p: any) => projectApi.list(p)),
+          fetchAll((p: any) => taskApi.list(p)),
         ]);
-        const projItems = projRes?.items || [];
-        const taskItems = taskRes?.items || [];
+        const projItems = projAll.items;
+        const taskItems = taskAll.items;
+        const totalTasks = taskAll.total ?? taskItems.length;
         const doneTasks = taskItems.filter((t: any) => t.status === "done").length;
-        const avgProgress = taskItems.length > 0
-          ? Math.round((doneTasks / taskItems.length) * 100)
+        const avgProgress = totalTasks > 0
+          ? Math.round((doneTasks / totalTasks) * 100)
           : 0;
-        // #21 数据一致性：「进行中项目」不仅看 status=active，还要纳入「存在未完成任务」的项目，
-        // 避免出现「项目总数 10、进行中 0」却又「任务 55」的自相矛盾观感。
-        const openTaskProjectIds = new Set(
-          taskItems.filter((t: any) => t.status !== "done" && t.status !== "cancelled" && t.project_id).map((t: any) => t.project_id),
-        );
-        const activeProjects = projItems.filter(
-          (p: any) => p.status === "active" || openTaskProjectIds.has(p.id),
-        ).length;
         setProjects(projItems.slice(0, 6));
         setStats({
-          totalProjects: projItems.length,
-          activeProjects,
-          totalTasks: taskRes?.total ?? taskItems.length,
+          totalProjects: projAll.total ?? projItems.length,
+          activeProjects: projItems.filter((p: any) =>
+            p.status === "active" ||
+            taskItems.some((t: any) => t.project_id === p.id && t.status !== "done" && t.status !== "cancelled")
+          ).length,
+          totalTasks,
           doneTasks,
           overdue: taskItems.filter((t: any) => t.due_date && new Date(t.due_date) < new Date() && t.status !== "done").length,
           avgProgress,
@@ -445,7 +460,7 @@ const Dashboard: React.FC = () => {
             <Card
               title={<span style={{ fontWeight: 600 }}>最近项目</span>}
               extra={
-                <Button type="link" icon={<RightCircleOutlined />} onClick={() => navigate("/projects")}>
+                <Button type="link" icon={<RightCircleOutlined />} onClick={() => navigate("/projects?new=1")}>
                   查看全部
                 </Button>
               }

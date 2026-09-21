@@ -10,6 +10,7 @@ from app.api.v1 import events_ws, async_tasks
 from app.api import tool_routes
 from app.api import skill_routes
 from app.api.v1.ai_routes import chat_router, agent_router, nlp_router, assist_router, monitor_router, pmbok_v3_router
+from app.api.v1 import i18n_agent
 
 # 加载异步 LLM handler 注册中心（导入即注册 5 类大模型异步任务）
 import app.services.async_llm_handlers  # noqa: F401
@@ -73,8 +74,10 @@ api_router.include_router(monitor_router, prefix="", tags=["AI监控"])
 api_router.include_router(dashboard_advice.router, tags=["仪表盘"])
 api_router.include_router(workflow_orchestrator.router, tags=["工作流编排"])
 api_router.include_router(pmbok_v3_router, tags=["pmbok-v3"])
+api_router.include_router(i18n_agent.router, prefix="/i18n", tags=["多语言"])
 api_router.include_router(tool_routes.router, tags=["工具技术"])
 api_router.include_router(ucm.router, prefix="/ucm", tags=["用户管理"])
+api_router.include_router(profile.router, prefix="/profile", tags=["个人中心"])
 api_router.include_router(events_ws.router, prefix="", tags=["WebSocket-Events"])
 api_router.include_router(async_tasks.router, prefix="", tags=["异步任务"])
 # 顶层资源列表别名（GET /comments /budgets /stakeholders /deliverables）

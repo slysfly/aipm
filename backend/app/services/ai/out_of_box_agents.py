@@ -510,7 +510,7 @@ async def run_health_check(db: AsyncSession, user_id: str, project_id: Optional[
             func.sum(case((Task.status == TaskStatus.DONE.value, 1), else_=0)),
             func.sum(case((Task.status == TaskStatus.IN_PROGRESS.value, 1), else_=0)),
             func.sum(case((Task.status == TaskStatus.TODO.value, 1), else_=0)),
-            func.sum(case((Task.planned_end < text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), 1), else_=0)),
+            func.sum(case((Task.planned_end < datetime.now(), 1), else_=0)),
             func.avg(Task.progress),
         ).where(Task.project_id == project_id, Task.is_deleted.is_(False))
     )).one()
@@ -662,7 +662,7 @@ async def run_decision_advice(db: AsyncSession, user_id: str, project_id: Option
     overdue = (await db.execute(
         select(func.count(Task.id)).where(
             Task.project_id == project_id, Task.is_deleted.is_(False),
-            Task.planned_end < text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), Task.status != TaskStatus.DONE.value,
+            Task.planned_end < datetime.now(), Task.status != TaskStatus.DONE.value,
         )
     )).scalar() or 0
 

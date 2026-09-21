@@ -1,14 +1,25 @@
 """
 工具技术API路由
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import json
 from pathlib import Path
 import uuid
+from app import paths
 
-router = APIRouter(prefix='/tools', tags=['工具技术'])
+# [安全修复 Issue #11] 该路由此前零鉴权挂载在 /api/v1/tools 下，
+# 攻击者无需任何凭证即可读取全量工具/Agent 目录，并可调用
+# POST /tools/generate（写盘）与 POST /tools/agents/create（创建 Agent）。
+# 现统一在路由级强制认证，覆盖该文件中全部端点（含后续新增端点）。
+from app.core.security import get_current_active_user
+
+router = APIRouter(
+    prefix='/tools',
+    tags=['工具技术'],
+    dependencies=[Depends(get_current_active_user)],
+)
 
 class GenerateOutputRequest(BaseModel):
     tool_id: str
@@ -75,7 +86,7 @@ async def generate_tool_output(req: GenerateOutputRequest):
     output = generate_tool_output(req.tool_id, req.data)
     pid = req.project_id or '_global'
     ref = uuid.uuid4().hex[:12]
-    output_path = Path(f'/opt/aipm-install/backend/data/tool_outputs/{pid}/{ref}.md')
+    output_path = paths.data_path('tool_outputs', pid, f'{ref}.md')
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(output, encoding='utf-8')
     return {
@@ -89,7 +100,7 @@ async def generate_tool_output(req: GenerateOutputRequest):
 
 @router.get('/output/{ref}')
 async def get_tool_output(ref: str):
-    base_path = Path('/opt/aipm-install/backend/data/tool_outputs')
+    base_path = paths.data_path('tool_outputs')
     for pid_dir in base_path.iterdir() if base_path.exists() else []:
         if pid_dir.is_dir():
             for f in pid_dir.glob(f'{ref}.md'):

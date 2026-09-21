@@ -18,6 +18,7 @@ import signal
 import json
 import hmac
 import hashlib
+import base64
 import logging
 import asyncio
 import urllib.request
@@ -39,6 +40,11 @@ from app.models.im_gateway import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/im-gateway", tags=["IM网关"])
+
+# [安全修复 Issue #12] 内部错误消息脱敏开关：
+# 异常详情只写服务端日志，绝不回显到 IM 聊天窗口（原实现 reply_text=str(e)
+# 会把数据库结构/SQL 片段/绝对路径泄露给任意 IM 用户）。
+_IM_ERROR_REPLY = "抱歉，处理您的请求时出错了。请稍后重试或在系统中直接操作。"
 
 # ============================================================
 # 平台元数据
@@ -363,47 +369,179 @@ async def remove_binding(
 
 
 # ============================================================
-# 3. 消息入站处理（Webhook → AI → 响应）
+# 2.5 Webhook 签名验证（[安全修复 Issue #12]）
+#
+# 原实现此处只有一行 `# TODO: 签名验证（根据各平台规则）`，
+# 意味着任何知道回调 URL 的人都可以伪造任意 platform/im_user_id 发送消息，
+# 并被自动绑定到管理员身份后以管理员权限执行指令（见下方绑定逻辑修复）。
+#
+# 设计原则：**fail-closed**
+#   - 平台未配置对应密钥 → 拒绝（403），不静默放行
+#   - 缺少签名字段 / 时间戳 → 拒绝
+#   - 签名比对使用 hmac.compare_digest（时序安全）
+#   - 时间戳超出窗口 → 拒绝（防重放）
 # ============================================================
-@router.post("/inbound/message")
-async def inbound_message(
-    payload: IMMessageInbound,
+_IM_SIGNATURE_TOLERANCE_SEC = 3600
+
+
+def _im_timestamp_ok(ts: int) -> bool:
+    """时间戳新鲜度校验（防重放）。兼容秒级与毫秒级时间戳。"""
+    if ts is None:
+        return False
+    try:
+        ts_int = int(ts)
+    except (TypeError, ValueError):
+        return False
+    if ts_int > 10_000_000_000:  # 毫秒级
+        ts_int = ts_int // 1000
+    return abs(int(time.time()) - ts_int) <= _IM_SIGNATURE_TOLERANCE_SEC
+
+
+def _im_require_timestamp(raw_ts: Optional[str], provider: str) -> int:
+    if not raw_ts or not str(raw_ts).strip().isdigit():
+        logger.warning("IM 签名校验失败(%s)：timestamp 缺失或非法", provider)
+        raise HTTPException(status_code=403, detail="签名校验失败")
+    ts = int(str(raw_ts).strip())
+    if not _im_timestamp_ok(ts):
+        logger.warning("IM 签名校验失败(%s)：timestamp 超出允许窗口（疑似重放）", provider)
+        raise HTTPException(status_code=403, detail="签名校验失败")
+    return ts
+
+
+def _im_deny(provider: str, reason: str) -> None:
+    logger.warning("IM 签名校验失败(%s)：%s", provider, reason)
+    raise HTTPException(status_code=403, detail="签名校验失败")
+
+
+async def _verify_im_signature(
+    provider: str,
+    config: IMProviderConfig,
     request: Request,
-    x_signature: Optional[str] = Header(None),
-    db: AsyncSession = Depends(get_db),
-):
-    """
-    核心端点：接收来自各平台的IM消息，路由到AI处理后返回响应。
+    raw_body: bytes,
+) -> None:
+    """校验各平台 Webhook 签名。失败一律抛 403（fail-closed）。"""
+    if request is None:
+        _im_deny(provider, "缺少请求对象，无法校验签名")
 
-    流程：
-    1. 验证平台已启用 + 签名校验
-    2. 通过 im_user_id 查找用户绑定（用户隔离）
-    3. 创建/复用会话 session
-    4. 调用 AI 解析意图并执行操作
-    5. 冲突检测
-    6. 记录审计日志
-    7. 返回响应文本
-    """
-    start_time = time.time()
-    source_ip = None
-    if request and getattr(request, "client", None):
-        source_ip = request.client.host
+    headers = request.headers
+    qp = request.query_params
 
-    # Step 1: 验证平台
-    if payload.provider not in PLATFORM_META:
-        raise HTTPException(status_code=400, detail=f"不支持的平台: {payload.provider}")
+    def h(k: str) -> str:
+        return (headers.get(k) or "").strip()
 
-    config_result = await db.execute(
+    if provider == "dingtalk":
+        # 钉钉自定义机器人：sign = base64(HMAC_SHA256(secret, timestamp))
+        secret = config.app_secret or ""
+        if not secret:
+            _im_deny(provider, "未配置 app_secret")
+        ts = _im_require_timestamp(h("timestamp") or qp.get("timestamp"), provider)
+        sign = h("sign") or (qp.get("sign") or "").strip()
+        if not sign:
+            _im_deny(provider, "缺少 sign")
+        expected = base64.b64encode(
+            hmac.new(secret.encode("utf-8"), str(ts).encode("utf-8"), hashlib.sha256).digest()
+        ).decode("utf-8")
+        if not hmac.compare_digest(expected, sign):
+            _im_deny(provider, "sign 不匹配")
+        return
+
+    if provider in ("feishu", "lark"):
+        # 飞书：signature = sha256(timestamp + nonce + encrypt_key + raw_body) 的十六进制
+        key = config.encrypt_key or ""
+        if not key:
+            _im_deny(provider, "未配置 encrypt_key")
+        ts = _im_require_timestamp(h("x-lark-request-timestamp"), provider)
+        nonce = h("x-lark-nonce")
+        sign = h("x-lark-signature")
+        if not nonce or not sign:
+            _im_deny(provider, "缺少 x-lark-nonce / x-lark-signature")
+        digest = hashlib.sha256(
+            f"{ts}{nonce}{key}".encode("utf-8") + raw_body
+        ).hexdigest()
+        if not hmac.compare_digest(digest, sign):
+            _im_deny(provider, "x-lark-signature 不匹配")
+        return
+
+    if provider == "wecom":
+        # 企业微信：msg_signature = sha1(sort([token, timestamp, nonce, 密文/echostr]))
+        token = config.verification_token or ""
+        if not token:
+            _im_deny(provider, "未配置 verification_token")
+        ts = _im_require_timestamp(qp.get("timestamp") or h("timestamp"), provider)
+        nonce = (qp.get("nonce") or "").strip()
+        sign = (qp.get("msg_signature") or "").strip()
+        if not nonce or not sign:
+            _im_deny(provider, "缺少 nonce / msg_signature")
+        try:
+            body_text = raw_body.decode("utf-8")
+            parsed = json.loads(body_text)
+            echostr = str(parsed.get("Encrypt") or parsed.get("echostr") or "")
+        except Exception:
+            echostr = ""
+        payload_parts = sorted([token, str(ts), nonce, echostr])
+        digest = hashlib.sha1("".join(payload_parts).encode("utf-8")).hexdigest()
+        if not hmac.compare_digest(digest, sign):
+            _im_deny(provider, "msg_signature 不匹配")
+        return
+
+    if provider == "slack":
+        # Slack：X-Slack-Signature = 'v0=' + hmac_sha256(signing_secret, 'v0:{ts}:{body}')
+        secret = config.app_secret or ""
+        if not secret:
+            _im_deny(provider, "未配置 signing secret")
+        ts = _im_require_timestamp(h("x-slack-request-timestamp"), provider)
+        sign = h("x-slack-signature")
+        if not sign:
+            _im_deny(provider, "缺少 x-slack-signature")
+        basestring = f"v0:{ts}:".encode("utf-8") + raw_body
+        digest = "v0=" + hmac.new(
+            secret.encode("utf-8"), basestring, hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(digest, sign):
+            _im_deny(provider, "x-slack-signature 不匹配")
+        return
+
+    # 未知平台：一律拒绝，避免新增平台时默认放行
+    _im_deny(provider, "未知平台，无法校验签名")
+
+
+async def _load_provider_config(db: AsyncSession, provider: str) -> IMProviderConfig:
+    """加载并校验平台已启用，未启用直接 503。"""
+    if provider not in PLATFORM_META:
+        raise HTTPException(status_code=400, detail=f"不支持的平台: {provider}")
+    result = await db.execute(
         select(IMProviderConfig).where(
-            IMProviderConfig.provider == payload.provider,
+            IMProviderConfig.provider == provider,
             IMProviderConfig.enabled == True,
         )
     )
-    config = config_result.scalar_one_or_none()
+    config = result.scalar_one_or_none()
     if not config:
-        raise HTTPException(status_code=503, detail=f"平台 {payload.provider} 未启用或未配置")
+        raise HTTPException(status_code=503, detail=f"平台 {provider} 未启用或未配置")
+    return config
 
-    # TODO: 签名验证（根据各平台规则）
+
+# ============================================================
+# 3. 消息入站处理（Webhook → AI → 响应）
+# ============================================================
+async def _process_inbound_message(
+    payload: IMMessageInbound,
+    request: Request,
+    db: AsyncSession,
+    source_ip: Optional[str] = None,
+) -> Dict[str, Any]:
+    """入站消息核心处理（不含鉴权）。
+
+    鉴权责任在调用方：
+      - 各平台 Webhook：必须先通过 _verify_im_signature 签名校验
+      - /inbound/message 内部端点：必须通过登录态鉴权
+    """
+    start_time = time.time()
+    if source_ip is None and request is not None and getattr(request, "client", None):
+        source_ip = request.client.host
+
+    # Step 1: 平台校验
+    config = await _load_provider_config(db, payload.provider)
 
     # Step 2: 查找用户绑定（用户隔离核心）
     binding_result = await db.execute(
@@ -416,34 +554,21 @@ async def inbound_message(
     binding = binding_result.scalar_one_or_none()
 
     if not binding:
-        # 未绑定的用户：自动绑定到管理员账号（首次使用自动开通）
-        logger.info(f"IM 用户 {payload.im_user_id}@{payload.provider} 无绑定，尝试自动绑定")
-        # 查找系统中的管理员/活跃用户作为默认绑定目标
-        admin_result = await db.execute(
-            select(User).where(User.is_active == True).limit(1)
+        # [安全修复 Issue #12] 原实现会把未绑定的任意 IM 用户自动绑定到数据库中
+        # 第一个活跃用户（通常是管理员），从而让外部人员以管理员身份执行指令。
+        # 现改为拒绝并要求用户先在系统中完成绑定。
+        logger.info(
+            "IM 用户 %s@%s 未绑定 AIPM 账号，已拒绝执行（需先在系统中绑定）",
+            payload.im_user_id, payload.provider,
         )
-        default_user = admin_result.scalar_one_or_none()
-        if default_user:
-            binding = UserIMBinding(
-                user_id=default_user.id,
-                provider=payload.provider,
-                im_user_id=payload.im_user_id,
-                im_user_name=f"IM用户_{payload.im_user_id[:8]}",
-                status="active",
-            )
-            db.add(binding)
-            # 立即 flush 以分配 binding.id，供后续会话的 binding_id 外键使用
-            await db.flush()
-            logger.info(f"已自动绑定 {payload.im_user_id}@{payload.provider} → 用户 {default_user.username}")
-        else:
-            return IMCommandResult(
-                success=True,
-                reply_text=(
-                    f"您好！欢迎使用PMI中国 AI-PM 智能助手。\n\n"
-                    f"系统中暂无可用用户账号，请联系管理员。"
-                ),
-                reply_type="text",
-            ).model_dump()
+        return IMCommandResult(
+            success=False,
+            reply_text=(
+                "您好！该 IM 账号尚未绑定 AIPM 账号，无法执行任何操作。\n\n"
+                "请先在 AIPM 系统「IM 绑定」中完成账号绑定后重试。"
+            ),
+            reply_type="text",
+        ).model_dump()
 
     user_result = await db.execute(select(User).where(User.id == binding.user_id))
     aipm_user = user_result.scalar_one_or_none()
@@ -465,14 +590,15 @@ async def inbound_message(
         ai_result = await _process_message_with_ai(db, aipm_user, binding, payload.content, session.id)
         ai_ms = (time.time() - ai_start) * 1000
     except Exception as e:
+        # [安全修复 Issue #12] 异常详情只落日志，不回显给用户（避免泄露 SQL/路径/表结构）
         logger.exception("IM AI processing failed")
         ai_ms = (time.time() - ai_start) * 1000
         ai_result = {
-            "reply_text": f"抱歉，处理您的请求时出错了：{str(e)}。请稍后重试或在系统中直接操作。",
+            "reply_text": _IM_ERROR_REPLY,
             "actions_taken": [],
             "conflict_alerts": [],
             "result_status": "error",
-            "error_message": str(e),
+            "error_message": str(e),  # 仅写入审计日志，不下发给 IM 用户
         }
 
     total_ms = (time.time() - start_time) * 1000
@@ -521,13 +647,46 @@ async def inbound_message(
     ).model_dump()
 
 
+@router.post("/inbound/message")
+async def inbound_message(
+    payload: IMMessageInbound,
+    request: Request,
+    x_signature: Optional[str] = Header(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    核心端点：接收来自各平台的IM消息，路由到AI处理后返回响应。
+
+    流程：
+    1. 登录态鉴权（内部端点）
+    2. 验证平台已启用
+    3. 通过 im_user_id 查找用户绑定（用户隔离；未绑定一律拒绝，不再自动绑定管理员）
+    4. 创建/复用会话 session
+    5. 调用 AI 解析意图并执行操作
+    6. 冲突检测
+    7. 记录审计日志
+    8. 返回响应文本
+    """
+    # [安全修复 Issue #12] 该端点是内部接口（非平台回调），现强制要求登录态。
+    # 平台回调请走 /webhook/{dingtalk|feishu|wecom}，由 _verify_im_signature 做签名校验。
+    return await _process_inbound_message(payload, request, db)
+
+
 # ============================================================
 # 4. 各平台专用 Webhook 入口（透传到统一处理）
 # ============================================================
 @router.post("/webhook/dingtalk")
 async def dingtalk_webhook(request: Request, db: AsyncSession = Depends(get_db)):
-    """钉钉机器人消息回调"""
-    body = await request.json()
+    """钉钉机器人消息回调
+
+    [安全修复 Issue #12] 校验钉钉 sign（HMAC-SHA256 + timestamp 防重放），失败直接 403。
+    """
+    raw_body = await request.body()
+    config = await _load_provider_config(db, "dingtalk")
+    await _verify_im_signature("dingtalk", config, request, raw_body)
+
+    body = json.loads(raw_body.decode("utf-8") or "{}")
     msg = body.get("text", {}).get("content", "") if body.get("msgtype") == "text" else ""
     sender_id = body.get("senderId", "") or body.get("senderStaffId", "") or ""
 
@@ -542,7 +701,7 @@ async def dingtalk_webhook(request: Request, db: AsyncSession = Depends(get_db))
         message_id=body.get("msgid"),
         timestamp=int(time.time()),
     )
-    result = await inbound_message(inbound, request, db=db)
+    result = await _process_inbound_message(inbound, request, db)
     # 钉钉需要返回特定格式
     return {
         "msgtype": "text",
@@ -551,22 +710,28 @@ async def dingtalk_webhook(request: Request, db: AsyncSession = Depends(get_db))
 
 
 @router.post("/webhook/feishu")
-async def feishu_webhook(request: Request):
+async def feishu_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     """飞书事件回调 — 秒级 ACK + 异步处理（避免飞书重试/超时）
 
     流程：
     1. 飞书 URL 验证（订阅时回显 challenge）
-    2. 解析消息，立即返回 200（飞书要求秒级响应，否则会重试）
-    3. 后台任务：自动绑定 → 调 OpenClaw 生成回复 → 发回飞书
+    2. [安全修复 Issue #12] 校验 X-Lark-Signature，失败直接 403
+    3. 解析消息，立即返回 200（飞书要求秒级响应，否则会重试）
+    4. 后台任务：已绑定用户 → 调 OpenClaw 生成回复 → 发回飞书
     """
     try:
-        body = await request.json()
+        raw_body = await request.body()
+        body = json.loads(raw_body.decode("utf-8") or "{}")
     except Exception:
         return {"code": 0}
 
-    # 飞书事件订阅 URL 验证
+    # 飞书事件订阅 URL 验证（订阅握手阶段平台尚未下发签名，仅回显 challenge，不触发任何业务）
     if body.get("type") == "url_verification":
         return {"challenge": body.get("challenge", "")}
+
+    # [安全修复 Issue #12] 飞书消息必须校验 X-Lark-Signature，失败直接 403
+    feishu_config = await _load_provider_config(db, "feishu")
+    await _verify_im_signature("feishu", feishu_config, request, raw_body)
 
     event = body.get("event", {})
     sender = event.get("sender", {})
@@ -641,12 +806,14 @@ async def _handle_feishu_message(content: str, sender_id: str, msg_id: str, chat
                 content=content,
                 message_id=msg_id,
             )
-            # request=None：后台任务中无活动请求对象，inbound_message 已做 source_ip 保护
-            result = await inbound_message(inbound, None, db=db_sess)
+            # request=None：后台任务中无活动请求对象，_process_inbound_message 已做保护。
+            # 签名已在 feishu_webhook 中校验通过后才创建此后台任务。
+            result = await _process_inbound_message(inbound, None, db=db_sess)
             reply_text = result.get("reply_text", "")
     except Exception as e:
+        # [安全修复 Issue #12] 异常详情只落日志，不回显到 IM（避免泄露内部信息）
         logger.exception("Feishu 消息处理失败")
-        reply_text = f"抱歉，处理您的消息时出错了：{str(e)}"
+        reply_text = _IM_ERROR_REPLY
 
     if reply_text:
         try:
@@ -657,8 +824,15 @@ async def _handle_feishu_message(content: str, sender_id: str, msg_id: str, chat
 
 @router.post("/webhook/wecom")
 async def wecom_webhook(request: Request, db: AsyncSession = Depends(get_db)):
-    """企业微信回调"""
-    body = await request.json()
+    """企业微信回调
+
+    [安全修复 Issue #12] 校验 msg_signature（token+timestamp+nonce+密文 SHA1），失败直接 403。
+    """
+    raw_body = await request.body()
+    config = await _load_provider_config(db, "wecom")
+    await _verify_im_signature("wecom", config, request, raw_body)
+
+    body = json.loads(raw_body.decode("utf-8") or "{}")
     # 企业微信 XML/JSON 格式
     from_user = body.get("FromUserName", "")
     content = body.get("Content", "")
@@ -673,7 +847,7 @@ async def wecom_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         content=content.strip(),
         message_id=body.get("MsgId"),
     )
-    result = await inbound_message(inbound, request, db=db)
+    result = await _process_inbound_message(inbound, request, db)
     # 企业微信 passive reply
     return {
         "ToUserName": body.get("ToUserName", ""),
@@ -885,8 +1059,10 @@ async def _process_message_with_ai(
             "result_status": "success",
         }
     except Exception as e:
+        # [安全修复 Issue #12] 异常详情仅写审计日志，不回显到 IM 聊天窗口
+        logger.exception("IM AI 处理异常")
         return {
-            "reply_text": f"处理出错: {str(e)}",
+            "reply_text": _IM_ERROR_REPLY,
             "actions_taken": [],
             "result_status": "error",
             "error_message": str(e),

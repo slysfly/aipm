@@ -33,7 +33,8 @@ const KrRow: React.FC<KrRowProps> = ({ kr, index, onUpdate, onDelete }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<KrItem>(kr);
 
-  useEffect(() => { setDraft(kr); }, [kr]);
+  // FIX #23: 编辑中不要用父级传入的 kr 覆盖草稿，否则输入内容会被清空
+  useEffect(() => { if (!editing) setDraft(kr); }, [kr, editing]);
 
   const startEdit = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -43,7 +44,7 @@ const KrRow: React.FC<KrRowProps> = ({ kr, index, onUpdate, onDelete }) => {
 
   const save = () => {
     // Validate
-    if (!draft.title.trim()) return;
+    if (!draft.title.trim()) { message.error("KR 标题不能为空"); return; }
     onUpdate(kr.id, "_replace", draft);
     setEditing(false);
   };
@@ -56,8 +57,9 @@ const KrRow: React.FC<KrRowProps> = ({ kr, index, onUpdate, onDelete }) => {
   if (editing) {
     return (
       <motion.div
-        initial={{ opacity: 0.8 }}
+        /* FIX #23: 阻止冒泡到外层 Card 的折叠 onClick，否则编辑态点击输入框会导致面板收起、编辑框消失 */
         onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0.8 }}
         style={{
           padding: "14px 18px", background: "#EEF2FF",
           borderRadius: 10, border: "2px solid #6366F1",

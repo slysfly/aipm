@@ -1,6 +1,13 @@
 import { get, post, put, del, downloadBlob, uploadForm } from "./http";
 
 /* ---------------- 认证 ---------------- */
+/* ---------------- 项目成员 ---------------- */
+export const membersApi = {
+  list: (project_id: string, params?: any) => get<any>(`/projects/${encodeURIComponent(project_id)}/members`, params),
+  add: (project_id: string, payload: any) => post<any>(`/projects/${encodeURIComponent(project_id)}/members`, payload),
+  remove: (project_id: string, user_id: string) => del<any>(`/projects/${encodeURIComponent(project_id)}/members/${encodeURIComponent(user_id)}`),
+};
+
 export const authApi = {
   login: (username: string, password: string) =>
     post<any>("/auth/login", { username, password }),
@@ -28,7 +35,7 @@ export const taskApi = {
   list: (params?: any) => get<any>("/tasks", params),
   get: (id: string) => get<any>(`/tasks/${id}`),
   create: (payload: any) => post<any>("/tasks", payload),
-  update: (id: string, payload: any) => put<any>(`/tasks/${id}`, payload),
+  update: (id: string, payload: any, headers?: Record<string, string>) => put<any>(`/tasks/${id}`, payload, false, undefined, headers),
   remove: (id: string) => del<any>(`/tasks/${id}`),
   subtasks: (id: string) => get<any>(`/tasks/${id}/subtasks`),
   addDependency: (taskId: string, payload: { predecessor_id: string; successor_id: string; dependency_type?: string; lag_time?: number }) =>
@@ -305,8 +312,8 @@ export const agentApi = {
   }) => post<any>(`/agents/${encodeURIComponent(id)}/run-material`, payload, false, 180000),
   listMaterials: (projectId?: string) =>
     get<any>(`/agents/materials${projectId ? `?project_id=${encodeURIComponent(projectId)}` : ""}`),
-  downloadMaterial: (ref: string, projectId?: string) =>
-    downloadBlob(`/agents/materials/${encodeURIComponent(ref)}/download`, projectId ? { project_id: projectId } : undefined),
+  downloadMaterial: (ref: string, projectId?: string, format: string = "md") =>
+    downloadBlob(`/agents/materials/${encodeURIComponent(ref)}/download?format=${format}`, projectId ? { project_id: projectId } : undefined),
 };
 
 /* ---------------- 工作流可视编排（多租户） ---------------- */
@@ -359,34 +366,3 @@ export const dashboardApi = {
     post<any>("/dashboard/next-steps", payload || {}, false, 180000),
 };
 
-export const approvalApi = {
-  listFlows: (params?: any) => get<any>("/approvals/flows", params),
-  createFlow: (payload: any) => post<any>("/approvals/flows", payload),
-  updateFlow: (id: string, payload: any) => put<any>(`/approvals/flows/${id}`, payload),
-  removeFlow: (id: string) => del<any>(`/approvals/flows/${id}`),
-  activateFlow: (id: string) => post<any>(`/approvals/flows/${id}/activate`),
-  deactivateFlow: (id: string) => post<any>(`/approvals/flows/${id}/deactivate`),
-  listRequests: (params?: any) => get<any>("/approvals/requests", params),
-  createRequest: (payload: any) => post<any>("/approvals/requests", payload),
-  listPending: () => get<any>("/approvals/pending"),
-  listProcessed: () => get<any>("/approvals/processed"),
-  dashboard: () => get<any>("/approvals/dashboard"),
-  approveStep: (stepId: string, payload: any) => post<any>(`/approvals/steps/${stepId}/approve`, payload),
-  rejectStep: (stepId: string, payload: any) => post<any>(`/approvals/steps/${stepId}/reject`, payload),
-};
-
-/* ---------------- 报表 / 分析 ---------------- */
-
-export const roadmapApi = {
-  list: (params?: Record<string, string>) => get<any>("/roadmap", params),
-  create: (payload: any) => post<any>("/roadmap", payload),
-  update: (id: string, payload: any) => put<any>(`/roadmap/${id}`, payload),
-  remove: (id: string) => del<any>(`/roadmap/${id}`),
-  // 三视图专用
-  dashboardSummary: (params?: Record<string, string>) => get<any>("/roadmap/dashboard/summary", params),
-  valueStreamMap: (params?: Record<string, string>) => get<any>("/roadmap/value-stream/map", params),
-  techRoadmapTimeline: (params?: Record<string, string>) => get<any>("/roadmap/tech-roadmap/timeline", params),
-  releaseBoard: (params?: Record<string, string>) => get<any>("/roadmap/release/board", params),
-};
-
-/* ---------------- AI Agent 能力目录 + 开箱 Agent ---------------- */

@@ -4,7 +4,7 @@ PMI中国AI项目管理社区 - 配置文件
 """
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, model_validator
 from typing import List, Optional
 from functools import lru_cache
 import os
@@ -112,17 +112,12 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     APP_NAME: str = "PMI中国AI项目管理社区"
     ENVIRONMENT: str = Field(default="development", env="ENVIRONMENT")
-    # 认证 Cookie 是否强制 Secure（仅经 HTTPS 传输）。
-    # 不设置该变量时自动跟随 ENVIRONMENT：production 开启、其余关闭；也可显式设 true/false 覆盖。
-    COOKIE_SECURE: Optional[bool] = Field(default=None, env="COOKIE_SECURE")
 
-    @field_validator("COOKIE_SECURE", mode="before")
-    @classmethod
-    def _cookie_secure_blank_to_none(cls, v):
-        """.env 中显式留空（如 COOKIE_SECURE=）视为未设置，避免 Optional[bool] 校验失败"""
-        if isinstance(v, str) and not v.strip():
-            return None
-        return v
+    # API 文档开关（/docs /redoc /openapi.json）
+    # 生产环境默认关闭，避免内部接口结构暴露到公网；
+    # 与 ENVIRONMENT 解耦：临时调试只需设 API_DOCS_ENABLED=1 后重启，无需降级整个环境。
+    # 另有 nginx 侧限制：这三个路径仅放行本机与内网网段。
+    API_DOCS_ENABLED: bool = Field(default=False, env="API_DOCS_ENABLED")
 
     # API配置
     API_V1_PREFIX: str = "/api/v1"
@@ -153,6 +148,14 @@ class Settings(BaseSettings):
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
 
+
+    # 运行时数据路径（Issue #4：收口原先散落在业务代码各处的硬编码安装路径）
+    # 留空 = 使用 app.paths 推导的默认值（<backend>/data、<backend>/production.db），
+    # 与改动前的字面量完全一致；只有把系统自部署到其它目录时才需要显式配置。
+    # 解析优先级见 app/paths.py：环境变量 > 此处配置（支持 .env）> 推导默认值。
+    DATA_DIR: str = Field(default="", env="AIPM_DATA_DIR")
+    DB_FILE: str = Field(default="", env="AIPM_DB_FILE")
+
     # Redis配置
     REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
     REDIS_MAX_CONNECTIONS: int = 50
@@ -167,13 +170,6 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         """将CORS_ORIGINS字符串转换为列表"""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
-
-    @property
-    def cookie_secure(self) -> bool:
-        """认证 Cookie 的 Secure 标志：显式配置 COOKIE_SECURE 优先，否则生产环境自动开启"""
-        if self.COOKIE_SECURE is not None:
-            return self.COOKIE_SECURE
-        return self.ENVIRONMENT == "production"
 
     # AI配置
     OPENAI_API_KEY: str = Field(default="", env="OPENAI_API_KEY")

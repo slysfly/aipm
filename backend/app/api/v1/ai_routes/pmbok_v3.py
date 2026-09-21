@@ -4,7 +4,7 @@ PMBOK / CPMAI / TAI 三层映射 V3 数据服务路由
 ================================================
 
 ## 数据来源
-本路由数据来源于通维 AIPM 项目的「PMBOK/CPMAI 三层映射」成果，原始 JSON 位于：
+本路由数据来源于PMI AIPM 项目的「PMBOK/CPMAI 三层映射」成果，原始 JSON 位于：
     projects/pmi-mapping/data/
 已复制至本地后端数据目录（启动时直接读文件，无需数据库）：
     backend/data/pmbok_v3/

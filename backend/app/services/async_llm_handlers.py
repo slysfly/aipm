@@ -264,14 +264,40 @@ async def _run_predict_risk(db: AsyncSession, task: AsyncTask, params: Dict[str,
 # ---------------------------------------------------------------------------
 # 4. assist_fill —— 智能表单填充
 # ---------------------------------------------------------------------------
+# 硬失败：这些 error 表示「根本没拿到可用结果」，必须让任务失败并把原因透出到前端，
+# 而不是静默返回空 suggestions（前端会误显示成「暂无可补全项」）。
+_ASSIST_HARD_ERRORS = {"no_llm", "no_fillable_fields", "llm_call_failed", "bad_llm_output"}
+
+
 async def _run_assist_fill(db: AsyncSession, task: AsyncTask, params: Dict[str, Any]):
+    import time as _time
+
     form_type = params.get("form_type") or "task"
     fields = params.get("fields") or {}
     context = params.get("context") or {}
-    await publish_progress(task, 30, "正在分析已填字段", db)
-    await publish_progress(task, 70, "正在调用大模型补全", db)
-    result = await ai_service.assist_fill(form_type=form_type, fields=fields, context=context)
-    await publish_progress(task, 100, "补全完成", db)
+    options = params.get("options") or {}
+
+    # 进度只推两次：publish_progress 每次都会 commit，减少无谓的数据库往返
+    await publish_progress(task, 20, "正在分析已填字段", db)
+
+    started = _time.time()
+    result = await ai_service.assist_fill(
+        form_type=form_type,
+        fields=fields,
+        context=context,
+        options=options,
+    )
+    elapsed_ms = int((_time.time() - started) * 1000)
+
+    if isinstance(result, dict) and result.get("error") in _ASSIST_HARD_ERRORS:
+        raise RuntimeError(result.get("message") or "AI 辅助填写失败")
+
+    n = len((result or {}).get("suggestions") or {})
+    logger.info(
+        "assist_fill 完成 form_type=%s 字段数=%d 耗时=%dms 缓存=%s",
+        form_type, n, elapsed_ms, bool((result or {}).get("cached")),
+    )
+    await publish_progress(task, 100, f"已生成 {n} 项建议" if n else "补全完成", db)
     return result
 
 

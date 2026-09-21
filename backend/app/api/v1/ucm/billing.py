@@ -8,7 +8,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.core.security import get_current_user
 from app.models import User
-from app.models.ucm import Organization, Plan, Order, OrderItem, Refund, Transaction, UserOrganization
+# [安全/缺陷修复 Issue #13] 原导入缺少 UserOrganization，
+# 导致非超级用户调用 list_orders 时在 line 37 触发 NameError → 500。
+from app.models.ucm import (
+    Organization,
+    Plan,
+    Order,
+    OrderItem,
+    Refund,
+    Transaction,
+    UserOrganization,
+)
 from app.api.v1.ucm.deps import require_ucm_admin, require_org_access
 
 router = APIRouter()

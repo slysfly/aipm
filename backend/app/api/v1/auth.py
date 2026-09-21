@@ -25,6 +25,11 @@ from app.config import settings
 
 router = APIRouter()
 
+# [安全修复 Issue #3] Cookie Secure 标志：生产环境（HTTPS）强制开启，开发环境关闭。
+# 原实现把 secure=True 写成注释，导致 HTTPS 生产站点的会话 Cookie 无 Secure 标志，
+# 可被中间人或诱导的明文 http:// 请求带出。
+_COOKIE_SECURE = getattr(settings, "ENVIRONMENT", "development") == "production"
+
 # 登录速率限制（内存，每IP）
 _login_attempts: dict = defaultdict(lambda: {"count": 0, "first_attempt": 0.0})
 _LOGIN_RATE_LIMIT = 5        # 最多失败次数
@@ -154,7 +159,9 @@ async def login(
     )
     refresh_token = create_refresh_token(data={"sub": user.id})
     
-    # 设置 httpOnly Cookie（防 XSS 窃取；Secure 跟随环境自动启用，可用 COOKIE_SECURE 显式覆盖）
+    # 设置 httpOnly Cookie（防 XSS 窃取）
+    # [安全修复 Issue #3] 生产环境（HTTPS）强制加 Secure 标志，
+    # 防止会话 Cookie 经明文 HTTP 被中间人截获。开发环境保持 False 以免本地调试失效。
     cookie_max_age = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     response.set_cookie(
         key="access_token",
@@ -162,7 +169,7 @@ async def login(
         max_age=cookie_max_age,
         httponly=True,
         samesite="lax",
-        secure=settings.cookie_secure,
+        secure=_COOKIE_SECURE,
     )
     response.set_cookie(
         key="refresh_token",
@@ -170,7 +177,7 @@ async def login(
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
         httponly=True,
         samesite="lax",
-        secure=settings.cookie_secure,
+        secure=_COOKIE_SECURE,
     )
     
     return {
@@ -242,13 +249,13 @@ async def refresh_token(
         response.set_cookie(
             key="access_token", value=new_access_token,
             max_age=cookie_max_age, httponly=True, samesite="lax",
-            secure=settings.cookie_secure,
+            secure=_COOKIE_SECURE,
         )
         response.set_cookie(
             key="refresh_token", value=new_refresh_token,
             max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
             httponly=True, samesite="lax",
-            secure=settings.cookie_secure,
+            secure=_COOKIE_SECURE,
         )
         
         return {
@@ -272,6 +279,6 @@ async def logout(response: Response):
     只能由本次请求经后端删除，从根本上杜绝 XSS 窃取持久令牌。
     该端点不强制鉴权，确保任何状态下都能安全清 Cookie。
     """
-    response.delete_cookie("access_token", samesite="lax", secure=settings.cookie_secure)
-    response.delete_cookie("refresh_token", samesite="lax", secure=settings.cookie_secure)
+    response.delete_cookie("access_token", samesite="lax")
+    response.delete_cookie("refresh_token", samesite="lax")
     return {"code": 200, "message": "已退出登录", "data": None}

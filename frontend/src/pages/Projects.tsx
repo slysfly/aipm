@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Typography, Tag, Button, Space, Modal, Form, Input, Select, DatePicker, App, Spin, Row, Col, Progress, InputNumber, Empty, Popconfirm } from "antd";
 import AIAssistButton from "../components/AIAssistButton";
 import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, FundProjectionScreenOutlined, FilterOutlined, ClearOutlined } from "@ant-design/icons";
@@ -32,18 +32,6 @@ const Projects: React.FC = () => {
 
   useEffect(() => { loadTypes(); }, []);
 
-  // #25 从仪表板点「新建项目」跳过来带 ?new=1：自动打开新建弹窗，省去在列表里再点一次
-  useEffect(() => {
-    if (searchParams.get("new") === "1") {
-      handleCreate();
-      // 清掉 query，避免 F5 / 返回时反复弹窗
-      const next = new URLSearchParams(searchParams);
-      next.delete("new");
-      setSearchParams(next, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
   const typeMap: Record<string, any> = {};
   types.forEach((t) => { typeMap[t.code] = t; });
   const renderTypeTag = (code?: string) => {
@@ -68,6 +56,16 @@ const Projects: React.FC = () => {
 
   useEffect(() => { load(); }, [statusFilter]);
 
+  // 由 /projects?new=1 直达：自动打开新建弹窗并清掉 query，避免刷新/后退重复弹出
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      handleCreate();
+      const next = new URLSearchParams(searchParams);
+      next.delete("new");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams]);
+
   const handleCreate = () => {
     setEditingProject(null);
     form.resetFields();
@@ -86,15 +84,6 @@ const Projects: React.FC = () => {
 
   const handleSave = async (values: any) => {
     try {
-      // #24 校验：结束日期不能早于开始日期（两个都填时才校验）
-      if (values.start_date && values.end_date) {
-        const s = dayjs(values.start_date);
-        const e = dayjs(values.end_date);
-        if (s.isValid() && e.isValid() && e.isBefore(s, "day")) {
-          message.error("结束日期不能早于开始日期");
-          return;
-        }
-      }
       const payload = { ...values };
       if (values.start_date) payload.start_date = values.start_date.format("YYYY-MM-DD");
       if (values.end_date) payload.end_date = values.end_date.format("YYYY-MM-DD");
@@ -196,10 +185,10 @@ const Projects: React.FC = () => {
                 <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 12, height: 36, overflow: "hidden" }} ellipsis>
                   {p.description || "暂无描述"}
                 </Text>
-                <Progress percent={p.status === "done" ? 100 : (p.progress || 0)} size="small" strokeColor={{ from: "#4F46E5", to: "#7C3AED" }} showInfo={false} />
+                <Progress percent={p.progress || 0} size="small" strokeColor={{ from: "#4F46E5", to: "#7C3AED" }} showInfo={false} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
                   <Text type="secondary" style={{ fontSize: 11 }}>{p.start_date || "—"} ~ {p.end_date || "—"}</Text>
-                  <Text type="secondary" style={{ fontSize: 11 }}>{p.status === "done" ? 100 : (p.progress || 0)}%</Text>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{p.progress || 0}%</Text>
                 </div>
               </Card>
             </motion.div>
@@ -219,6 +208,10 @@ const Projects: React.FC = () => {
                 return v;
               }}
               onApply={(s) => form.setFieldsValue(s)}
+              // 把项目类型的合法 code 下发给后端，AI 只会在这些取值里选，
+              // 避免回填一个 Select 里不存在的值导致下拉框空白
+              options={{ project_type: types.map((t) => ({ value: t.code, label: t.name })) }}
+              dateFields={["start_date", "end_date"]}
             />
           </div>
           <Form.Item label="项目名称" name="name" rules={[{ required: true, message: "请输入项目名称" }]}><Input placeholder="例如：智慧城市管理系统 / 官网改版项目" /></Form.Item>
@@ -250,7 +243,29 @@ const Projects: React.FC = () => {
           </Space>
           <Space style={{ width: "100%" }}>
             <Form.Item label="开始日期" name="start_date"><DatePicker style={{ width: 150 }} /></Form.Item>
-            <Form.Item label="结束日期" name="end_date"><DatePicker style={{ width: 150 }} /></Form.Item>
+            <Form.Item
+              label="结束日期"
+              name="end_date"
+              dependencies={["start_date"]}
+              rules={[
+                {
+                  validator: async (_rule, value) => {
+                    const s = form.getFieldValue("start_date");
+                    if (value && s && value.isBefore(s, "day")) {
+                      throw new Error("结束日期不能早于开始日期");
+                    }
+                  },
+                },
+              ]}
+            >
+              <DatePicker
+                style={{ width: 150 }}
+                disabledDate={(cur) => {
+                  const s = form.getFieldValue("start_date");
+                  return !!s && !!cur && cur.isBefore(s, "day");
+                }}
+              />
+            </Form.Item>
           </Space>
           <Form.Item><Button type="primary" htmlType="submit" block>{editingProject ? "保存变更" : "创建项目"}</Button></Form.Item>
         </Form>

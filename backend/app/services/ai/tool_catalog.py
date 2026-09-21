@@ -4,6 +4,7 @@ PMBOK工具技术目录 - 定义所有PMBOK过程中使用的工具技术及其�
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Any
 from enum import Enum
+from app import paths
 
 class ToolCategory(str, Enum):
     GATHERING = "收集数据"
@@ -887,7 +888,7 @@ import os
 
 def load_pmbok_tools_from_json():
     """从JSON文件加载PMBOK工具"""
-    json_path = "/opt/AI-PM/backend/data/tool_library/pmbok_tools_full.json"
+    json_path = str(paths.data_path('tool_library', 'pmbok_tools_full.json'))
     if os.path.exists(json_path):
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)

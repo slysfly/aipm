@@ -51,8 +51,8 @@ class ProjectBudget(Base):
     end_date = Column(Date)
     status = Column(String(20), default=BudgetStatus.DRAFT.value, nullable=False)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     # 关系
     project = relationship("Project", foreign_keys=[project_id])
@@ -79,8 +79,8 @@ class BudgetCategory(Base):
     allocated_amount = Column(Numeric(15, 2), default=0, nullable=False)
     spent_amount = Column(Numeric(15, 2), default=0, nullable=False)
     description = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     # 关系
     budget = relationship("ProjectBudget", back_populates="categories")
@@ -107,9 +107,9 @@ class CostRecord(Base):
     amount = Column(Numeric(15, 2), default=0, nullable=False)
     description = Column(Text)
     recorded_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    recorded_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    recorded_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     receipt_url = Column(String(500))
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
 
     # 人工成本专用字段
     work_hours = Column(Numeric(10, 2), default=0)

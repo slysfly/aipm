@@ -9,6 +9,7 @@ from datetime import datetime, date, timedelta
 from sqlalchemy import select
 from app.db.session import async_session_maker
 from app.core.ai_engine import ai_engine
+from app.core.json_util import extract_json_blocks, strip_json_blocks
 
 logger = logging.getLogger(__name__)
 
@@ -183,20 +184,44 @@ CHAT_SYSTEM_PROMPT = """你是PMI中国AI项目管理社区的智能助手，专
 1. 优先用项目的真实数据（任务进度、风险、里程碑、预算、EVM 等指标）来支撑你的结论，必要时用结构化分点/表格呈现；
 2. 凡是涉及"任务、风险、进度、工时、预算、负责人"等判断，必须以 [项目全量数据] 中的内容为准；
 3. 不得编造项目中不存在的任务、风险、里程碑或指标；若现有数据不足以回答，先说明"基于当前项目数据……"，再结合项目管理最佳实践给出建议；
-4. 你被授权调用并解读该项目的全部数据，可主动指出数据中的异常（如进度滞后、风险评分偏高、关键路径任务延期等）。"""
+4. 你被授权调用并解读该项目的全部数据，可主动指出数据中的异常（如进度滞后、风险评分偏高、关键路径任务延期等）。
+
+【可直接操作系统（可选）】
+当用户明确要求"建任务 / 改任务状态 / 填字段"等可直接执行的动作时，在正文建议之后，另起一个 ```json 代码块输出操作列表，结构：
+{"actions":[{"action":"create_task","name":"任务标题","description":"说明","priority":3,"planned_start":"YYYY-MM-DD","planned_end":"YYYY-MM-DD"},{"action":"update_task_status","task_ref":"<8位短ID>","status":"done"}]}
+规则：
+- create_task 的 name 必填（截断到 255 字）；priority 取 1-5（1=最高），缺省 3；status 可取 backlog/todo/in_progress/in_review/testing/done/cancelled，缺省 todo。
+- update_task_status 的 task_ref 必须是【项目全量数据】任务明细行里给出的 8 位短 ID（形如 #a1b2c3d4），不要编造 ID。
+- 一次不超过 30 条；不确定的事不要擅自生成 action，宁可只在正文给建议。
+- 若用户只是询问建议而非要求执行，不要输出 action 块。"""
 
 
 class AIService:
+    # ---- 「AI 帮我填」调优参数 ----
+    # 单次调用总预算：模型开始输出后的等待上限（超时直接报错，不再干等 120s）
+    ASSIST_BUDGET_SECONDS: float = 30.0
+    # 输出非法 JSON 时的重试预算（只在「输出坏了」时重试；超时不重试）
+    ASSIST_RETRY_BUDGET_SECONDS: float = 20.0
+    # 限流/5xx 重试：只对「秒回」的失败重试（超时是慢失败，重试会把等待翻倍，不重试）
+    ASSIST_RATELIMIT_MAX_ATTEMPTS: int = 3
+    ASSIST_RATELIMIT_FAST_FAIL_SECONDS: float = 3.0
+    # 结果缓存：同样的表单内容重复点击直接命中，省掉一整轮推理
+    ASSIST_CACHE_TTL: float = 300.0
+    ASSIST_CACHE_MAX: int = 512
+
     def __init__(self):
         self.engine = ai_engine
         self._provider_cache: Any = None
         self._provider_cache_ts: float = 0.0
         self._cache_ttl: float = 60.0
+        # key -> (expire_ts, result)
+        self._assist_cache: Dict[str, tuple] = {}
 
     def invalidate_cache(self) -> None:
         """系统大模型配置变更时调用，使缓存失效。"""
         self._provider_cache = None
         self._provider_cache_ts = 0.0
+        self._assist_cache.clear()
 
     async def _get_provider(self):
         """返回当前生效的 LLM Provider：优先系统默认配置，否则回退内置默认。"""
@@ -554,7 +579,7 @@ class AIService:
                     assignee = t.assignee.username if t.assignee else "未分配"
                     wbs = t.wbs_code or "-"
                     task_lines.append(
-                        f"  · [{wbs}] {t.name} | 状态:{t.status} | 进度:{float(t.progress or 0):.0f}% "
+                        f"  · #{t.id[:8]} [{wbs}] {t.name} | 状态:{t.status} | 进度:{float(t.progress or 0):.0f}% "
                         f"| 优先级:{t.priority} | 负责人:{assignee} | 计划:{ps}~{pe}"
                     )
                 # 任务过多时仅展示未完成任务明细 + 已完成数量，控制 token
@@ -614,7 +639,7 @@ class AIService:
                     "【项目全量数据（AI 已获权调用并分析，请先分析再作答）】\n"
                     f"项目概览：\n" + "\n".join(proj_lines) + "\n"
                     f"任务统计：共 {total} 个，已完成 {done}，进行中 {in_prog}，平均进度 {avg_progress}%\n"
-                    f"任务明细：\n{task_block}\n"
+                    f"任务明细：（行内 #xxxx 为该任务 8 位短 ID，引用改状态时用 task_ref 填它）\n{task_block}\n"
                     f"风险登记：\n{risk_block}\n"
                     f"里程碑：\n{mile_block}\n"
                     f"最新 EVM：\n{evm_block}"
@@ -653,6 +678,7 @@ class AIService:
                     "message": "AI 大模型未配置：请在系统设置 > 大模型设置 中配置系统默认大模型（默认已内置 MiniMax M2.7）。",
                     "suggested_actions": [],
                     "related_tasks": [],
+                    "actions": [],
                     "confidence": 0.0,
                 }
             response = await provider.chat(messages, temperature=0.7, max_tokens=2000)
@@ -668,13 +694,22 @@ class AIService:
                 "message": f"AI服务暂时不可用：{detail}。请稍后重试或联系管理员。",
                 "suggested_actions": [],
                 "related_tasks": [],
+                "actions": [],
                 "confidence": 0.0,
                 "retryable": retryable,
                 "error_type": error_type,
             }
 
+        # 解析 LLM 可能附带的 ```json 操作块，导出结构化 actions（供前端渲染操作卡片）
+        _action_lists = [
+            b.get("actions")
+            for b in extract_json_blocks(response)
+            if isinstance(b, dict) and "actions" in b
+        ]
+        _actions = _action_lists[0] if _action_lists else []
         return {
-            "message": response,
+            "message": strip_json_blocks(response),
+            "actions": _actions,
             "suggested_actions": [],
             "related_tasks": [],
             "confidence": 0.9,
@@ -717,6 +752,36 @@ class AIService:
             )
             detail = self._extract_error_detail(e)
             yield f"AI服务暂时不可用：{detail}。请稍后重试或联系管理员。"
+
+    async def chat_stream(
+        self,
+        messages: List[Dict[str, str]],
+        provider: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> AsyncIterator[str]:
+        """Agent Chat 流式接口 - 直接调用 Provider.stream_chat
+
+        注意：本方法在 2026-09-10 由运维直接改在服务器上，本地工作区当时未回流。
+        2026-09-18 补回本地，避免下次部署覆盖线上造成功能回退。
+
+        `provider` 参数为保持与调用方（agent_engine.executor）签名一致而保留，
+        当前实现与线上一致：忽略该参数，统一走 `_get_provider()` 的系统默认 Provider。
+        """
+        try:
+            p = await self._get_provider()
+            if p is None:
+                yield "AI 大模型未配置，请在系统设置中配置"
+                return
+            async for chunk in p.stream_chat(
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            ):
+                yield chunk
+        except Exception as e:
+            logger.warning("chat_stream 调用失败: %s", e, exc_info=True)
+            yield f"AI服务暂时不可用：{e}。请稍后重试。"
 
     async def analyze_project(self, project_data: Dict[str, Any], kb_id: Optional[str] = None) -> Dict[str, Any]:
         prompt = PROJECT_ANALYSIS_PROMPT.format(
@@ -834,51 +899,323 @@ class AIService:
             "early_warnings": data.get("early_warnings", []),
         }
 
-    ASSIST_FILL_PROMPT = """你是项目管理系统的"表单智能填写助手"。请根据表单类型与用户已填字段，自动补全缺失字段并对已有字段做专业优化。
-表单类型：{form_type}
-已填字段（JSON）：{fields}
+    # ------------------------------------------------------------------
+    # 「AI 帮我填」：速度 + 准确性优化
+    # ------------------------------------------------------------------
+    # 原先的实现有三个问题，逐条对应到下面的改动：
+    #  【慢①】prompt 不限定字段与长度 → 模型长篇输出，2000 max_tokens 常被顶满；
+    #         改为「字段白名单 + 长度上限 + 枚举取值」的紧凑 prompt，输出量降一个量级。
+    #  【慢②】没有调用预算，provider 侧 120s 超时意味着用户可能干等两分钟；
+    #         现设 30s 预算，超时立刻返回可读错误。
+    #  【慢③】重复点击重复推理；现按「表单内容指纹」缓存 5 分钟，二次点击秒回。
+    #  【准①】输出不经校验就回填 → 未知 key 被 antd 静默忽略、枚举中文标签导致下拉框空白、
+    #         编造负责人 ID；现一律经 form_specs 校验与强制类型转换后才回填。
+    #  【准②】解析失败静默退化成「暂无可补全项」；现做截断修复 + 一次定向重试 + 明确报错。
+
+    ASSIST_GENERIC_PROMPT = """你是项目管理系统的表单填写助手。
+已填字段：{fields}
 补充上下文：{context}
-请只输出如下 JSON，不要任何解释：
-{{
-  "suggestions": {{ "字段名": "建议值或优化后的值" }},
-  "improve_tips": ["优化建议1", "优化建议2"]
-}}
-要求：
-1. 补全所有缺失且有业务意义的字段（如名称、描述、负责人角色、优先级建议等）；
-2. 对已有字段在保持原意基础上进行专业润色，不要歪曲原意；
-3. 字段名使用与输入一致的英文/中文名；
-4. 若无可补全项，suggestions 返回空对象。"""
+只允许输出「已填字段」中出现过的 key，禁止新增 key。输出格式：
+{{"suggestions": {{"字段key": "建议值"}}, "improve_tips": ["建议1"]}}
+规则：只填为空的字段；值尽量简短；不确定就省略该字段；只输出 JSON，不要解释。"""
+
+    # -- 结果缓存 ------------------------------------------------------
+    def _assist_cache_get(self, key: str) -> Optional[Dict[str, Any]]:
+        item = self._assist_cache.get(key)
+        if not item:
+            return None
+        expire, value = item
+        if time.time() > expire:
+            self._assist_cache.pop(key, None)
+            return None
+        return value
+
+    def _assist_cache_put(self, key: str, value: Dict[str, Any]) -> None:
+        if len(self._assist_cache) >= self.ASSIST_CACHE_MAX:
+            now = time.time()
+            for k in [k for k, (exp, _) in self._assist_cache.items() if exp <= now]:
+                self._assist_cache.pop(k, None)
+            while len(self._assist_cache) >= self.ASSIST_CACHE_MAX:
+                self._assist_cache.pop(next(iter(self._assist_cache)))
+        self._assist_cache[key] = (time.time() + self.ASSIST_CACHE_TTL, value)
+
+    # -- 单次调用（带预算） --------------------------------------------
+    async def _assist_generate(self, provider, prompt: str, max_tokens: int, budget: float) -> tuple:
+        """调用大模型，返回 (text, error)。超时/异常都不抛，交由调用方决策。
+
+        重试只针对「快速失败」：限流 429 / 服务端 5xx 是网关秒回的，重试代价低，值得重试；
+        而超时是慢失败，重试会把用户等待翻倍，所以不重试。
+        """
+        extra = {}
+        if getattr(provider, "supports_json_mode", False):
+            extra["json_mode"] = True
+
+        attempt = 0
+        while True:
+            attempt += 1
+            started = time.time()
+            try:
+                text = await asyncio.wait_for(
+                    provider.generate(prompt, temperature=0.2, max_tokens=max_tokens, **extra),
+                    timeout=budget,
+                )
+                return text, None
+            except asyncio.TimeoutError:
+                return None, f"大模型响应超过 {int(budget)} 秒，请稍后重试或改用响应更快的模型"
+            except Exception as e:
+                try:
+                    detail = self._extract_error_detail(e)
+                except Exception:
+                    detail = str(e)
+                elapsed = time.time() - started
+                retryable, error_type = False, ""
+                try:
+                    retryable, error_type = self._classify_error(e)
+                except Exception:
+                    pass
+                if (
+                    retryable
+                    and error_type == "server_or_rate_limit"
+                    and elapsed <= self.ASSIST_RATELIMIT_FAST_FAIL_SECONDS
+                    and attempt < self.ASSIST_RATELIMIT_MAX_ATTEMPTS
+                ):
+                    wait = 0.8 * attempt
+                    logger.warning(
+                        "assist 调用被限流/服务端异常（第 %d 次尝试，耗时 %.2fs），%.1fs 后重试：%s",
+                        attempt, elapsed, wait, detail,
+                    )
+                    await asyncio.sleep(wait)
+                    continue
+                return None, f"调用大模型失败：{detail}"
+
+    @staticmethod
+    def _assist_extract_payload(parsed: Any) -> tuple:
+        """从模型输出中取出 (suggestions, improve_tips)。
+
+        模型有时把字段平铺在顶层（{"name": "...", "status": "..."}），
+        有时把 suggestions 写成 fields，这里统一兼容。
+        """
+        if not isinstance(parsed, dict):
+            return {}, []
+        tips_raw = parsed.get("improve_tips") or parsed.get("tips") or parsed.get("建议") or []
+        suggestions = parsed.get("suggestions")
+        if not isinstance(suggestions, dict):
+            suggestions = parsed.get("fields")
+        if not isinstance(suggestions, dict):
+            meta = {"improve_tips", "tips", "建议", "suggestions", "fields", "form_type", "error", "message"}
+            suggestions = {k: v for k, v in parsed.items() if k not in meta}
+        return suggestions, (tips_raw if isinstance(tips_raw, list) else [])
+
+    @staticmethod
+    def _validate_generic(raw: Dict[str, Any], fields: Dict[str, Any]) -> tuple:
+        """未知表单类型：只允许回填用户已提供过的 key，避免写入脏字段。"""
+        clean: Dict[str, Any] = {}
+        notes: List[str] = []
+        allowed = set(fields.keys())
+        for k, v in (raw or {}).items():
+            if k not in allowed:
+                notes.append(f"丢弃字段 {k!r}（不在表单字段内）")
+                continue
+            if isinstance(v, (dict, list)):
+                notes.append(f"丢弃 {k}（值不是标量）")
+                continue
+            if v is None or (isinstance(v, str) and not v.strip()):
+                continue
+            clean[k] = v.strip() if isinstance(v, str) else v
+        return clean, notes
 
     async def assist_fill(
         self,
         form_type: str,
         fields: Dict[str, Any],
         context: Optional[Dict[str, Any]] = None,
+        options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """AI 辅助填写：根据已有字段补全缺失项并优化。"""
-        prompt = self.ASSIST_FILL_PROMPT.format(
-            form_type=form_type,
-            fields=json.dumps(fields, ensure_ascii=False),
-            context=json.dumps(context or {}, ensure_ascii=False),
-        )
-        try:
-            provider = await self._get_provider()
-            if provider is None:
-                return {
-                    "suggestions": {},
-                    "improve_tips": ["AI 大模型未配置：请在系统设置 > 大模型设置 中配置系统默认大模型"],
-                    "form_type": form_type,
-                    "error": "no_llm",
-                }
-            text = await provider.generate(prompt, temperature=0.4, max_tokens=2000)
-            data = self._safe_json_loads(text)
-        except Exception:
-            data = {}
-        return {
-            "suggestions": data.get("suggestions", {}),
-            "improve_tips": data.get("improve_tips", []),
-            "form_type": form_type,
-        }
+        """AI 辅助填写（对外入口）。
+
+        除「调模型补字段」外，本方法还负责两件事（2026-09-19 线上实测后补上）：
+
+        1. **补上下文**。前端过去只传一个 project_id（UUID，实测多数还是空串），
+           模型看不懂那串字符，手里没有任何可依据的信息，于是按「不许编造」的规则
+           正确地拒绝了 —— 线上 4 次调用里 3 次返回 0 个字段，用户看到的是"点了没反应"。
+           这里用 context_builder 把 UUID 换成项目名 / 项目描述 / 同项目已有任务名。
+
+        2. **分层返回**。`instant` 是规则层结果（日期跨度、预估工时、状态/优先级默认值），
+           0ms 可得。前端可立刻回填，不必盯着空表单等 2~9 秒的模型响应。
+
+        另外：**没有依据就不调模型**。本项目网关一次调用要等 2~9 秒，
+        花 9 秒换一句"我编不出来"是最差的体验，不如 0ms 直接告诉用户缺什么。
+        """
+        from app.services.ai import context_builder as cb
+        from app.services.ai import form_specs as fs
+
+        form_type = (form_type or "task").strip().lower()
+        fields = fields or {}
+        options = options or {}
+
+        spec = fs.get_form_spec(form_type)
+        allowed = fs.resolve_fields(spec, options) if spec else []
+        instant = fs.deterministic_suggestions(form_type, fields, spec)
+
+        context = await cb.enrich_context(form_type, fields, context or {})
+
+        if spec and allowed and not cb.has_usable_signal(form_type, fields, context):
+            logger.info(
+                "assist_fill 依据不足，跳过模型调用 form_type=%s 已有字段=%s 上下文键=%s",
+                form_type, sorted(fields.keys()), sorted(context.keys()),
+            )
+            return cb.no_signal_result(form_type, instant)
+
+        result = await self._assist_fill_generate(form_type, fields, context, options)
+        if instant and isinstance(result, dict) and "instant" not in result:
+            result["instant"] = instant
+        return result
+
+    async def _assist_fill_generate(
+        self,
+        form_type: str,
+        fields: Dict[str, Any],
+        context: Dict[str, Any],
+        options: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """真正的模型调用部分（上下文已补全、已确认有依据）。"""
+        from app.services.ai import form_specs as fs
+        from app.services.ai.llm_json import parse_llm_json
+
+        form_type = (form_type or "task").strip().lower()
+        fields = fields or {}
+        context = context or {}
+        options = options or {}
+
+        cache_key = fs.cache_key(form_type, fields, context, options)
+        cached = self._assist_cache_get(cache_key)
+        if cached is not None:
+            return {**cached, "cached": True}
+
+        provider = await self._get_provider()
+        if provider is None:
+            msg = "AI 大模型未配置：请在系统设置 > 大模型设置 中配置系统默认大模型"
+            return {"suggestions": {}, "improve_tips": [msg], "form_type": form_type, "error": "no_llm", "message": msg}
+
+        spec = fs.get_form_spec(form_type)
+        allowed = fs.resolve_fields(spec, options) if spec else []
+        if spec and not allowed:
+            msg = "该表单暂无可自动填写的字段"
+            return {"suggestions": {}, "improve_tips": [msg], "form_type": form_type, "error": "no_fillable_fields", "message": msg}
+
+        if spec:
+            prompt = fs.build_assist_prompt(
+                spec.label,
+                allowed,
+                fs.prompt_visible_fields(allowed, fields),
+                context,
+                spec.required,
+                fs.blocked_keys(spec),
+            )
+            max_tokens = fs.estimate_max_tokens(allowed)
+        else:
+            # 未登记的表单类型：退化为「只允许已填字段的 key」的宽松模式
+            prompt = self.ASSIST_GENERIC_PROMPT.format(
+                fields=json.dumps(fields, ensure_ascii=False, default=str),
+                context=json.dumps(context, ensure_ascii=False, default=str),
+            )
+            max_tokens = 700
+
+        started = time.time()
+        text, err = await self._assist_generate(provider, prompt, max_tokens, self.ASSIST_BUDGET_SECONDS)
+        if text is None:
+            # 超时/网络错误不重试：重试只会把等待时间翻倍
+            return {"suggestions": {}, "improve_tips": [], "form_type": form_type, "error": "llm_call_failed", "message": err}
+
+        parsed, note = parse_llm_json(text)
+        if parsed is None:
+            # 输出坏了（常见于被 max_tokens 截断）→ 收紧要求定向重试一次
+            retry_prompt = (
+                prompt
+                + "\n\n【重要】上一次输出不是合法 JSON。这次只输出最关键的 4 个字段，"
+                  "每个值不超过 20 字，务必输出完整且闭合的 JSON。"
+            )
+            text2, _err2 = await self._assist_generate(
+                provider, retry_prompt, min(1200, max_tokens + 300), self.ASSIST_RETRY_BUDGET_SECONDS
+            )
+            if text2 is not None:
+                parsed2, note2 = parse_llm_json(text2)
+                if parsed2 is not None:
+                    parsed, note = parsed2, note2
+
+        if parsed is None:
+            logger.warning("assist_fill 解析失败 form_type=%s note=%s raw=%s", form_type, note, (text or "")[:200])
+            return {
+                "suggestions": {},
+                "improve_tips": [],
+                "form_type": form_type,
+                "error": "bad_llm_output",
+                "message": f"AI 返回内容无法解析（{note}），请重试",
+            }
+
+        raw_suggestions, raw_tips = self._assist_extract_payload(parsed)
+        if spec:
+            clean, notes = fs.validate_suggestions(allowed, raw_suggestions, fields, fs.blocked_keys(spec))
+        else:
+            clean, notes = self._validate_generic(raw_suggestions, fields)
+        # 兜底：模型可能把上下文里「已存在的同类条目」原样当建议返回，去掉它
+        deduped = fs.drop_existing_suggestions(clean, context)
+        if deduped != clean:
+            notes = list(notes) + ["已剔除与系统已有条目重名的建议"]
+            clean = deduped
+        tips = fs.sanitize_tips(raw_tips)
+
+        # 空结果 → 定向再试一次。
+        # 实测同一输入会出现「这次给空、下次给内容」的抖动（模型非确定性），
+        # 而空结果本来就是要返回「没建议」，多花一次调用远比让用户点了没反应好。
+        # 且成功后会写入缓存，之后重复点击直接 0ms 命中。
+        #
+        # 但要加时间闸门：首调本身就已经很慢时（网关排队可达 30s），
+        # 再叠一次重试会变成「等 50 秒」，那比返回空结果更糟。
+        # 实测出现过单次 31s 的调用，所以这里只在首调够快时才补这一刀。
+        _NUDGE_ELAPSED_LIMIT = 15.0
+        if not clean and (time.time() - started) < _NUDGE_ELAPSED_LIMIT:
+            nudge_prompt = (
+                prompt
+                + "\n\n【重要】上一次你没有给出任何字段。请务必给出 1~2 个你最有把握的字段；"
+                  "宁可保守也要给出内容（例如 description 写清验收标准与关键步骤）。"
+            )
+            text3, _err3 = await self._assist_generate(
+                provider,
+                nudge_prompt,
+                min(600, max(400, max_tokens)),
+                min(self.ASSIST_RETRY_BUDGET_SECONDS, 15.0),
+            )
+            if text3 is not None:
+                parsed3, note3 = parse_llm_json(text3)
+                if parsed3 is not None:
+                    rs3, rt3 = self._assist_extract_payload(parsed3)
+                    if spec:
+                        clean3, _n3 = fs.validate_suggestions(allowed, rs3, fields, fs.blocked_keys(spec))
+                    else:
+                        clean3, _n3 = self._validate_generic(rs3, fields)
+                    clean3 = fs.drop_existing_suggestions(clean3, context)
+                    if clean3:
+                        clean, tips, note = clean3, fs.sanitize_tips(rt3), note3
+                        logger.info(
+                            "assist_fill 首次空结果，重试后补回 %d 个字段 form_type=%s",
+                            len(clean), form_type,
+                        )
+
+        if notes:
+            logger.info("assist_fill 校验 form_type=%s: %s", form_type, "；".join(notes))
+
+        result: Dict[str, Any] = {"suggestions": clean, "improve_tips": tips, "form_type": form_type}
+        if not clean:
+            result["error"] = "no_suggestion"
+            result["message"] = "AI 未给出可回填的字段（现有内容可能已足够完整）"
+            return result
+
+        result["elapsed_ms"] = int((time.time() - started) * 1000)
+        if note == "json_truncated_repaired":
+            result["repaired"] = True
+        self._assist_cache_put(cache_key, result)
+        return result
 
 
 ai_service = AIService()

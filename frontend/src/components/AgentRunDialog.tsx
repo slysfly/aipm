@@ -185,13 +185,14 @@ const AgentRunDialog: React.FC<AgentRunDialogProps> = ({ open, onClose, agent, p
     }
   };
 
-  const download = async (out: any) => {
+  const download = async (out: any, format: "md" | "docx" | "pdf" = downloadFormat) => {
     try {
-      const blob = await agentApi.downloadMaterial(out.ref, localProjectId);
+      const blob = await agentApi.downloadMaterial(out.ref, localProjectId, format);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${out.title || out.ref}.md`;
+      const ext = format === "md" ? "md" : format === "docx" ? "docx" : "pdf";
+      a.download = `${out.title || out.ref}.${ext}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -304,7 +305,13 @@ const AgentRunDialog: React.FC<AgentRunDialogProps> = ({ open, onClose, agent, p
                             {st === "missing" && <Tag color="red" icon={<ExclamationCircleOutlined />}>缺失</Tag>}
                           </Space>
                           {st === "found" && it.ref && (
-                            <Button size="small" type="link" icon={<CloudDownloadOutlined />} onClick={() => download({ ref: it.ref, title: it.title })}>下载</Button>
+                            <Dropdown menu={{ items: [
+                              { key: "md", label: "Markdown" },
+                              { key: "docx", label: "Word" },
+                              { key: "pdf", label: "PDF" },
+                            ], onClick: ({ key }) => download({ ref: it.ref, title: it.title }, key as any) }} trigger={["click"]}>
+                              <Button size="small" type="link" icon={<CloudDownloadOutlined />}>下载</Button>
+                            </Dropdown>
                           )}
                           {st === "found" && !it.ref && it.source === "project_kb" && <Tag color="blue">来自项目知识库</Tag>}
                         </Space>

@@ -48,7 +48,7 @@ class RiskAlert(Base):
     details = Column(Text)
 
     status = Column(String(20), default=RiskAlertStatus.ACTIVE.value)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     resolved_at = Column(DateTime(timezone=True))
 
     project = relationship("Project")
