@@ -53,6 +53,8 @@ from fastapi import Request
 from starlette.responses import JSONResponse, PlainTextResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
+from app.config import settings
+
 LOG = logging.getLogger("app.core.observability")
 
 
@@ -418,12 +420,22 @@ def _env_flag(name: str, default: bool = False) -> bool:
 
 
 def metrics_enabled() -> bool:
-    """端点总开关。默认关闭 —— 未显式开启即不可访问。"""
-    return _env_flag("METRICS_ENABLED", False)
+    """端点总开关。默认关闭 —— 未显式开启即不可访问。
+
+    优先读 Settings（.env 与进程环境变量均由 pydantic-settings 统一装载，
+    与项目其余配置一致）；字段缺失时回退直读环境变量。
+    """
+    v = getattr(settings, "METRICS_ENABLED", None)
+    if v is None:
+        return _env_flag("METRICS_ENABLED", False)
+    return bool(v)
 
 
 def configured_token() -> str:
-    return (os.environ.get("METRICS_TOKEN") or "").strip()
+    raw = getattr(settings, "METRICS_TOKEN", None)
+    if raw is None:
+        raw = os.environ.get("METRICS_TOKEN") or ""
+    return str(raw).strip()
 
 
 def _supplied_token(scope: Scope) -> Optional[str]:
@@ -498,8 +510,14 @@ def install_metrics_route(app) -> None:
                 return _denied("invalid or missing metrics token")
             return PlainTextResponse(
                 METRICS.render(),
-                media_type="text/plain; version=0.0.4; charset=utf-8",
-                headers={"Cache-Control": "no-store"},
+                headers={
+                    # Content-Type 必须用显式 headers 给出：media_type= 会让 starlette
+                    # 0.33-0.35（FastAPI 0.109 锁定区间）对 text/* 无条件再追加 charset，
+                    # 与规范值中的 charset 重复后，真实 Prometheus（Go mime.ParseMediaType
+                    # 对重复参数报错）会拒收抓取
+                    "Content-Type": "text/plain; version=0.0.4; charset=utf-8",
+                    "Cache-Control": "no-store",
+                },
             )
         except Exception:
             # 渲染失败也不暴露任何内部信息

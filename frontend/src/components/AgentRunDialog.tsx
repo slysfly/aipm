@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Modal, Steps, Switch, Button, Space, List, Tag, Spin, Alert, Typography,
-  Input, Upload, Tooltip, Select, Card, App,
+  Input, Upload, Tooltip, Select, Card, App, Dropdown,
 } from "antd";
 import {
   CloudDownloadOutlined, CheckCircleOutlined, ExclamationCircleOutlined,
@@ -185,7 +185,8 @@ const AgentRunDialog: React.FC<AgentRunDialogProps> = ({ open, onClose, agent, p
     }
   };
 
-  const download = async (out: any, format: "md" | "docx" | "pdf" = downloadFormat) => {
+  // 默认参数不可引用未定义的 downloadFormat（原代码运行时 ReferenceError，点击静默失败）
+  const download = async (out: any, format: "md" | "docx" | "pdf" = "md") => {
     try {
       const blob = await agentApi.downloadMaterial(out.ref, localProjectId, format);
       const url = URL.createObjectURL(blob);

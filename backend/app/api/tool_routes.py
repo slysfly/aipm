@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import json
+import re
 from pathlib import Path
 import uuid
 from app import paths
@@ -85,6 +86,10 @@ async def generate_tool_output(req: GenerateOutputRequest):
         raise HTTPException(status_code=404, detail='工具不存在')
     output = generate_tool_output(req.tool_id, req.data)
     pid = req.project_id or '_global'
+    # [评审修复] project_id 为客户端可控分段，直接拼入 data_path 并 mkdir/write，
+    # 白名单校验防止 '../..' 等穿越写盘（paths.data_path 另有兜底拦截，双保险）
+    if not re.fullmatch(r'[A-Za-z0-9_\-]+', pid):
+        raise HTTPException(status_code=400, detail='project_id 含非法字符')
     ref = uuid.uuid4().hex[:12]
     output_path = paths.data_path('tool_outputs', pid, f'{ref}.md')
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -100,6 +105,9 @@ async def generate_tool_output(req: GenerateOutputRequest):
 
 @router.get('/output/{ref}')
 async def get_tool_output(ref: str):
+    # [评审修复] ref 直接进入 glob 模式，'*' 等通配符可命中任意 .md——先做格式白名单
+    if not re.fullmatch(r'[0-9a-f]{12}', ref):
+        raise HTTPException(status_code=404, detail='输出不存在')
     base_path = paths.data_path('tool_outputs')
     for pid_dir in base_path.iterdir() if base_path.exists() else []:
         if pid_dir.is_dir():

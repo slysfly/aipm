@@ -257,6 +257,10 @@ class Settings(BaseSettings):
     # 日志配置
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # 可观测性（app/core/observability.py）：/metrics 端点默认关闭，
+    # 开启后必须配置 METRICS_TOKEN（未配置令牌时端点一律 403）
+    METRICS_ENABLED: bool = Field(default=False, env="METRICS_ENABLED")
+    METRICS_TOKEN: str = Field(default="", env="METRICS_TOKEN")
 
     # 分页配置
     DEFAULT_PAGE_SIZE: int = 20

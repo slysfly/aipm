@@ -185,10 +185,11 @@ const Projects: React.FC = () => {
                 <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 12, height: 36, overflow: "hidden" }} ellipsis>
                   {p.description || "暂无描述"}
                 </Text>
-                <Progress percent={p.progress || 0} size="small" strokeColor={{ from: "#4F46E5", to: "#7C3AED" }} showInfo={false} />
+                {/* [评审修复·Issue #26 回归] 状态为已完成时进度按 100 显示（v0.1.0 同步时被回退） */}
+                <Progress percent={p.status === "done" ? 100 : (p.progress || 0)} size="small" strokeColor={{ from: "#4F46E5", to: "#7C3AED" }} showInfo={false} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
                   <Text type="secondary" style={{ fontSize: 11 }}>{p.start_date || "—"} ~ {p.end_date || "—"}</Text>
-                  <Text type="secondary" style={{ fontSize: 11 }}>{p.progress || 0}%</Text>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{p.status === "done" ? 100 : (p.progress || 0)}%</Text>
                 </div>
               </Card>
             </motion.div>

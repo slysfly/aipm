@@ -90,11 +90,20 @@ DB_FILE: Path = _resolve("AIPM_DB_FILE", "DB_FILE", _DEFAULT_DB_FILE)
 
 
 def data_path(*parts: Union[str, os.PathLike]) -> Path:
-    """返回 DATA_DIR 下的路径。
+    """返回 DATA_DIR 下的路径（含防穿越校验）。
 
     例：data_path('pmbok_v3', 'agents.json') -> <DATA_DIR>/pmbok_v3/agents.json
+
+    任何分段为绝对路径、或经 ../ 使结果逃出 DATA_DIR 时抛 ValueError——
+    调用方（如 tool_routes 的 project_id 拼接）可能引入客户端可控分段，
+    收口在此统一拦截。
     """
-    return DATA_DIR.joinpath(*parts)
+    result = DATA_DIR.joinpath(*parts)
+    resolved = result.resolve()
+    base = DATA_DIR.resolve()
+    if not (resolved == base or resolved.is_relative_to(base)):
+        raise ValueError(f"路径越界：{result} 不在数据目录 {DATA_DIR} 内")
+    return result
 
 
 def backend_path(*parts: Union[str, os.PathLike]) -> Path:
