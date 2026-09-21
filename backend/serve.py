@@ -249,6 +249,16 @@ if FRONTEND_DIST.exists():
         return response
 
 
+# 可观测性：与开发入口 main.py 保持一致的双入口接线。
+# [评审修复] 此前只在 main.py 接线，生产入口（自文档"生产部署请使用 serve.py"）
+# 既无请求 ID 中间件也无 /metrics（且 SPA fallback 会把 404 重写成 200）。
+# 置于全部中间件注册之后，确保可观测性中间件位于最外层。
+from app.core.observability import ObservabilityMiddleware, install_metrics_route
+
+app.add_middleware(ObservabilityMiddleware)
+install_metrics_route(app)
+
+
 if __name__ == "__main__":
     import uvicorn
 

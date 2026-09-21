@@ -56,7 +56,8 @@ class IMProviderConfig(Base):
             "category": self.category,
             "appId": (self.app_id or "")[:8] + "****" if self.app_id else "",  # 脱敏
             "appSecret": "****" if self.app_secret else "",
-            "verificationToken": self.verification_token,
+            # verification_token 是企微/飞书回调验签密钥，与 app_secret 同级敏感，同样脱敏
+            "verificationToken": "****" if self.verification_token else "",
             "encryptKey": "****" if self.encrypt_key else "",
             "webhookUrl": self.webhook_url,
             "enabled": self.enabled,

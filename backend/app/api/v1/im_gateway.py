@@ -22,6 +22,7 @@ import base64
 import logging
 import asyncio
 import urllib.request
+from urllib.parse import unquote
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 
@@ -31,7 +32,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete, func, and_, or_
 
 from app.db.session import get_db
-from app.core.security import get_current_user
+from app.core.security import get_current_user, require_superuser
 from app.models import User
 from app.models.im_gateway import (
     IMProviderConfig, UserIMBinding, IMConversationSession, IMAuditLog,
@@ -193,7 +194,7 @@ async def list_providers(
 async def create_provider_config(
     payload: ProviderConfigCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_superuser),
 ):
     """创建平台配置（需管理员权限）"""
     if payload.provider not in PLATFORM_META:
@@ -229,7 +230,7 @@ async def update_provider_config(
     provider: str,
     payload: ProviderConfigUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_superuser),
 ):
     """更新平台配置（upsert：无记录时自动创建）"""
     if provider not in PLATFORM_META:
@@ -267,7 +268,7 @@ async def update_provider_config(
 async def delete_provider_config(
     provider: str,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_superuser),
 ):
     """删除平台配置（同时清理所有用户绑定）"""
     result = await db.execute(
@@ -438,9 +439,15 @@ async def _verify_im_signature(
         sign = h("sign") or (qp.get("sign") or "").strip()
         if not sign:
             _im_deny(provider, "缺少 sign")
+        # 官方算法（钉钉《机器人接入》）：stringToSign = f"{timestamp}\n{secret}"，
+        # sign = base64(HMAC_SHA256(key=secret, msg=stringToSign))。
+        # 此前漏掉 "\n"+secret，真实钉钉回调会 100% 被 403（fail-closed 变 feature-closed）。
+        string_to_sign = f"{ts}\n{secret}"
         expected = base64.b64encode(
-            hmac.new(secret.encode("utf-8"), str(ts).encode("utf-8"), hashlib.sha256).digest()
+            hmac.new(secret.encode("utf-8"), string_to_sign.encode("utf-8"), hashlib.sha256).digest()
         ).decode("utf-8")
+        # sign 经 URL 传递时是 urlencode 后的 base64（+ /= 被转义），比较前先解码（幂等）
+        sign = unquote(sign)
         if not hmac.compare_digest(expected, sign):
             _im_deny(provider, "sign 不匹配")
         return
@@ -529,12 +536,14 @@ async def _process_inbound_message(
     request: Request,
     db: AsyncSession,
     source_ip: Optional[str] = None,
+    acting_user: Optional[User] = None,
 ) -> Dict[str, Any]:
     """入站消息核心处理（不含鉴权）。
 
     鉴权责任在调用方：
       - 各平台 Webhook：必须先通过 _verify_im_signature 签名校验
-      - /inbound/message 内部端点：必须通过登录态鉴权
+      - /inbound/message 内部端点：必须通过登录态鉴权，并传入 acting_user
+        校验绑定归属（防水平越权：不得以他人 IM 身份执行指令）
     """
     start_time = time.time()
     if source_ip is None and request is not None and getattr(request, "client", None):
@@ -569,6 +578,16 @@ async def _process_inbound_message(
             ),
             reply_type="text",
         ).model_dump()
+
+    if acting_user is not None and binding.user_id != acting_user.id:
+        # [评审修复] 水平越权：该内部端点按 payload 里的 provider+im_user_id 查绑定
+        # 决定以哪个用户身份执行 AI 指令，必须校验操作者本人即绑定所有者，
+        # 否则任意登录用户可构造他人 IM ID 冒充其身份执行增删改。
+        logger.warning(
+            "IM 越权拒绝：用户 %s 试图以绑定至用户 %s 的 IM 身份 (%s@%s) 发送指令",
+            acting_user.id, binding.user_id, payload.im_user_id, payload.provider,
+        )
+        raise HTTPException(status_code=403, detail="无权以该 IM 身份发送消息")
 
     user_result = await db.execute(select(User).where(User.id == binding.user_id))
     aipm_user = user_result.scalar_one_or_none()
@@ -670,7 +689,8 @@ async def inbound_message(
     """
     # [安全修复 Issue #12] 该端点是内部接口（非平台回调），现强制要求登录态。
     # 平台回调请走 /webhook/{dingtalk|feishu|wecom}，由 _verify_im_signature 做签名校验。
-    return await _process_inbound_message(payload, request, db)
+    # [评审修复] 同时传入 acting_user：处理链内校验绑定归属，防登录用户互相冒充 IM 身份。
+    return await _process_inbound_message(payload, request, db, acting_user=current_user)
 
 
 # ============================================================

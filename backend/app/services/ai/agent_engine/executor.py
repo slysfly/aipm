@@ -999,7 +999,9 @@ class AgentEngine:
         all_messages = system_msgs + messages
 
         try:
-            async for chunk in self.engine.chat_stream(
+            # AIEngine 的流式方法为 stream_chat（接受 provider/temperature/max_tokens）；
+            # 此前误写为不存在的 chat_stream，运行时 AttributeError 被下方 except 吞成错误文案
+            async for chunk in self.engine.stream_chat(
                 messages=all_messages,
                 provider=self.provider_name,
                 temperature=0.7,
