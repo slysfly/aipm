@@ -1,5 +1,5 @@
 """
-PMI中国AI项目管理社区 - 配置文件
+通维AI项目管理系统 - 配置文件
 支持多环境配置管理
 """
 
@@ -110,14 +110,8 @@ class Settings(BaseSettings):
 
     # 应用信息
     VERSION: str = "1.0.0"
-    APP_NAME: str = "PMI中国AI项目管理社区"
+    APP_NAME: str = "通维AI项目管理系统"
     ENVIRONMENT: str = Field(default="development", env="ENVIRONMENT")
-
-    # API 文档开关（/docs /redoc /openapi.json）
-    # 生产环境默认关闭，避免内部接口结构暴露到公网；
-    # 与 ENVIRONMENT 解耦：临时调试只需设 API_DOCS_ENABLED=1 后重启，无需降级整个环境。
-    # 另有 nginx 侧限制：这三个路径仅放行本机与内网网段。
-    API_DOCS_ENABLED: bool = Field(default=False, env="API_DOCS_ENABLED")
 
     # API配置
     API_V1_PREFIX: str = "/api/v1"
@@ -132,8 +126,6 @@ class Settings(BaseSettings):
     # 初始管理员（首次启动自动创建，仅在系统中无超级用户时生效）
     INITIAL_ADMIN_USERNAME: str = Field(default="admin", env="INITIAL_ADMIN_USERNAME")
     INITIAL_ADMIN_PASSWORD: str = Field(default="", env="INITIAL_ADMIN_PASSWORD")
-    # 社区/演示环境可显式允许弱初始口令（跳过告警；生产环境禁止置1）
-    WEAK_ADMIN_PASSWORD_ALLOW: bool = Field(default=False, env="WEAK_ADMIN_PASSWORD_ALLOW")
     INITIAL_ADMIN_EMAIL: str = Field(default="admin@tongweizx.com", env="INITIAL_ADMIN_EMAIL")
     INITIAL_ADMIN_FULL_NAME: str = Field(default="系统管理员", env="INITIAL_ADMIN_FULL_NAME")
 
@@ -147,14 +139,6 @@ class Settings(BaseSettings):
     )
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
-
-
-    # 运行时数据路径（Issue #4：收口原先散落在业务代码各处的硬编码安装路径）
-    # 留空 = 使用 app.paths 推导的默认值（<backend>/data、<backend>/production.db），
-    # 与改动前的字面量完全一致；只有把系统自部署到其它目录时才需要显式配置。
-    # 解析优先级见 app/paths.py：环境变量 > 此处配置（支持 .env）> 推导默认值。
-    DATA_DIR: str = Field(default="", env="AIPM_DATA_DIR")
-    DB_FILE: str = Field(default="", env="AIPM_DB_FILE")
 
     # Redis配置
     REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
@@ -217,14 +201,16 @@ class Settings(BaseSettings):
     OPENAI_COMPATIBLE_API_KEY: str = Field(default="", env="OPENAI_COMPATIBLE_API_KEY")
     OPENAI_COMPATIBLE_BASE_URL: str = Field(default="", env="OPENAI_COMPATIBLE_BASE_URL")
 
-    # LLM模型配置
-    LLM_MODEL: str = "gpt-4-turbo-preview"
+    # LLM模型配置（通维生产默认 Agnes 端点 + agnes-3.0-flash）
+    LLM_MODEL: str = "agnes-3.0-flash"
     LLM_TEMPERATURE: float = 0.7
     LLM_MAX_TOKENS: int = 2000
 
     # 飞书配置
     FEISHU_APP_ID: str = Field(default="", env="FEISHU_APP_ID")
     FEISHU_APP_SECRET: str = Field(default="", env="FEISHU_APP_SECRET")
+    # 飞书事件订阅 Encrypt Key（[Issue #12] 入站验签密钥兜底，DB 未配置时回退此项）
+    FEISHU_ENCRYPT_KEY: str = Field(default="", env="FEISHU_ENCRYPT_KEY")
 
     # 钉钉配置（应用级凭证，用于审批等开放接口）
     DINGTALK_APP_KEY: str = Field(default="", env="DINGTALK_APP_KEY")
@@ -234,14 +220,45 @@ class Settings(BaseSettings):
     WECOM_CORP_ID: str = Field(default="", env="WECOM_CORP_ID")
     WECOM_CORP_SECRET: str = Field(default="", env="WECOM_CORP_SECRET")
     WECOM_AGENT_ID: str = Field(default="", env="WECOM_AGENT_ID")
+    # 企业微信回调 Token / EncodingAESKey（[Issue #12] msg_signature 验签，DB 未配置时回退）
+    WECOM_CB_TOKEN: str = Field(default="", env="WECOM_CB_TOKEN")
+    WECOM_ENCODING_AES_KEY: str = Field(default="", env="WECOM_ENCODING_AES_KEY")
+
+    # Slack Signing Secret（[Issue #12] v0 验签密钥，DB 未配置时回退此项）
+    SLACK_SIGNING_SECRET: str = Field(default="", env="SLACK_SIGNING_SECRET")
 
     # Zapier Webhook 签名密钥（配置了才会校验 X-Zapier-Signature）
     ZAPIER_WEBHOOK_SECRET: str = Field(default="", env="ZAPIER_WEBHOOK_SECRET")
+
+    # ============================================================
+    # IM Gateway 入站安全（[Issue #12] IM Gateway 安全加固）
+    # ============================================================
+    # 入站验签总开关。默认开启；置为 false 仅用于本地联调应急，
+    # 生产环境（ENVIRONMENT=production）下若为 false，validate_config() 会记为 error 并拒绝启动。
+    IM_SIGNATURE_ENABLED: bool = Field(default=True, env="IM_SIGNATURE_ENABLED")
+    # 签名时间戳时效窗口（秒），用于防重放。钉钉/Slack 官方均为 300s。
+    IM_SIGNATURE_TIMESTAMP_TOLERANCE_SECONDS: int = Field(
+        default=300, env="IM_SIGNATURE_TIMESTAMP_TOLERANCE_SECONDS"
+    )
+    # 是否允许飞书 url_verification 挑战豁免验签（仅回显 challenge，绝不进入消息链路）
+    IM_SIGNATURE_ALLOW_URL_VERIFICATION: bool = Field(
+        default=True, env="IM_SIGNATURE_ALLOW_URL_VERIFICATION"
+    )
 
     # 文件存储
     UPLOAD_DIR: str = "./uploads"
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
     ALLOWED_EXTENSIONS: set = {"pdf", "doc", "docx", "xls", "xlsx", "png", "jpg", "jpeg", "txt", "md"}
+
+    # 运行时数据目录（[Issue #4] 统一收口点）
+    # 默认相对 backend 目录下的 ./data，可通过环境变量 DATA_DIR 覆盖为绝对路径（部署时）。
+    # 历史上部分模块硬编码了 /opt/AI-PM/... 与 /opt/aipm-install/... 两套绝对路径，
+    # 导致自部署时路径不存在 → Agent/工具注册表静默为空。现统一由此项收口。
+    DATA_DIR: str = Field(
+        default="./data",
+        env="DATA_DIR",
+        description="运行时数据根目录（skills/agent_library_v2/tool_outputs 等）"
+    )
 
     # 邮件配置
     SMTP_HOST: str = Field(default="smtp.gmail.com", env="SMTP_HOST")
@@ -265,6 +282,18 @@ class Settings(BaseSettings):
     # 缓存配置
     CACHE_TTL: int = 300  # 5分钟
     CACHE_ENABLED: bool = True
+
+    # [可观测性 Issue #19] 可观测性配置
+    # Prometheus metrics 端点 /metrics
+    METRICS_ENABLED: bool = Field(default=False, env="METRICS_ENABLED")
+    METRICS_TOKEN: str = Field(default="", env="METRICS_TOKEN")
+
+    # OpenTelemetry OTLP 导出
+    OTEL_ENABLED: bool = Field(default=False, env="OTEL_ENABLED")
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = Field(
+        default="http://localhost:4318/v1/traces",
+        env="OTEL_EXPORTER_OTLP_ENDPOINT",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -332,7 +361,7 @@ class Settings(BaseSettings):
                 and any(not c.isalnum() for c in _pwd)
             )
         )
-        if _pwd_weak and not self.WEAK_ADMIN_PASSWORD_ALLOW:
+        if _pwd_weak:
             msg = (
                 "INITIAL_ADMIN_PASSWORD 为弱口令（需长度≥12 且同时包含字母、数字与特殊字符），"
                 "生产环境请设置强密码"
@@ -345,6 +374,35 @@ class Settings(BaseSettings):
         # 检查数据库配置
         if not self.DATABASE_URL:
             errors.append("DATABASE_URL 未配置")
+
+        # [Issue #12] IM Gateway 入站验签配置自检
+        # 原则：缺失/弱密钥只**告警**，绝不自动补默认值放行 Webhook；
+        # 真正的 fail-closed 由 im_signature_service 在请求时强制执行（→401）。
+        if not self.IM_SIGNATURE_ENABLED:
+            msg = (
+                "IM_SIGNATURE_ENABLED=false：IM 入站验签已全局关闭，"
+                "所有平台 Webhook 均可被伪造请求调用，生产环境必须保持开启"
+            )
+            if self.ENVIRONMENT == "production":
+                errors.append(msg)
+            else:
+                warnings_list.append(msg)
+
+        if self.IM_SIGNATURE_TIMESTAMP_TOLERANCE_SECONDS <= 0:
+            msg = (
+                "IM_SIGNATURE_TIMESTAMP_TOLERANCE_SECONDS 必须为正数（建议 300），"
+                "否则重放防护失效；运行时会回退默认值 300"
+            )
+            if self.ENVIRONMENT == "production":
+                errors.append(msg)
+            else:
+                warnings_list.append(msg)
+        elif self.IM_SIGNATURE_TIMESTAMP_TOLERANCE_SECONDS > 900:
+            warnings_list.append(
+                f"IM_SIGNATURE_TIMESTAMP_TOLERANCE_SECONDS="
+                f"{self.IM_SIGNATURE_TIMESTAMP_TOLERANCE_SECONDS} 偏大（>900s），"
+                f"重放攻击窗口过宽，建议收紧至 300"
+            )
 
         # 检查至少一个AI API Key
         ai_keys = {
@@ -413,6 +471,24 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """获取配置实例（单例）"""
     return Settings()
+
+
+def resolve_data_dir() -> str:
+    """解析运行时数据目录为绝对路径。
+
+    - DATA_DIR 为相对路径时，相对 backend 目录解析（backend = 本文件上溯两级）；
+    - DATA_DIR 为绝对路径时原样返回（部署环境用环境变量覆盖）。
+
+    [Issue #4] 供 skill_routes / tool_routes / agent_engine_v2 等模块统一收口，
+    消除 /opt/AI-PM 与 /opt/aipm-install 两套硬编码绝对路径。
+    """
+    from pathlib import Path
+    data_dir = get_settings().DATA_DIR
+    p = Path(data_dir)
+    if not p.is_absolute():
+        backend_dir = Path(__file__).resolve().parents[1]  # backend/
+        p = backend_dir / data_dir
+    return str(p)
 
 
 settings = get_settings()
