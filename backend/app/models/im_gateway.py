@@ -45,8 +45,8 @@ class IMProviderConfig(Base):
 
     # 元信息
     created_by = Column(String(36))
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     def to_dict(self):
         return {
@@ -101,7 +101,7 @@ class UserIMBinding(Base):
 
     # 绑定状态
     status = Column(String(20), default="active")  # active / disabled / revoked
-    bound_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    bound_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     last_active_at = Column(DateTime(timezone=True))
 
     # 会话上下文
@@ -150,7 +150,7 @@ class IMConversationSession(Base):
     message_count = Column(Integer, default=0)
 
     # 时间
-    started_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    started_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     last_message_at = Column(DateTime(timezone=True))
     closed_at = Column(DateTime(timezone=True))
 
@@ -201,7 +201,7 @@ class IMAuditLog(Base):
     # IP安全
     source_ip = Column(String(50))
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), index=True)
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), index=True)
 
     def to_dict(self):
         return {

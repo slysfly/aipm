@@ -69,8 +69,10 @@ async def save_board(board_id: str, payload: BoardSave, db: AsyncSession = Depen
     if not board:
         raise HTTPException(404, "白板不存在")
     data = payload.model_dump(exclude_unset=True)
+    # model_dump() 已递归把 notes(NoteSchema) 转成 dict, 无需再次 model_dump;
+    # 兼容仍为 model 实例的极端情况: 仅对非 dict 元素做 dump, 避免 'dict' has no 'model_dump' 500。
     if "notes" in data and data["notes"] is not None:
-        data["notes"] = [n.model_dump() for n in data["notes"]]
+        data["notes"] = [n if isinstance(n, dict) else n.model_dump() for n in data["notes"]]
     for k, v in data.items():
         setattr(board, k, v)
     await db.flush()

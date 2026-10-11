@@ -210,6 +210,12 @@ def create_lifespan(
             except Exception as e:
                 logger.warning("释放消息队列失败（已忽略）: %s", e, exc_info=True)
 
+        try:
+            from app.core.ai_engine.http_pool import aclose_all
+            await aclose_all()
+        except Exception as e:
+            logger.warning("释放共享 LLM HTTP 连接池失败（已忽略）: %s", e, exc_info=True)
+
         logger.info("关闭系统...")
 
     return lifespan

@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Card, Button, Tag, Typography, Spin, Empty, App, Modal, Form, Input, Select, message, Space, Dropdown } from "antd";
-import { PlusOutlined, MoreOutlined, EditOutlined, DeleteOutlined, RightCircleOutlined } from "@ant-design/icons";
+import { Card, Button, Tag, Typography, Spin, Empty, App, Modal, Form, Input, Select, message, Space, Dropdown, Drawer, Progress } from "antd";
+import { PlusOutlined, MoreOutlined, EditOutlined, DeleteOutlined, RightCircleOutlined, ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, type DragStartEvent, type DragEndEvent, type DragOverEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
-import { taskApi, projectApi, sprintApi } from "../api";
+import { taskApi, projectApi, sprintApi, membersApi } from "../api";
 
 const { Text, Title } = Typography;
 
@@ -33,9 +33,10 @@ const STATUS_MAP: Record<string, string> = {
 interface TaskCardProps {
   task: any;
   onClick: (task: any) => void;
+  userMap?: Record<string, string>;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, userMap = {} }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: { type: "task", task },
@@ -77,7 +78,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
           )}
           {task.assignee && (
             <Tag style={{ fontSize: 10, lineHeight: "18px", borderRadius: 4, background: "#EEF2FF", border: "none" }}>
-              {typeof task.assignee === 'string' ? task.assignee : task.assignee?.full_name || task.assignee?.name || task.assignee?.username || '--'}
+              {(() => {
+              const id = typeof task.assignee === 'string' ? task.assignee : task.assignee?.id;
+              if (id && userMap[id]) return userMap[id];
+              if (task.assignee?.full_name) return task.assignee.full_name;
+              if (task.assignee?.name) return task.assignee.name;
+              if (task.assignee?.username) return task.assignee.username;
+              return id ? id.substring(0, 8) + '...' : '--';
+            })()}
             </Tag>
           )}
         </div>
@@ -101,11 +109,30 @@ const Kanban: React.FC = () => {
   const [activeTask, setActiveTask] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any>(null);
+  const [userMap, setUserMap] = useState<Record<string, string>>({});
+  const [kanbanScale, setKanbanScale] = useState(1.0);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor)
   );
+
+  const loadMembers = async (projectId: string) => {
+    if (!projectId) { setUserMap({}); return; }
+    try {
+      const res = await membersApi.list(projectId, { page_size: 500 });
+      const map: Record<string, string> = {};
+      (res?.items || []).forEach((m: any) => {
+        if (m.user_id && m.user?.name) {
+          map[m.user_id] = m.user.name;
+        }
+      });
+      setUserMap(map);
+    } catch (e) {
+      setUserMap({});
+    }
+  };
 
   const loadTasks = async () => {
     try {
@@ -131,7 +158,20 @@ const Kanban: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (selectedProjectId) {
+      loadMembers(selectedProjectId);
+    }
+  }, [selectedProjectId]);
+
+  useEffect(() => {
     loadTasks();
+  }, [selectedProjectId]);
+
+  // AI 项目经理「直接操作系统」执行成功后自动刷新看板（跨组件 CustomEvent，与组织管理页同一约定）
+  useEffect(() => {
+    const onTasksChanged = () => { loadTasks(); };
+    window.addEventListener("aipm:tasks-changed", onTasksChanged);
+    return () => window.removeEventListener("aipm:tasks-changed", onTasksChanged);
   }, [selectedProjectId]);
 
   // 切换项目时重新加载该项目的 Sprint 列表
@@ -186,8 +226,8 @@ const Kanban: React.FC = () => {
   };
 
   const handleCardClick = (task: any) => {
-    setEditingTask(task);
-    setModalOpen(true);
+    setActiveTask(task);
+    setDetailOpen(true);
   };
 
   const handleCreateTask = () => {
@@ -199,11 +239,19 @@ const Kanban: React.FC = () => {
     setModalOpen(true);
   };
 
+  const handleZoomIn = () => setKanbanScale(s => Math.min(2.0, s + 0.1));
+  const handleZoomOut = () => setKanbanScale(s => Math.max(0.5, s - 0.1));
+  const handleZoomFit = () => setKanbanScale(1.0);
+
   const handleSaveTask = async (values: any) => {
     try {
       if (editingTask?.id) {
-        await taskApi.update(editingTask.id, values);
-        setTasks((prev) => prev.map((t) => t.id === editingTask.id ? { ...t, ...values } : t));
+        const headers: Record<string, string> = {};
+        if (editingTask.version) {
+          headers['X-Base-Version'] = String(editingTask.version);
+        }
+        const res = await taskApi.update(editingTask.id, values, headers);
+        setTasks((prev) => prev.map((t) => t.id === editingTask.id ? { ...t, ...values, version: res?.version || editingTask.version } : t));
       } else {
         const payload = { ...values, project_id: selectedProjectId };
         const res = await taskApi.create(payload);
@@ -212,13 +260,101 @@ const Kanban: React.FC = () => {
       setModalOpen(false);
       setEditingTask(null);
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || "操作失败");
+      // 409 乐观锁冲突：提示用户并重新加载最新版本
+      if (e?.response?.status === 409) {
+        const conflict = e.response.data;
+        if (conflict?.server_data) {
+          message.warning('任务已被他人修改，已加载最新版本，请重新编辑');
+          // 更新editingTask为服务器最新版本
+          setEditingTask({ ...conflict.server_data, version: conflict.server_version });
+          setTasks((prev) => prev.map((t) => t.id === conflict.entity_id ? { ...t, ...conflict.server_data, version: conflict.server_version } : t));
+        } else {
+          message.error("操作失败：任务冲突");
+        }
+      } else {
+        message.error(e?.response?.data?.detail || "操作失败");
+      }
     }
   };
 
   if (loading) {
     return <div style={{ display: "flex", justifyContent: "center", padding: 80 }}><Spin size="large" /></div>;
   }
+
+  // 详情抽屉
+  const TaskDetailDrawer = () => (
+    <Drawer
+      title={<Space><EditOutlined />任务详情</Space>}
+      placement="right"
+      width={480}
+      open={detailOpen}
+      onClose={() => setDetailOpen(false)}
+      extra={
+        <Button type="primary" icon={<EditOutlined />} onClick={() => { setDetailOpen(false); setEditingTask(activeTask); setModalOpen(true); }}>
+          编辑
+        </Button>
+      }
+    >
+      {activeTask && (
+        <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <div>
+            <Text type="secondary">标题</Text>
+            <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{activeTask.name || "—"}</div>
+          </div>
+          <div>
+            <Text type="secondary">描述</Text>
+            <div style={{ marginTop: 4, whiteSpace: "pre-wrap" }}>{activeTask.description || "—"}</div>
+          </div>
+          <div style={{ display: "flex", gap: 24 }}>
+            <div>
+              <Text type="secondary">状态</Text>
+              <div style={{ marginTop: 4 }}><Tag color="blue">{activeTask.status || "—"}</Tag></div>
+            </div>
+            <div>
+              <Text type="secondary">优先级</Text>
+              <div style={{ marginTop: 4 }}>
+                <Tag color={activeTask.priority <= 2 ? "red" : activeTask.priority === 3 ? "orange" : "green"}>
+                  {activeTask.priority <= 2 ? "高" : activeTask.priority === 3 ? "中" : "低"}
+                </Tag>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 24 }}>
+            <div>
+              <Text type="secondary">负责人</Text>
+              <div style={{ marginTop: 4 }}>
+                {(() => {
+                  const id = typeof activeTask.assignee === 'string' ? activeTask.assignee : activeTask.assignee?.id;
+                  if (id && userMap[id]) return userMap[id];
+                  if (activeTask.assignee?.full_name) return activeTask.assignee.full_name;
+                  if (activeTask.assignee?.name) return activeTask.assignee.name;
+                  return id ? id.substring(0, 8) + '...' : '--';
+                })()}
+              </div>
+            </div>
+            <div>
+              <Text type="secondary">进度</Text>
+              <div style={{ marginTop: 4 }}>
+                <Progress percent={activeTask.progress || 0} size="small" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <Text type="secondary">计划时间</Text>
+            <div style={{ marginTop: 4, fontSize: 12 }}>
+              {(activeTask.planned_start || activeTask.planned_end) ? (
+                `${activeTask.planned_start || '—'} ~ ${activeTask.planned_end || '—'}`
+              ) : '—'}
+            </div>
+          </div>
+          <div>
+            <Text type="secondary">创建时间</Text>
+            <div style={{ marginTop: 4, fontSize: 12 }}>{activeTask.created_at || '—'}</div>
+          </div>
+        </Space>
+      )}
+    </Drawer>
+  );
 
   return (
     <div>
@@ -240,9 +376,15 @@ const Kanban: React.FC = () => {
           <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateTask} disabled={!selectedProjectId} data-tour="kanban-add">
             创建任务
           </Button>
+          <span style={{ margin: '0 8px', color: '#d9d9d9' }}>|</span>
+          <Button size="small" icon={<ZoomOutOutlined />} onClick={handleZoomOut} title="缩小" />
+          <span style={{ margin: '0 4px', fontSize: 12, color: '#666' }}>{Math.round(kanbanScale * 100)}%</span>
+          <Button size="small" icon={<ZoomInOutlined />} onClick={handleZoomIn} title="放大" />
+          <Button size="small" icon={<FullscreenOutlined />} onClick={handleZoomFit} title="适应" />
         </Space>
       </div>
 
+      <div style={{ transform: `scale(${kanbanScale})`, transformOrigin: 'top left', transition: 'transform 0.2s', width: `${100/kanbanScale}%` }}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -279,7 +421,7 @@ const Kanban: React.FC = () => {
                       </div>
                     ) : (
                       colTasks.map((task) => (
-                        <TaskCard key={task.id} task={task} onClick={handleCardClick} />
+                        <TaskCard key={task.id} task={task} onClick={handleCardClick} userMap={userMap} />
                       ))
                     )}
                   </SortableContext>
@@ -342,6 +484,8 @@ const Kanban: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+      <TaskDetailDrawer />
+      </div>
     </div>
   );
 };

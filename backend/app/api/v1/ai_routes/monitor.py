@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func, desc, Integer, text
+from sqlalchemy import select, func, desc, Integer, text, case
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import ProgrammingError, OperationalError
 
@@ -595,20 +595,26 @@ async def get_ai_monitor_realtime(
             pass
 
         # 24 小时逐小时（SQLite: strftime；PostgreSQL: extract）
-        # 使用兼容 SQL：func.cast(... as Integer) — SQLite 也支持。
         hourly = []
         try:
-            # SQLite 用 strftime('%H', created_at)；这里 try/except 兼容 PG
-            hour_expr = func.cast(func.strftime("%H", LLMCallLog.created_at), Integer)
+            # 取小时：SQLite 只有 strftime，PostgreSQL 只有 extract，按方言分支
+            try:
+                _dialect = db.bind.dialect.name
+            except Exception:
+                _dialect = "sqlite"
+            if _dialect == "postgresql":
+                hour_expr = func.cast(func.extract("hour", LLMCallLog.created_at), Integer)
+            else:
+                hour_expr = func.cast(func.strftime("%H", LLMCallLog.created_at), Integer)
+            # 布尔计数：SQLite 允许 CAST(boolean AS INTEGER)，PostgreSQL 不允许，统一用 CASE WHEN
+            errors_expr = func.sum(case((LLMCallLog.status == "error", 1), else_=0))
             rows = (await db.execute(
                 select(
                     hour_expr.label("hr"),
                     func.count(LLMCallLog.id),
                     func.coalesce(func.sum(LLMCallLog.total_tokens), 0),
                     func.coalesce(func.sum(LLMCallLog.cost_usd), 0),
-                    func.coalesce(
-                        func.sum(func.cast(LLMCallLog.status == "error", Integer)), 0
-                    ),
+                    func.coalesce(errors_expr, 0),
                 ).where(LLMCallLog.created_at >= today_start)
                  .group_by("hr").order_by("hr")
             )).all()

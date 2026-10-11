@@ -34,8 +34,8 @@ class RecurringTask(Base):
     is_active = Column(Boolean, default=True)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     # 关系
     base_task = relationship("Task", foreign_keys=[base_task_id])
@@ -62,7 +62,7 @@ class RecurringTaskInstance(Base):
     task_id = Column(String(36), ForeignKey("tasks.id"), nullable=False, index=True)
 
     # 实例生成信息
-    generated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    generated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     sequence_number = Column(Integer, default=1)  # 第几次生成的实例
 
     # 关系

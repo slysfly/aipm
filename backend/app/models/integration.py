@@ -20,8 +20,8 @@ class Integration(Base):
     expires_at = Column(DateTime(timezone=True))
     status = Column(String(20), default="disconnected")
     config = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     __table_args__ = (
         Index("ix_integration_user_provider", "user_id", "provider", unique=True),

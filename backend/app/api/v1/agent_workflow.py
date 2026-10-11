@@ -1,5 +1,5 @@
 """
-通维AI项目管理系统 - 多智能体可视化编排工作流
+PMI中国AI项目管理社区 - 多智能体可视化编排工作流
 
 提供 Planner -> Executor -> Reviewer 的真实编排执行：
 - Planner：LLM 将目标拆为执行计划

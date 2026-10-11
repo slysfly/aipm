@@ -180,7 +180,7 @@ async def _collect_snapshots(
         rows = (await db.execute(
             select(Task.project_id, func.count(Task.id))
             .where(Task.is_deleted.is_(False), Task.project_id.in_(pids),
-                   Task.planned_end < func.now(), Task.status != TaskStatus.DONE.value)
+                   Task.planned_end < datetime.now(), Task.status != TaskStatus.DONE.value)
             .group_by(Task.project_id)
         )).all()
         for pid, cnt in rows:

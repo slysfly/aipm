@@ -60,6 +60,13 @@ const Tasks: React.FC = () => {
     sprintApi.list({ page_size: 200 }).then((r: any) => setSprints(r?.items || [])).catch(() => {});
   }, [projectId]);
 
+  // AI 项目经理「直接操作系统」执行成功后自动刷新列表（跨组件 CustomEvent，与组织管理页同一约定）
+  useEffect(() => {
+    const onTasksChanged = () => { load(); };
+    window.addEventListener("aipm:tasks-changed", onTasksChanged);
+    return () => window.removeEventListener("aipm:tasks-changed", onTasksChanged);
+  }, [projectId]);
+
   const openCreate = () => {
     setEditing(null);
     form.resetFields();
@@ -215,9 +222,15 @@ const Tasks: React.FC = () => {
           <div style={{ marginBottom: 12 }}>
             <AIAssistButton
               formType="task"
-              getValues={() => form.getFieldsValue(true)}
+              getValues={() => {
+                const v = form.getFieldsValue(true);
+                if (v.planned_start) v.planned_start = v.planned_start?.format?.("YYYY-MM-DD");
+                if (v.planned_end) v.planned_end = v.planned_end?.format?.("YYYY-MM-DD");
+                return v;
+              }}
               onApply={(s) => form.setFieldsValue(s)}
               context={{ project_id: projectId }}
+              dateFields={["planned_start", "planned_end"]}
             />
           </div>
           <Form.Item name="project_id" label="所属项目" rules={[{ required: true, message: "请选择项目" }]}>

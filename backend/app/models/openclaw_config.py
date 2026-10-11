@@ -18,8 +18,8 @@ class OpenClawConfig(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     base_url = Column(String(500), nullable=False, default="http://localhost:18888")
     enabled = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     def to_dict(self) -> dict:
         return {

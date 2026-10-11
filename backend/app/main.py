@@ -24,6 +24,7 @@ from app.core.exceptions import (
 from app.core.response import ok_dict, error_dict
 from app.core.lifespan_factory import create_lifespan
 from app.middleware.monitoring import MonitoringMiddleware
+from app.core.observability import ObservabilityMiddleware, install_metrics_route
 from app.middleware.response_format import ResponseFormatMiddleware
 
 # 配置日志
@@ -40,6 +41,10 @@ lifespan = create_lifespan(
 
 
 # 创建FastAPI应用
+# API 文档开关：生产默认关闭；API_DOCS_ENABLED=1 可临时开启（nginx 侧仅放行本机/内网）
+_API_DOCS_ON = settings.API_DOCS_ENABLED or settings.ENVIRONMENT != "production"
+
+
 app = FastAPI(
     title="PMI中国AI项目管理社区",
     description="""
@@ -70,9 +75,9 @@ app = FastAPI(
     """,
     version=settings.VERSION,
     # 生产环境关闭 API 文档
-    docs_url=None if settings.ENVIRONMENT == "production" else "/docs",
-    redoc_url=None if settings.ENVIRONMENT == "production" else "/redoc",
-    openapi_url=None if settings.ENVIRONMENT == "production" else "/openapi.json",
+    docs_url="/docs" if _API_DOCS_ON else None,
+    redoc_url="/redoc" if _API_DOCS_ON else None,
+    openapi_url="/openapi.json" if _API_DOCS_ON else None,
     lifespan=lifespan,
 )
 
@@ -176,6 +181,12 @@ async def health_check():
         "version": settings.VERSION,
     }
 
+
+# ── 运维可观测性（Issue #19 阶段一/二）──
+# 置于最外层：请求一进来就确定 X-Request-ID，下游所有日志与指标都能关联到同一请求。
+# /metrics 自带令牌鉴权（METRICS_ENABLED / METRICS_TOKEN），未授权一律 403。
+app.add_middleware(ObservabilityMiddleware)
+install_metrics_route(app)
 
 if __name__ == "__main__":
     import uvicorn

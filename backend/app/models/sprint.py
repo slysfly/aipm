@@ -22,8 +22,8 @@ class Sprint(Base):
     acceptance_plan = Column(Text, nullable=True, default=None)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
 
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     project = relationship("Project")
     creator = relationship("User", foreign_keys=[created_by])
@@ -62,7 +62,7 @@ class SprintTask(Base):
     sprint_id = Column(String(36), ForeignKey("sprints.id"), nullable=False, index=True)
     task_id = Column(String(36), ForeignKey("tasks.id"), nullable=False, index=True)
     status = Column(String(20), default="active")
-    added_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    added_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     completed_at = Column(DateTime(timezone=True))
 
     sprint = relationship("Sprint", back_populates="sprint_tasks")

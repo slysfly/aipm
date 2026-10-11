@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   Card, Typography, Button, Space, App, Tag, Modal, Input,
   Select, Progress, Empty, Spin, Drawer, Tooltip,
@@ -10,9 +10,11 @@ import {
   PartitionOutlined, CompassOutlined, RocketOutlined, FlagOutlined, SwapOutlined,
   FileTextOutlined, BarChartOutlined, WarningOutlined, SafetyOutlined, AimOutlined,
   FileDoneOutlined, HeartOutlined, BulbOutlined, NodeIndexOutlined, ClearOutlined,
+  FullscreenOutlined, FullscreenExitOutlined, ZoomInOutlined, ZoomOutOutlined,
+  LeftOutlined, RightOutlined,
 } from "@ant-design/icons";
 import {
-  ReactFlow, Background, Controls, MiniMap, ReactFlowProvider,
+  ReactFlow, Background, MiniMap, ReactFlowProvider,
   useNodesState, useEdgesState, addEdge, Handle, Position,
   useReactFlow, MarkerType,
   type Node, type Edge, type NodeProps, type Connection,
@@ -321,7 +323,7 @@ function renderSlot(items?: any[]): React.ReactNode {
 
 const WorkflowInner: React.FC = () => {
   const { message } = App.useApp();
-  const { fitView } = useReactFlow();
+  const { fitView, zoomIn, zoomOut, getZoom } = useReactFlow();
 
   const initial = useMemo(() => ({ nodes: [] as AgentNode[], edges: [] as Edge[] }), []);
   const [nodes, setNodes, onNodesChange] = useNodesState<AgentNodeData>(initial.nodes);
@@ -331,6 +333,46 @@ const WorkflowInner: React.FC = () => {
   const [executing, setExecuting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [log, setLog] = useState<LogEntry[]>([]);
+
+  // ── 全屏 / 悬浮展示 ─────────────────────────────────────────────
+  // 全屏时整块工作流（节点面板 + 画布 + 属性面板）铺满屏幕，属性面板保持可用
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [zoomPct, setZoomPct] = useState(100);
+  // ── 侧栏抽屉（全屏时节点面板/属性面板可收起/展开，也可保持固定）──
+  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const toggleFullscreen = useCallback(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }, []);
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  // Esc 退出全屏的兜底（部分浏览器 fullscreenchange 已覆盖，此处置顶）
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsFullscreen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isFullscreen]);
+  // 跟踪当前缩放百分比（节流）
+  useEffect(() => {
+    let raf = 0;
+    const loop = () => { setZoomPct(Math.round(getZoom() * 100)); raf = requestAnimationFrame(loop); };
+    if (isFullscreen) raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [isFullscreen, getZoom]);
+  const handleZoomIn = useCallback(() => { zoomIn({ duration: 200 }); setZoomPct(Math.min(300, Math.round(getZoom() * 100) + 20)); }, [zoomIn, getZoom]);
+  const handleZoomOut = useCallback(() => { zoomOut({ duration: 200 }); setZoomPct(Math.max(20, Math.round(getZoom() * 100) - 20)); }, [zoomOut, getZoom]);
+  const handleZoomFit = useCallback(() => { fitView({ duration: 300, padding: 0.15 }); }, [fitView]);
 
   // 工作流保存（多租户，沿用 workflowApi）
   const [currentWfId, setCurrentWfId] = useState<string | null>(null);
@@ -788,7 +830,7 @@ const WorkflowInner: React.FC = () => {
 
   // ── 渲染 ──
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 112px)" }}>
+    <div ref={rootRef} style={{ display: "flex", flexDirection: "column", height: isFullscreen ? "100vh" : "calc(100vh - 112px)", background: isFullscreen ? "#F8FAFC" : "transparent", position: isFullscreen ? "relative" : "static", overflow: "hidden" }}>
       {/* Header：工作流名称 + 保存 */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 12, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -808,6 +850,11 @@ const WorkflowInner: React.FC = () => {
           </div>
         </div>
         <Space>
+          <Tooltip title={isFullscreen ? "退出全屏 (Esc)" : "全屏展示（属性面板可用）"}>
+            <Button icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} onClick={toggleFullscreen}>
+              {isFullscreen ? "退出全屏" : "全屏"}
+            </Button>
+          </Tooltip>
           <Button icon={<SaveOutlined />} onClick={() => setSaveOpen(true)} disabled={nodes.length === 0}>
             {currentWfId ? "更新" : "保存"}
           </Button>
@@ -815,12 +862,17 @@ const WorkflowInner: React.FC = () => {
       </div>
 
       {/* 三栏布局 */}
-      <div style={{ display: "flex", flex: 1, gap: 12, overflow: "hidden" }}>
+      <div style={{ display: "flex", flex: 1, gap: 12, overflow: "hidden", position: "relative" }}>
         {/* 左栏：节点面板（PMBOK Agent 库 + Skill 库） */}
-        <div style={{ width: 260, flexShrink: 0, display: "flex", flexDirection: "column", overflow: "hidden", border: "1px solid #E2E8F0", borderRadius: 12, background: "#fff" }}>
-          <div style={{ padding: "10px 12px", borderBottom: "1px solid #E2E8F0", fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
-            <PartitionOutlined style={{ color: PRIMARY }} /> 节点面板
-          </div>
+        <div style={{ width: leftPanelOpen ? 260 : 0, flexShrink: 0, overflow: "hidden", transition: "width 0.2s ease", border: leftPanelOpen ? "1px solid #E2E8F0" : "none", borderRadius: 12, background: "#fff" }}>
+          <div style={{ width: 260, height: "100%", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "10px 12px", borderBottom: "1px solid #E2E8F0", fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+              <PartitionOutlined style={{ color: PRIMARY }} /> 节点面板
+              <div style={{ flex: 1 }} />
+              <Tooltip title="收起面板">
+                <Button type="text" size="small" icon={<LeftOutlined />} onClick={() => setLeftPanelOpen(false)} />
+              </Tooltip>
+            </div>
           <div style={{ padding: 8 }}>
             <Input
               prefix={<SearchOutlined />} allowClear placeholder="搜索 Agent / Skill"
@@ -877,7 +929,20 @@ const WorkflowInner: React.FC = () => {
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="无可用节点" style={{ margin: "16px 0" }} />
             )}
           </div>
+          </div>
         </div>
+        {!leftPanelOpen && (
+          <Tooltip title="展开节点面板">
+            <div
+              onClick={() => setLeftPanelOpen(true)}
+              style={{ position: "absolute", top: 88, left: 8, zIndex: 5, cursor: "pointer",
+                width: 26, height: 84, borderRadius: 10, background: "#fff", border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 14px rgba(15,23,42,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <RightOutlined style={{ color: PRIMARY, fontSize: 14 }} />
+            </div>
+          </Tooltip>
+        )}
 
         {/* 中栏：工具栏（模板下拉）+ 画布 */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
@@ -922,17 +987,54 @@ const WorkflowInner: React.FC = () => {
                 nodeTypes={nodeTypes}
                 onNodeClick={onNodeClick}
                 onPaneClick={onPaneClick}
+                onMove={(_e, z) => setZoomPct(Math.round(z * 100))}
                 fitView
+                minZoom={0.15}
+                maxZoom={3}
+                zoomOnScroll
+                zoomOnDoubleClick
                 proOptions={{ hideAttribution: true }}
                 deleteKeyCode={["Backspace", "Delete"]}
               >
                 <Background color="#E2E8F0" gap={16} />
-                <Controls />
                 <MiniMap
                   nodeColor={(n: any) => (n.data?.color as string) || PRIMARY}
                   maskColor="rgba(241,245,249,0.6)"
                   style={{ borderRadius: 8 }}
                 />
+                {/* 悬浮控制条：放大/缩小/适应/全屏 + 缩放百分比 */}
+                <div
+                  style={{
+                    position: "absolute", left: 12, bottom: 12, zIndex: 10,
+                    display: "flex", alignItems: "center", gap: 4,
+                    background: "#fff", boxShadow: "0 4px 16px rgba(15,23,42,0.12)",
+                    borderRadius: 10, padding: "4px 8px",
+                  }}
+                >
+                  <Tooltip title="缩小">
+                    <Button size="small" type="text" icon={<ZoomOutOutlined />} onClick={handleZoomOut} />
+                  </Tooltip>
+                  <Text style={{ fontSize: 12, minWidth: 44, textAlign: "center" }} type="secondary">{zoomPct}%</Text>
+                  <Tooltip title="放大">
+                    <Button size="small" type="text" icon={<ZoomInOutlined />} onClick={handleZoomIn} />
+                  </Tooltip>
+                  <Tooltip title="适应画布">
+                    <Button size="small" type="text" icon={<CompassOutlined />} onClick={handleZoomFit} />
+                  </Tooltip>
+                  <Tooltip title={leftPanelOpen ? "收起节点面板" : "展开节点面板"}>
+                    <Button size="small" type="text" icon={<PartitionOutlined />}
+                      style={{ opacity: leftPanelOpen ? 1 : 0.45, color: leftPanelOpen ? undefined : PRIMARY }}
+                      onClick={() => setLeftPanelOpen(v => !v)} />
+                  </Tooltip>
+                  <Tooltip title={rightPanelOpen ? "收起属性面板" : "展开属性面板"}>
+                    <Button size="small" type="text" icon={<SettingOutlined />}
+                      style={{ opacity: rightPanelOpen ? 1 : 0.45, color: rightPanelOpen ? undefined : PRIMARY }}
+                      onClick={() => setRightPanelOpen(v => !v)} />
+                  </Tooltip>
+                  <Tooltip title={isFullscreen ? "退出全屏 (Esc)" : "全屏展示（属性面板可用）"}>
+                    <Button size="small" type="text" icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} onClick={toggleFullscreen} />
+                  </Tooltip>
+                </div>
               </ReactFlow>
               {nodes.length === 0 && (
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
@@ -944,9 +1046,14 @@ const WorkflowInner: React.FC = () => {
         </div>
 
         {/* 右栏：属性面板（选中节点的 ITTO） */}
-        <div style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column", overflow: "hidden", border: "1px solid #E2E8F0", borderRadius: 12, background: "#fff" }}>
+        <div style={{ width: rightPanelOpen ? 300 : 0, flexShrink: 0, overflow: "hidden", transition: "width 0.2s ease", border: rightPanelOpen ? "1px solid #E2E8F0" : "none", borderRadius: 12, background: "#fff" }}>
+          <div style={{ width: 300, height: "100%", display: "flex", flexDirection: "column" }}>
           <div style={{ padding: "10px 12px", borderBottom: "1px solid #E2E8F0", fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
             <SettingOutlined style={{ color: PRIMARY }} /> 属性面板
+            <div style={{ flex: 1 }} />
+            <Tooltip title="收起面板">
+              <Button type="text" size="small" icon={<RightOutlined />} onClick={() => setRightPanelOpen(false)} />
+            </Tooltip>
           </div>
           <div style={{ overflow: "auto", flex: 1, padding: 12 }}>
             {!selection && (
@@ -998,7 +1105,20 @@ const WorkflowInner: React.FC = () => {
               </div>
             )}
           </div>
+          </div>
         </div>
+        {!rightPanelOpen && (
+          <Tooltip title="展开属性面板">
+            <div
+              onClick={() => setRightPanelOpen(true)}
+              style={{ position: "absolute", top: 88, right: 8, zIndex: 5, cursor: "pointer",
+                width: 26, height: 84, borderRadius: 10, background: "#fff", border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 14px rgba(15,23,42,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <LeftOutlined style={{ color: PRIMARY, fontSize: 14 }} />
+            </div>
+          </Tooltip>
+        )}
       </div>
 
       {/* 节点配置抽屉 */}

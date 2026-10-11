@@ -1,5 +1,5 @@
 """
-通维AI项目管理系统 - AI Agent API路由
+PMI中国AI项目管理社区 - AI Agent API路由
 支持自然语言指令执行和多轮对话
 
 [PMBOK KA: 跨领域 | PG: 执行 (Cross-area/Executing) — AI Agent执行引擎]

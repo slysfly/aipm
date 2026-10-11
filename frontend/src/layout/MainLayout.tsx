@@ -48,9 +48,7 @@ const planMenuItems = [
   { key: "/okrs", icon: <FlagOutlined />, label: "nav.okrs" },
   { key: "/calendar", icon: <CalendarOutlined />, label: "nav.calendar" },
   { key: "/sprints", icon: <BranchesOutlined />, label: "nav.sprints" },
-  { key: "/roadmap", icon: <ApartmentOutlined />, label: "nav.roadmap" },
   { key: "/critical-path", icon: <FireOutlined />, label: "nav.criticalPath" },
-  { key: "/approvals", icon: <AuditOutlined />, label: "nav.approvals" },
   { key: "/reports", icon: <BarChartOutlined />, label: "nav.reports" },
 ];
 

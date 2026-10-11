@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, Typography, Tag, Button, Space, Modal, Form, Input, Select, DatePicker, App, Spin, Row, Col, Progress, InputNumber, Empty, Popconfirm } from "antd";
 import AIAssistButton from "../components/AIAssistButton";
 import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, FundProjectionScreenOutlined, FilterOutlined, ClearOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { projectApi, projectTypeApi } from "../api";
 import dayjs from "dayjs";
@@ -11,6 +11,7 @@ const { Title, Text } = Typography;
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { message } = App.useApp();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
@@ -54,6 +55,16 @@ const Projects: React.FC = () => {
   };
 
   useEffect(() => { load(); }, [statusFilter]);
+
+  // 由 /projects?new=1 直达：自动打开新建弹窗并清掉 query，避免刷新/后退重复弹出
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      handleCreate();
+      const next = new URLSearchParams(searchParams);
+      next.delete("new");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams]);
 
   const handleCreate = () => {
     setEditingProject(null);
@@ -197,6 +208,10 @@ const Projects: React.FC = () => {
                 return v;
               }}
               onApply={(s) => form.setFieldsValue(s)}
+              // 把项目类型的合法 code 下发给后端，AI 只会在这些取值里选，
+              // 避免回填一个 Select 里不存在的值导致下拉框空白
+              options={{ project_type: types.map((t) => ({ value: t.code, label: t.name })) }}
+              dateFields={["start_date", "end_date"]}
             />
           </div>
           <Form.Item label="项目名称" name="name" rules={[{ required: true, message: "请输入项目名称" }]}><Input placeholder="例如：智慧城市管理系统 / 官网改版项目" /></Form.Item>
@@ -228,7 +243,29 @@ const Projects: React.FC = () => {
           </Space>
           <Space style={{ width: "100%" }}>
             <Form.Item label="开始日期" name="start_date"><DatePicker style={{ width: 150 }} /></Form.Item>
-            <Form.Item label="结束日期" name="end_date"><DatePicker style={{ width: 150 }} /></Form.Item>
+            <Form.Item
+              label="结束日期"
+              name="end_date"
+              dependencies={["start_date"]}
+              rules={[
+                {
+                  validator: async (_rule, value) => {
+                    const s = form.getFieldValue("start_date");
+                    if (value && s && value.isBefore(s, "day")) {
+                      throw new Error("结束日期不能早于开始日期");
+                    }
+                  },
+                },
+              ]}
+            >
+              <DatePicker
+                style={{ width: 150 }}
+                disabledDate={(cur) => {
+                  const s = form.getFieldValue("start_date");
+                  return !!s && !!cur && cur.isBefore(s, "day");
+                }}
+              />
+            </Form.Item>
           </Space>
           <Form.Item><Button type="primary" htmlType="submit" block>{editingProject ? "保存变更" : "创建项目"}</Button></Form.Item>
         </Form>

@@ -5,6 +5,7 @@ import httpx
 
 from app.config import settings
 from app.core.ai_engine.base import LLMProvider
+from app.core.ai_engine.http_pool import shared_client
 from app.core.ai_engine.providers_openai import OpenAIProvider
 import logging
 
@@ -37,7 +38,7 @@ class BaiduProvider(LLMProvider):
             raise RuntimeError("Baidu API key or secret key not configured")
 
         url = f"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={self.api_key}&client_secret={self.secret_key}"
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with shared_client(30.0) as client:
             response = await client.post(url)
             response.raise_for_status()
             data = response.json()
@@ -57,7 +58,7 @@ class BaiduProvider(LLMProvider):
             "max_output_tokens": max_tokens or self.default_max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             response = await client.post(
                 f"{self.base_url}/{self.model}?access_token={access_token}",
                 json=payload,
@@ -78,7 +79,7 @@ class BaiduProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/{self.model}?access_token={access_token}",
@@ -135,7 +136,7 @@ class AliyunProvider(LLMProvider):
             },
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             response = await client.post(
                 f"{self.base_url}/services/aigc/text-generation/generation",
                 headers=self.headers,
@@ -162,7 +163,7 @@ class AliyunProvider(LLMProvider):
             },
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/services/aigc/text-generation/generation",
@@ -219,7 +220,7 @@ class TencentProvider(LLMProvider):
             "max_tokens": max_tokens or self.default_max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
@@ -242,7 +243,7 @@ class TencentProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/chat/completions",
@@ -301,7 +302,7 @@ class ZhipuProvider(LLMProvider):
             "max_tokens": max_tokens or self.default_max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
@@ -324,7 +325,7 @@ class ZhipuProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/chat/completions",
@@ -383,7 +384,7 @@ class MoonshotProvider(LLMProvider):
             "max_tokens": max_tokens or self.default_max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
@@ -406,7 +407,7 @@ class MoonshotProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/chat/completions",
@@ -467,7 +468,7 @@ class QwenProvider(LLMProvider):
             },
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             response = await client.post(
                 f"{self.base_url}/services/aigc/text-generation/generation",
                 headers=self.headers,
@@ -494,7 +495,7 @@ class QwenProvider(LLMProvider):
             },
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/services/aigc/text-generation/generation",
@@ -551,7 +552,7 @@ class SiliconFlowProvider(LLMProvider):
             "max_tokens": max_tokens or self.default_max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
@@ -574,7 +575,7 @@ class SiliconFlowProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(20.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/chat/completions",

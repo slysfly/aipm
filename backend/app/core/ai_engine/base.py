@@ -3,6 +3,10 @@ from typing import AsyncIterator, Dict, Any, List, Optional
 
 
 class LLMProvider(ABC):
+    # 子类若支持 response_format={"type":"json_object"}，置为 True。
+    # 调用方据此决定是否传 json_mode —— 避免对不支持该参数的网关硬传导致 400。
+    supports_json_mode: bool = False
+
     @abstractmethod
     async def generate(self, prompt: str, temperature: Optional[float] = None, max_tokens: Optional[int] = None) -> str:
         pass

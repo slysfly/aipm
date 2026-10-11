@@ -5,6 +5,7 @@ import httpx
 
 from app.config import settings
 from app.core.ai_engine.base import LLMProvider
+from app.core.ai_engine.http_pool import shared_client
 import logging
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ class OpenAIProvider(LLMProvider):
             "max_tokens": max_tokens or self.default_max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
@@ -66,7 +67,7 @@ class OpenAIProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/chat/completions",
@@ -124,7 +125,7 @@ class DeepSeekProvider(LLMProvider):
             "max_tokens": max_tokens or self.default_max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
@@ -147,7 +148,7 @@ class DeepSeekProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/chat/completions",
@@ -222,7 +223,7 @@ class AnthropicProvider(LLMProvider):
         if temperature is not None:
             payload["temperature"] = temperature
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             response = await client.post(
                 f"{self.base_url}/messages",
                 headers=self.headers,
@@ -249,7 +250,7 @@ class AnthropicProvider(LLMProvider):
         if temperature is not None:
             payload["temperature"] = temperature
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/messages",
@@ -275,6 +276,8 @@ class AnthropicProvider(LLMProvider):
 
 class OpenAICompatibleProvider(LLMProvider):
     """通用兼容OpenAI API格式的Provider"""
+    supports_json_mode = True
+
     def __init__(self, api_key: str, base_url: str, model: str, temperature: float = 0.7, max_tokens: int = 2000):
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
@@ -285,6 +288,9 @@ class OpenAICompatibleProvider(LLMProvider):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+        # 该网关是否接受 response_format=json_object。首次被拒后自动降级并记住，
+        # 避免不支持的网关每次请求都白跑一趟。
+        self._json_mode_supported = True
 
     def check_config(self) -> tuple[bool, str]:
         if not self.api_key or not self.api_key.strip():
@@ -295,11 +301,24 @@ class OpenAICompatibleProvider(LLMProvider):
             return False, "Model name not configured."
         return True, ""
 
-    async def generate(self, prompt: str, temperature: Optional[float] = None, max_tokens: Optional[int] = None) -> str:
+    async def generate(self, prompt: str, temperature: Optional[float] = None, max_tokens: Optional[int] = None, json_mode: bool = False) -> str:
         messages = [{"role": "user", "content": prompt}]
-        return await self.chat(messages, temperature, max_tokens)
+        return await self.chat(messages, temperature, max_tokens, json_mode=json_mode)
 
-    async def chat(self, messages: List[Dict[str, str]], temperature: Optional[float] = None, max_tokens: Optional[int] = None) -> str:
+    @staticmethod
+    def _extract_content(data: Dict[str, Any]) -> str:
+        """取正文。部分推理型模型把内容放在 reasoning_content 里而 content 为空；
+        原来直接取 ["content"] 会因 None/缺键让调用方拿到空串或直接抛 KeyError。"""
+        try:
+            msg = data["choices"][0]["message"]
+        except (KeyError, IndexError, TypeError):
+            return ""
+        text = msg.get("content")
+        if not text:
+            text = msg.get("reasoning_content") or ""
+        return text or ""
+
+    async def chat(self, messages: List[Dict[str, str]], temperature: Optional[float] = None, max_tokens: Optional[int] = None, json_mode: bool = False) -> str:
         is_available, error_msg = self.check_config()
         if not is_available:
             raise RuntimeError(error_msg)
@@ -310,16 +329,33 @@ class OpenAICompatibleProvider(LLMProvider):
             "temperature": temperature or self.default_temperature,
             "max_tokens": max_tokens or self.default_max_tokens,
         }
+        # JSON 模式：让网关保证输出是合法 JSON，省掉截断 / markdown 围栏 / 解释文字的修复成本
+        use_json_mode = bool(json_mode) and self._json_mode_supported
+        if use_json_mode:
+            payload["response_format"] = {"type": "json_object"}
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
                 json=payload,
             )
+            # 不支持 response_format 的网关通常回 400/415/422 —— 去掉后重试一次，并记住
+            if use_json_mode and response.status_code in (400, 404, 415, 422):
+                self._json_mode_supported = False
+                logger.warning(
+                    "网关不支持 response_format=json_object（HTTP %s），本次降级为普通模式并记住",
+                    response.status_code,
+                )
+                payload.pop("response_format", None)
+                response = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=self.headers,
+                    json=payload,
+                )
             response.raise_for_status()
             data = response.json()
-            return data["choices"][0]["message"]["content"]
+            return self._extract_content(data)
 
     async def stream_chat(self, messages: List[Dict[str, str]], temperature: Optional[float] = None, max_tokens: Optional[int] = None) -> AsyncIterator[str]:
         is_available, error_msg = self.check_config()
@@ -334,7 +370,7 @@ class OpenAICompatibleProvider(LLMProvider):
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with shared_client(120.0) as client:
             async with client.stream(
                 "POST",
                 f"{self.base_url}/chat/completions",

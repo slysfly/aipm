@@ -1,4 +1,4 @@
-// PMI中国 AI-PM English language pack
+// 通维 AI-PM English language pack
 const en = {
   common: {
     save: "Save",
@@ -18,8 +18,6 @@ const en = {
     none: "None",
   },
   nav: {
-    roadmap: "Roadmap",
-    approvals: "Approvals",
     dashboard: "Dashboard",
     projects: "Projects",
     tasks: "Tasks",
@@ -27,6 +25,7 @@ const en = {
     portfolio: "Portfolio",
     agents: "Agent",
     workflow: "Workflow Orchestration",
+    workflowAugmented: "Smart Workflow (Test)",
     aiMonitor: "AI Monitor",
     okrs: "OKR Goals",
     calendar: "Calendar",
@@ -61,6 +60,41 @@ const en = {
   },
   theme: { light: "Light", dark: "Dark" },
   lang: { switch: "Switch language" },
+  // Agent related translations
+  agent: {
+    processGroups: "Process Groups",
+    knowledgeAreas: "Knowledge Areas",
+    system: "System",
+    name: "Name",
+    description: "Description",
+    inputs: "Inputs",
+    tools: "Tools & Techniques",
+    outputs: "Outputs",
+    tryRun: "Try Run",
+    run: "Run",
+    running: "Running...",
+    completed: "Completed",
+    failed: "Failed",
+    notAvailable: "AI service temporarily unavailable. Placeholder generated.",
+    placeholder: "Placeholder Result",
+    // Process Groups
+    initiating: "Initiating",
+    planning: "Planning",
+    executing: "Executing",
+    monitoring: "Monitoring & Controlling",
+    closing: "Closing",
+    // Knowledge Areas
+    integration: "Integration",
+    scope: "Scope",
+    schedule: "Schedule",
+    cost: "Cost",
+    quality: "Quality",
+    resource: "Resource",
+    communication: "Communication",
+    risk: "Risk",
+    procurement: "Procurement",
+    stakeholder: "Stakeholder",
+  },
 };
 
 export default en;

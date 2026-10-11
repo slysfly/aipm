@@ -4,27 +4,15 @@ import { RobotOutlined, SendOutlined, ProjectOutlined } from "@ant-design/icons"
 import { post } from "../api/http";
 import { projectApi } from "../api";
 import DOMPurify from "dompurify";
+import { renderMarkdownToHtml } from "../utils/markdown";
+import ActionCard from "./ActionCard";
+import type { AiAction } from "../types/aiAction";
 
 interface Msg {
   role: "user" | "ai";
   content: string;
+  actions?: AiAction[];
 }
-
-/**
- * 轻量 Markdown → HTML 并用 DOMPurify 消毒，避免 AI 回复中的脚本被当作 HTML 执行。
- * 覆盖标题 / 加粗 / 行内代码 / 列表 / 换行，满足助手回复的常见排版。
- */
-const renderMarkdown = (content: string): string => {
-  const raw = content
-    .replace(/^### (.+)$/gm, '<h4 style="margin:12px 0 6px;font-size:14px;font-weight:600">$1</h4>')
-    .replace(/^## (.+)$/gm, '<h3 style="margin:14px 0 6px;font-size:15px;font-weight:700">$1</h3>')
-    .replace(/^# (.+)$/gm, '<h2 style="margin:16px 0 8px;font-size:16px;font-weight:700">$1</h2>')
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, '<code style="background:#eef;padding:1px 4px;border-radius:3px">$1</code>')
-    .replace(/^- (.+)$/gm, '<div style="padding-left:14px;line-height:1.7">• $1</div>')
-    .replace(/\n/g, "<br/>");
-  return DOMPurify.sanitize(raw);
-};
 
 const GlobalAssistant: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -53,7 +41,14 @@ const GlobalAssistant: React.FC = () => {
         project_id: projectId,
         context: { source: "global_assistant", project_id: projectId },
       });
-      setMsgs((m) => [...m, { role: "ai", content: res.message || "（无回复）" }]);
+      setMsgs((m) => [
+        ...m,
+        {
+          role: "ai",
+          content: res.message || "（无回复）",
+          actions: res.actions && res.actions.length ? res.actions : undefined,
+        },
+      ]);
     } catch (e: any) {
       setMsgs((m) => [...m, { role: "ai", content: "调用失败：" + (e?.response?.data?.detail || e?.message || "未知错误") }]);
     } finally {
@@ -116,14 +111,28 @@ const GlobalAssistant: React.FC = () => {
                     fontSize: 13,
                     lineHeight: 1.7,
                   }}
+                  className="aipm-md"
                   dangerouslySetInnerHTML={{
                     __html:
                       m.role === "ai"
-                        ? renderMarkdown(m.content)
+                        ? renderMarkdownToHtml(m.content)
                         : DOMPurify.sanitize(m.content),
                   }}
                 />
               </div>
+              {m.role === "ai" && m.actions && m.actions.length > 0 && (
+                <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                  <div style={{ maxWidth: "92%", marginTop: 4 }}>
+                    <ActionCard
+                      actions={m.actions}
+                      project_id={projectId}
+                      onDone={() =>
+                        window.dispatchEvent(new CustomEvent("aipm:tasks-changed"))
+                      }
+                    />
+                  </div>
+                </div>
+              )}
             </List.Item>
           )}
         />

@@ -22,7 +22,7 @@ class Objective(Base):
     owner = Column(String(128), default="")
     progress = Column(Integer, default=0)
     key_results = Column(JSON, default=list)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
 
     def to_dict(self):
         return {
@@ -45,7 +45,7 @@ class Whiteboard(Base):
     id = Column(String(36), primary_key=True, default=_uuid)
     title = Column(String(255), default="未命名白板")
     notes = Column(JSON, default=list)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
 
     def to_dict(self):
         return {
@@ -65,7 +65,7 @@ class Document(Base):
     content = Column(Text, default="")
     folder = Column(String(128), default="通用")
     author = Column(String(128), default="")
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     def to_dict(self):
         return {

@@ -35,6 +35,17 @@ from app.models import User
 from app.models.im_gateway import (
     IMProviderConfig, UserIMBinding, IMConversationSession, IMAuditLog,
 )
+from app.services.im_signature_service import (
+    SignatureProof,
+    VerificationResult,
+    issue_signature_proof,
+    is_valid_signature_proof,
+    log_signature_result,
+    mask_identifier,
+    rejection_detail,
+    verify_platform_signature,
+)
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -146,6 +157,10 @@ class IMCommandResult(BaseModel):
     actions_taken: List[Dict[str, Any]] = []  # 执行的操作列表
     conflict_alerts: List[Dict[str, Any]] = [] # 冲突警告
     session_id: Optional[str] = None
+    # [Issue #12] 未绑定用户阻断：显式告知调用方需要走绑定引导
+    binding_required: bool = False
+    # [Issue #12] 绑定状态：unbound / revoked / user_disabled
+    binding_status: Optional[str] = None
 
 
 # ============================================================
@@ -375,14 +390,47 @@ async def inbound_message(
     """
     核心端点：接收来自各平台的IM消息，路由到AI处理后返回响应。
 
+    [Issue #12 修复 D-02] **公开路由与内部实现分离**。
+    本函数是对外的 HTTP 契约层，请求体契约与加固前**完全一致**：
+    唯一的 body 参数是 `payload: IMMessageInbound`（扁平结构
+    `{"provider":..., "im_user_id":..., "content":...}`）。
+
+    历史缺陷：此前把 `signature_proof: Optional[SignatureProof] = None` 直接放在
+    本路由签名里。`SignatureProof` 是 dataclass 且未包 `Depends()`，FastAPI 会把
+    它当作**第二个 body 参数**，导致请求体变为嵌套的
+    `{"payload": {...}, "signature_proof": {...}}`，所有既有调用方收到 422。
+    现改为：验签凭据只经由内部实现函数 `_inbound_message_impl` 传递，
+    本端点固定以 `signature_proof=None` 调用（公开请求不存在"上游已验签"前提，
+    内部实现会依据 `request` 现场完成验签）。
+    """
+    return await _inbound_message_impl(payload, request, db, signature_proof=None)
+
+
+async def _inbound_message_impl(
+    payload: IMMessageInbound,
+    request: Optional[Request],
+    db: AsyncSession,
+    signature_proof: Optional[SignatureProof] = None,
+) -> Dict[str, Any]:
+    """入站消息处理的**内部实现**（不由 FastAPI 直接路由，仅供内部调用）。
+
     流程：
-    1. 验证平台已启用 + 签名校验
-    2. 通过 im_user_id 查找用户绑定（用户隔离）
+    1. 验证平台已启用 + **签名校验（fail-closed）**
+    2. 通过 im_user_id 查找用户绑定（用户隔离）；未绑定则返回绑定引导，**不自动绑定**
     3. 创建/复用会话 session
     4. 调用 AI 解析意图并执行操作
     5. 冲突检测
     6. 记录审计日志
     7. 返回响应文本
+
+    [Issue #12] 安全约束：
+    - 验签在任何 DB 写入 / AI 调用 / 绑定查询**之前**完成，失败一律401；
+    - 平台 Webhook 端点已验签时通过 `signature_proof` 传入凭据，避免重复计算，
+      但凭据由 im_signature_service 私有哨兵签发，外部无法伪造；
+    - **兜底重验不可省略**：本函数是可直接被内部调用的入口，
+      `_ensure_signature_verified` 会先校验 Proof 有效性，再在无有效 Proof 时
+      依据 `request` 现场重验；`request is None` 且无有效 Proof 一律 401
+      （fail-closed），不存在"无 request 即放行"的路径。
     """
     start_time = time.time()
     source_ip = None
@@ -403,63 +451,76 @@ async def inbound_message(
     if not config:
         raise HTTPException(status_code=503, detail=f"平台 {payload.provider} 未启用或未配置")
 
-    # TODO: 签名验证（根据各平台规则）
+    # Step 2: 签名校验（fail-closed）—— [Issue #12] 替换原 `# TODO: 签名验证`
+    # 顺序保证：验签先于绑定查询、会话创建、AI 调用与任何数据库写入。
+    proof = await _ensure_signature_verified(
+        request=request,
+        config=config,
+        payload=payload,
+        signature_proof=signature_proof,
+        source_ip=source_ip,
+    )
 
-    # Step 2: 查找用户绑定（用户隔离核心）
+    # Step 3: 查找用户绑定（用户隔离核心）
+    # 同时取回该 IM 身份的历史绑定（含 revoked/disabled），用于区分未绑定状态，
+    # 避免"查不到 active 就当成全新用户"的歧义。
     binding_result = await db.execute(
         select(UserIMBinding).where(
             UserIMBinding.provider == payload.provider,
             UserIMBinding.im_user_id == payload.im_user_id,
-            UserIMBinding.status == "active",
         )
     )
-    binding = binding_result.scalar_one_or_none()
+    bindings = binding_result.scalars().all()
+    binding = next((b for b in bindings if b.status == "active"), None)
 
     if not binding:
-        # 未绑定的用户：自动绑定到管理员账号（首次使用自动开通）
-        logger.info(f"IM 用户 {payload.im_user_id}@{payload.provider} 无绑定，尝试自动绑定")
-        # 查找系统中的管理员/活跃用户作为默认绑定目标
-        admin_result = await db.execute(
-            select(User).where(User.is_active == True).limit(1)
+        # [Issue #12] 已移除"未绑定用户自动绑定到首个活跃用户（实为管理员）"的越权逻辑。
+        # 未绑定一律返回绑定引导：不创建 UserIMBinding、不创建会话、不写任何归属他人的审计记录。
+        revoked = any(b.status in ("revoked", "disabled") for b in bindings)
+        binding_status = "revoked" if revoked else "unbound"
+        logger.warning(
+            "IM 入站被阻断（未绑定）: provider=%s im_user=%s status=%s source_ip=%s",
+            payload.provider,
+            mask_identifier(payload.im_user_id),
+            binding_status,
+            source_ip,
         )
-        default_user = admin_result.scalar_one_or_none()
-        if default_user:
-            binding = UserIMBinding(
-                user_id=default_user.id,
-                provider=payload.provider,
-                im_user_id=payload.im_user_id,
-                im_user_name=f"IM用户_{payload.im_user_id[:8]}",
-                status="active",
-            )
-            db.add(binding)
-            # 立即 flush 以分配 binding.id，供后续会话的 binding_id 外键使用
-            await db.flush()
-            logger.info(f"已自动绑定 {payload.im_user_id}@{payload.provider} → 用户 {default_user.username}")
-        else:
-            return IMCommandResult(
-                success=True,
-                reply_text=(
-                    f"您好！欢迎使用PMI中国 AI-PM 智能助手。\n\n"
-                    f"系统中暂无可用用户账号，请联系管理员。"
-                ),
-                reply_type="text",
-            ).model_dump()
+        return IMCommandResult(
+            success=False,
+            reply_text=_build_binding_guide_text(binding_status, payload.provider),
+            reply_type="text",
+            binding_required=True,
+            binding_status=binding_status,
+        ).model_dump()
 
     user_result = await db.execute(select(User).where(User.id == binding.user_id))
     aipm_user = user_result.scalar_one_or_none()
     if not aipm_user or not aipm_user.is_active:
+        logger.warning(
+            "IM 入站被阻断（账号缺失或已禁用）: provider=%s im_user=%s user_id=%s source_ip=%s",
+            payload.provider,
+            mask_identifier(payload.im_user_id),
+            binding.user_id,
+            source_ip,
+        )
         return IMCommandResult(
             success=False,
-            reply_text="关联的 AIPM 账号不存在或已禁用。",
+            reply_text=(
+                "关联的 AIPM 账号不存在或已被禁用，无法继续处理。\n\n"
+                "请联系系统管理员在「IM 网关 → 绑定管理」中检查账号状态或重新绑定。"
+            ),
+            reply_type="text",
+            binding_required=True,
+            binding_status="user_disabled",
         ).model_dump()
 
     # 更新最后活跃时间
     binding.last_active_at = datetime.now()
 
-    # Step 3: 创建/复用会话
+    # Step 4: 创建/复用会话
     session = await _get_or_create_session(db, binding, payload.im_chat_id)
 
-    # Step 4: AI 处理
+    # Step 5: AI 处理
     ai_start = time.time()
     try:
         ai_result = await _process_message_with_ai(db, aipm_user, binding, payload.content, session.id)
@@ -477,10 +538,10 @@ async def inbound_message(
 
     total_ms = (time.time() - start_time) * 1000
 
-    # Step 5: 冲突检测
+    # Step 6: 冲突检测
     conflicts = await _detect_conflicts(db, aipm_user.id, ai_result.get("actions_taken", []))
 
-    # Step 6: 审计日志
+    # Step 7: 审计日志
     audit_log = IMAuditLog(
         user_id=aipm_user.id,
         provider=payload.provider,
@@ -522,11 +583,147 @@ async def inbound_message(
 
 
 # ============================================================
+# 3.1 安全辅助：签名校验 & 绑定引导（[Issue #12]）
+# ============================================================
+async def _ensure_signature_verified(
+    request: Request,
+    config: IMProviderConfig,
+    payload: IMMessageInbound,
+    signature_proof: Optional[SignatureProof],
+    source_ip: Optional[str],
+) -> SignatureProof:
+    """确保入站请求已完成签名校验，返回有效 Proof；未通过则抛 401。
+
+    双层防护设计：
+    - 平台 Webhook 端点先验签（早失败、省 IO），通过 `signature_proof` 传入凭据；
+    - 本函数在统一入口再兜底一次，防止任何直接调用 `_inbound_message_impl()` 的路径绕过验签。
+
+    `signature_proof` 仅接受 im_signature_service 私有哨兵签发的凭据，
+    外部无法构造，杜绝"伪造已验签标记"。
+
+    [Issue #12 修复 D-02] 兜底策略（fail-closed，不因 request=None 放行）：
+    1. Proof 有效 → 直接返回（上游已验签，快路径）；
+    2. Proof 无效 + `request is None` → 401 `missing_request_context`
+       （后台任务场景无原始报文，无法验签，绝不放行）；
+    3. Proof 无效 + `request` 存在 → 现场重新验签，失败一律 401。
+    """
+    # 快路径：上游已验签且凭据可信
+    if is_valid_signature_proof(signature_proof):
+        return signature_proof
+
+    # 无活动请求对象（后台任务）且无可信凭据 → 无法验签 → fail-closed
+    if request is None:
+        logger.warning(
+            "IM 入站验签失败（无可用请求上下文且无有效凭据）: provider=%s im_user=%s source_ip=%s",
+            payload.provider,
+            mask_identifier(payload.im_user_id),
+            source_ip,
+        )
+        raise HTTPException(
+            status_code=401,
+            detail={"error": "missing_request_context", "platform": payload.provider},
+        )
+
+    # 报文内时间戳作为兜底（钉钉/Slack 走 header，企微走 query）
+    result: VerificationResult = await verify_platform_signature(
+        request=request,
+        platform=payload.provider,
+        config=config,
+        timestamp_override=payload.timestamp,
+    )
+
+    log_signature_result(
+        result,
+        source_ip=source_ip,
+        extra={"im_user": mask_identifier(payload.im_user_id)},
+    )
+
+    if not result.ok:
+        # fail-closed：密钥未配置 / 缺签名头 / 签名错误 / 时间戳超窗 / 验签器异常
+        raise HTTPException(status_code=401, detail=rejection_detail(result))
+
+    return issue_signature_proof(result)
+
+
+def _build_binding_guide_text(binding_status: str, provider: str) -> str:
+    """构造未绑定用户的绑定引导文案（区分未绑定 / 已撤销 / 账号禁用）。"""
+    platform_name = PLATFORM_META.get(provider, {}).get("name", "IM")
+
+    if binding_status == "revoked":
+        header = f"您的{platform_name}账号绑定已被解除。"
+        advice = (
+            "如需继续使用，请联系系统管理员重新开启绑定，"
+            "或在系统中「IM 网关 → 绑定管理」中重新绑定您的账号。"
+        )
+    elif binding_status == "user_disabled":
+        header = "关联的 AIPM 账号不存在或已禁用。"
+        advice = "请联系系统管理员恢复账号后重试。"
+    else:
+        header = f"您还未绑定{platform_name}账号。"
+        advice = (
+            "请登录通维 AI-PM 系统，在「IM 网关 → 绑定管理」中绑定您的账号，"
+            "或联系系统管理员协助完成绑定。"
+        )
+
+    return (
+        f"您好！欢迎使用通维 AI-PM 智能助手。\n\n"
+        f"{header}\n\n"
+        f"出于数据安全考虑，系统不会自动将您的{platform_name}账号关联到任何已有用户，"
+        f"需要您显式完成绑定后才能使用助手功能。\n\n"
+        f"**绑定方式**：{advice}\n\n"
+        f"完成绑定后，直接在此对话中发送您的需求即可。"
+    )
+
+
+# ============================================================
 # 4. 各平台专用 Webhook 入口（透传到统一处理）
 # ============================================================
+async def _verify_webhook_signature(
+    request: Request,
+    platform: str,
+    db: AsyncSession,
+    body_fields: Optional[Dict[str, Any]] = None,
+) -> SignatureProof:
+    """Webhook 端点统一验签helper：解析业务消息**之前**完成校验，失败直接 401。
+
+    Returns:
+        SignatureProof: 有效凭据，供后续 `_inbound_message_impl()` 复用，避免重复验签。
+
+    Raises:
+        HTTPException: 平台未配置 → 503；验签失败 → 401（fail-closed）。
+    """
+    source_ip = request.client.host if getattr(request, "client", None) else None
+
+    config_result = await db.execute(
+        select(IMProviderConfig).where(
+            IMProviderConfig.provider == platform,
+            IMProviderConfig.enabled == True,
+        )
+    )
+    config = config_result.scalar_one_or_none()
+    if not config:
+        raise HTTPException(status_code=503, detail=f"平台 {platform} 未启用或未配置")
+
+    result = await verify_platform_signature(
+        request=request,
+        platform=platform,
+        config=config,
+        body_fields=body_fields,
+    )
+    log_signature_result(result, source_ip=source_ip)
+
+    if not result.ok:
+        raise HTTPException(status_code=401, detail=rejection_detail(result))
+
+    return issue_signature_proof(result)
+
+
 @router.post("/webhook/dingtalk")
 async def dingtalk_webhook(request: Request, db: AsyncSession = Depends(get_db)):
-    """钉钉机器人消息回调"""
+    """钉钉机器人消息回调（先验签，再解析业务消息）"""
+    # [Issue #12] 验签前置：任何业务字段解析之前完成 fail-closed 校验
+    proof = await _verify_webhook_signature(request, "dingtalk", db)
+
     body = await request.json()
     msg = body.get("text", {}).get("content", "") if body.get("msgtype") == "text" else ""
     sender_id = body.get("senderId", "") or body.get("senderStaffId", "") or ""
@@ -542,7 +739,7 @@ async def dingtalk_webhook(request: Request, db: AsyncSession = Depends(get_db))
         message_id=body.get("msgid"),
         timestamp=int(time.time()),
     )
-    result = await inbound_message(inbound, request, db=db)
+    result = await _inbound_message_impl(inbound, request, db, signature_proof=proof)
     # 钉钉需要返回特定格式
     return {
         "msgtype": "text",
@@ -551,22 +748,35 @@ async def dingtalk_webhook(request: Request, db: AsyncSession = Depends(get_db))
 
 
 @router.post("/webhook/feishu")
-async def feishu_webhook(request: Request):
+async def feishu_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     """飞书事件回调 — 秒级 ACK + 异步处理（避免飞书重试/超时）
 
     流程：
-    1. 飞书 URL 验证（订阅时回显 challenge）
-    2. 解析消息，立即返回 200（飞书要求秒级响应，否则会重试）
-    3. 后台任务：自动绑定 → 调 OpenClaw 生成回复 → 发回飞书
+    1. 解析 body（仅用于识别事件类型，不做任何业务处理）
+    2. `url_verification`：**仅回显 challenge**，不进入消息链路（豁免由配置开关控制）
+    3. 其余请求：先完成签名验证，失败直接 401
+    4. 解析消息并立即返回 200（飞书要求秒级响应，否则会重试）
+    5. 后台任务：调 OpenClaw 生成回复 → 发回飞书
     """
     try:
         body = await request.json()
     except Exception:
         return {"code": 0}
 
-    # 飞书事件订阅 URL 验证
-    if body.get("type") == "url_verification":
+    # 飞书事件订阅 URL 验证 —— [Issue #12] 限定为「仅挑战」，绝不进入消息处理链路
+    # 硬性约束：必须 type == "url_verification" 且不含 event 字段（即非消息/事件请求）
+    if body.get("type") == "url_verification" and not body.get("event"):
+        if not settings.IM_SIGNATURE_ALLOW_URL_VERIFICATION:
+            logger.warning("飞书 url_verification 挑战被拒绝：豁免开关已关闭")
+            raise HTTPException(
+                status_code=401,
+                detail={"error": "url_verification_disabled", "platform": "feishu"},
+            )
+        logger.info("飞书 url_verification 挑战：仅回显 challenge，不进入消息链路")
         return {"challenge": body.get("challenge", "")}
+
+    # [Issue #12] 所有业务事件必须先验签，失败直接 401，不进入解析/异步任务
+    proof = await _verify_webhook_signature(request, "feishu", db)
 
     event = body.get("event", {})
     sender = event.get("sender", {})
@@ -581,7 +791,7 @@ async def feishu_webhook(request: Request):
         except Exception:
             content = str(message.get("content", ""))
 
-    # 飞书事件中 sender_id 含 open_id / user_id(工号) / union_id；
+    # 飞书事件中sender_id 含 open_id / user_id(工号) / union_id；
     # 回发消息用 receive_id_type=open_id，必须取 open_id
     _sid = sender.get("sender_id") or {}
     sender_id = (
@@ -603,7 +813,10 @@ async def feishu_webhook(request: Request):
         _feishu_seen.clear()
 
     # 立即 ACK，后台异步处理（OpenClaw 调用可能耗时数秒）
-    asyncio.create_task(_handle_feishu_message(content.strip(), str(sender_id), msg_id, chat_id))
+    # [Issue #12] 仅把**已验签**的消息投递到后台任务，并携带 Proof 避免链路中二次验签
+    asyncio.create_task(
+        _handle_feishu_message(content.strip(), str(sender_id), msg_id, chat_id, proof)
+    )
     return {"code": 0, "msg": "accepted"}
 
 
@@ -611,10 +824,19 @@ async def feishu_webhook(request: Request):
 _feishu_seen: set = set()
 
 
-async def _handle_feishu_message(content: str, sender_id: str, msg_id: str, chat_id: str = ""):
+async def _handle_feishu_message(
+    content: str,
+    sender_id: str,
+    msg_id: str,
+    chat_id: str = "",
+    signature_proof: Optional[SignatureProof] = None,
+):
     """后台处理飞书消息：绑定用户 → OpenClaw 生成回复 → 发回飞书
 
     回复目标：群消息(chat_id 以 oc_ 开头)回群里，私聊回用户 open_id。
+
+    [Issue #12] `signature_proof` 为上游端点验签后签发的凭据；
+    若缺失/无效，`_inbound_message_impl()` 会 fail-closed 拒绝（401），消息不会被处理。
     """
     # 决定回复目标：群聊回群，私聊回用户
     if chat_id and str(chat_id).startswith("oc_"):
@@ -641,8 +863,11 @@ async def _handle_feishu_message(content: str, sender_id: str, msg_id: str, chat
                 content=content,
                 message_id=msg_id,
             )
-            # request=None：后台任务中无活动请求对象，inbound_message 已做 source_ip 保护
-            result = await inbound_message(inbound, None, db=db_sess)
+            # request=None：后台任务中无活动请求对象；凭据由上游验签后签发，
+            # _inbound_message_impl 已做 source_ip 保护，且无有效凭据时会fail-closed 拒绝
+            result = await _inbound_message_impl(
+                inbound, None, db_sess, signature_proof=signature_proof
+            )
             reply_text = result.get("reply_text", "")
     except Exception as e:
         logger.exception("Feishu 消息处理失败")
@@ -657,8 +882,27 @@ async def _handle_feishu_message(content: str, sender_id: str, msg_id: str, chat
 
 @router.post("/webhook/wecom")
 async def wecom_webhook(request: Request, db: AsyncSession = Depends(get_db)):
-    """企业微信回调"""
-    body = await request.json()
+    """企业微信回调（先验签，再解析业务消息）"""
+    # [Issue #12] 企业微信 msg_signature 依赖 body 中的 MsgSignature/timestamp/nonce，
+    # 故先读取原始 body 提取这几个字段参与验签（摘要本身仍基于 raw body）。
+    raw_body = await request.body()
+    body_fields: Dict[str, Any] = {}
+    try:
+        parsed = json.loads(raw_body or b"{}")
+        if isinstance(parsed, dict):
+            body_fields = {
+                "MsgSignature": parsed.get("MsgSignature") or parsed.get("msg_signature"),
+                "timestamp": parsed.get("timestamp") or parsed.get("TimeStamp"),
+                "nonce": parsed.get("nonce") or parsed.get("Nonce"),
+            }
+    except Exception:
+        body_fields = {}
+
+    proof = await _verify_webhook_signature(
+        request, "wecom", db, body_fields=body_fields
+    )
+
+    body = json.loads(raw_body or b"{}")
     # 企业微信 XML/JSON 格式
     from_user = body.get("FromUserName", "")
     content = body.get("Content", "")
@@ -673,7 +917,7 @@ async def wecom_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         content=content.strip(),
         message_id=body.get("MsgId"),
     )
-    result = await inbound_message(inbound, request, db=db)
+    result = await _inbound_message_impl(inbound, request, db, signature_proof=proof)
     # 企业微信 passive reply
     return {
         "ToUserName": body.get("ToUserName", ""),
@@ -682,6 +926,59 @@ async def wecom_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         "MsgType": "text",
         "Content": result["reply_text"],
     }
+
+
+@router.post("/webhook/slack")
+async def slack_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    """Slack Events API 回调（[Issue #12] 新增路由，与三平台保持一致的透传模式）
+
+    验签：`v0:{ts}:{raw_body}` HMAC-SHA256(Signing Secret) → hex，
+    对应 `X-Slack-Request-Timestamp` + `X-Slack-Signature`，失败一律 401。
+    """
+    # [Issue #12] 验签前置：解析任何业务字段之前完成 fail-closed 校验
+    proof = await _verify_webhook_signature(request, "slack", db)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return {"ok": False}
+
+    # Slack URL 校验挑战（与飞书同理：仅回显 challenge，不进入消息链路）
+    if body.get("type") == "url_verification" and not body.get("event"):
+        if not settings.IM_SIGNATURE_ALLOW_URL_VERIFICATION:
+            raise HTTPException(
+                status_code=401,
+                detail={"error": "url_verification_disabled", "platform": "slack"},
+            )
+        return {"challenge": body.get("challenge", "")}
+
+    event = body.get("event", {})
+    if body.get("type") != "event_callback" or not isinstance(event, dict):
+        # 非消息事件（如 app_mention 之外的系统事件）已验签，直接 ACK
+        return {"ok": True}
+
+    # 仅处理用户消息事件
+    if event.get("type") != "message" or event.get("bot_id") or event.get("subtype"):
+        return {"ok": True}
+
+    slack_user = event.get("user")
+    text = event.get("text", "")
+    channel = event.get("channel", "")
+
+    if not slack_user or not text:
+        return {"ok": True}
+
+    inbound = IMMessageInbound(
+        provider="slack",
+        event_type="message",
+        im_user_id=str(slack_user),
+        im_chat_id=str(channel) if channel else None,
+        content=str(text).strip(),
+        message_id=body.get("event_id"),
+    )
+    result = await _inbound_message_impl(inbound, request, db, signature_proof=proof)
+    # Slack 要求返回 200 且 body 为空/ok 形态，避免重试
+    return {"ok": True, "text": result.get("reply_text", "")}
 
 
 # ============================================================
@@ -835,7 +1132,7 @@ async def _process_message_with_ai(
 
     # 构建系统提示：告诉AI它是一个IM助手，可以执行操作
     im_system_prompt = (
-        "你是PMI中国 AI-PM 智能项目管理助手。当前用户通过即时通讯工具（"
+        "你是通维 AI-PM 智能项目管理助手。当前用户通过即时通讯工具（"
         f"{PLATFORM_META.get(binding.provider, {}).get('name', 'IM')}）与你对话。\n\n"
         "你可以帮助用户：\n"
         "1. **查询信息**：项目进度、任务列表、风险状况、里程碑、资源日历等\n"
@@ -1126,7 +1423,7 @@ async def _call_openclaw(message: str, session_key: str = "main") -> Optional[st
     async with OPENCLAW_SEM:
         try:
             full_message = (
-                "你正在通过飞书为「PMI中国 AI-PM」用户提供智能项目管理助手服务，"
+                "你正在通过飞书为「通维 AI-PM」用户提供智能项目管理助手服务，"
                 "请用简洁、专业、口语化的中文回复，避免长篇大论。\n\n"
                 f"用户消息：{message}"
             )

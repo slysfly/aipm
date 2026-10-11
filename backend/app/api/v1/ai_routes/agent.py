@@ -688,20 +688,3 @@ async def agent_list_materials(
     """列出某项目的全部 Agent 物料（输入模板 + 输出文件）。"""
     return material_list(project_id)
 
-
-@router.get("/agents/materials/{ref}/download")
-async def agent_download_material(
-    ref: str,
-    project_id: Optional[str] = None,
-    _: User = Depends(get_current_user),
-):
-    """下载某份物料（模板/输出）文件，Markdown 以 text/markdown 返回。"""
-    m = get_material_content(project_id or "_global", ref)
-    if not m:
-        raise HTTPException(status_code=404, detail="物料不存在")
-    from fastapi.responses import Response
-    return Response(
-        content=m["content"].encode("utf-8", "ignore"),
-        media_type="text/markdown; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{ref}.md"'},
-    )

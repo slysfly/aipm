@@ -196,7 +196,7 @@ const Profile: React.FC = () => {
 
   const handleUpdateUserRole = async (userId: string, values: any) => {
     try {
-      await put(`/api/v1/profile/users/${userId}/role`, values);
+      await put(`/profile/users/${userId}/role`, values);
       message.success("用户角色已更新");
       setRoleModalOpen(false);
       await loadAdminUsers();

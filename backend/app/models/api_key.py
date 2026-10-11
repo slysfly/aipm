@@ -39,8 +39,8 @@ class ApiKey(Base):
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     is_active = Column(Boolean, default=True)
     last_used_at = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     def to_dict(self, include_key: bool = False) -> dict:
         data = {

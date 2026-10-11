@@ -25,6 +25,11 @@ from app.config import settings
 
 router = APIRouter()
 
+# [安全修复 Issue #3] Cookie Secure 标志：生产环境（HTTPS）强制开启，开发环境关闭。
+# 原实现把 secure=True 写成注释，导致 HTTPS 生产站点的会话 Cookie 无 Secure 标志，
+# 可被中间人或诱导的明文 http:// 请求带出。
+_COOKIE_SECURE = getattr(settings, "ENVIRONMENT", "development") == "production"
+
 # 登录速率限制（内存，每IP）
 _login_attempts: dict = defaultdict(lambda: {"count": 0, "first_attempt": 0.0})
 _LOGIN_RATE_LIMIT = 5        # 最多失败次数
@@ -154,7 +159,9 @@ async def login(
     )
     refresh_token = create_refresh_token(data={"sub": user.id})
     
-    # 设置 httpOnly Cookie（防 XSS 窃取，生产环境建议加上 Secure 和 SameSite=Lax）
+    # 设置 httpOnly Cookie（防 XSS 窃取）
+    # [安全修复 Issue #3] 生产环境（HTTPS）强制加 Secure 标志，
+    # 防止会话 Cookie 经明文 HTTP 被中间人截获。开发环境保持 False 以免本地调试失效。
     cookie_max_age = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     response.set_cookie(
         key="access_token",
@@ -162,7 +169,7 @@ async def login(
         max_age=cookie_max_age,
         httponly=True,
         samesite="lax",
-        # secure=True,  # 生产环境启用 HTTPS 时取消注释
+        secure=_COOKIE_SECURE,
     )
     response.set_cookie(
         key="refresh_token",
@@ -170,7 +177,7 @@ async def login(
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
         httponly=True,
         samesite="lax",
-        # secure=True,
+        secure=_COOKIE_SECURE,
     )
     
     return {
@@ -242,11 +249,13 @@ async def refresh_token(
         response.set_cookie(
             key="access_token", value=new_access_token,
             max_age=cookie_max_age, httponly=True, samesite="lax",
+            secure=_COOKIE_SECURE,
         )
         response.set_cookie(
             key="refresh_token", value=new_refresh_token,
             max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
             httponly=True, samesite="lax",
+            secure=_COOKIE_SECURE,
         )
         
         return {

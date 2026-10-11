@@ -18,7 +18,7 @@ class Notification(Base):
     related_id = Column(String(36))
     is_read = Column(Boolean, default=False)
     read_at = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
 
     user = relationship("User")
 

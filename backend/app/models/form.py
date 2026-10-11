@@ -52,8 +52,8 @@ class FormTemplate(Base):
     is_published = Column(Boolean, default=False)
     embed_in_task = Column(Boolean, default=False)
     embed_in_project = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
-    updated_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"), onupdate=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    created_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"), onupdate=text("(CURRENT_TIMESTAMP)"))
 
     creator = relationship("User")
     project = relationship("Project")
@@ -76,7 +76,7 @@ class FormSubmission(Base):
     form_id = Column(String(36), ForeignKey("form_templates.id"), nullable=False, index=True)
     data = Column(JSON, default=dict)  # 提交的表单数据
     submitted_by = Column(String(36), ForeignKey("users.id"), nullable=False)
-    submitted_at = Column(DateTime(timezone=True), server_default=text("(strftime(%Y-%m-%d %H:%M:%S, now, localtime))"))
+    submitted_at = Column(DateTime(timezone=True), server_default=text("(CURRENT_TIMESTAMP)"))
     status = Column(String(20), default=SubmissionStatus.PENDING.value)
     reviewed_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     reviewed_at = Column(DateTime(timezone=True), nullable=True)

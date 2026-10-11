@@ -1,4 +1,4 @@
-// PMI中国 AI-PM 中文语言包
+// 通维 AI-PM 中文语言包
 const zh = {
   common: {
     save: "保存",
@@ -18,8 +18,6 @@ const zh = {
     none: "无",
   },
   nav: {
-    roadmap: "路线图",
-    approvals: "审批流",
     dashboard: "仪表盘",
     projects: "项目",
     tasks: "任务",
@@ -27,6 +25,7 @@ const zh = {
     portfolio: "组合",
     agents: "Agent",
     workflow: "工作流编排",
+    workflowAugmented: "智能工作流编排（测试）",
     aiMonitor: "AI 监控",
     okrs: "OKR 目标",
     calendar: "日历",
@@ -61,6 +60,38 @@ const zh = {
   },
   theme: { light: "浅色", dark: "深色" },
   lang: { switch: "切换语言" },
+  agent: {
+    processGroups: "过程组",
+    knowledgeAreas: "知识领域",
+    system: "体系",
+    name: "名称",
+    description: "描述",
+    inputs: "输入",
+    tools: "工具技术",
+    outputs: "输出",
+    tryRun: "试运行",
+    run: "运行",
+    running: "运行中...",
+    completed: "运行完成",
+    failed: "运行失败",
+    notAvailable: "AI 服务暂不可用，已生成占位结果",
+    placeholder: "占位结果",
+    initiating: "启动",
+    planning: "规划",
+    executing: "执行",
+    monitoring: "监控",
+    closing: "收尾",
+    integration: "整合管理",
+    scope: "范围管理",
+    schedule: "进度管理",
+    cost: "成本管理",
+    quality: "质量管理",
+    resource: "资源管理",
+    communication: "沟通管理",
+    risk: "风险管理",
+    procurement: "采购管理",
+    stakeholder: "相关方管理",
+  },
 };
 
 export default zh;
