@@ -1,6 +1,6 @@
 /**
- * AIPM 智能工作流编排增强版（测试）
- * 完全对齐 AgentWorkflow 架构，使用统一注册中心 + 后端API
+ * AIPM \u667a\u80fd\u5de5\u4f5c\u6d41\u7f16\u6392\u589e\u5f3a\u7248\uff08\u6d4b\u8bd5\uff09
+ * \u5b8c\u5168\u5bf9\u9f50 AgentWorkflow \u67b6\u6784\uff0c\u4f7f\u7528\u7edf\u4e00\u6ce8\u518c\u4e2d\u5fc3 + \u540e\u7aefAPI
  */
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
@@ -34,12 +34,13 @@ import {
 import 'reactflow/dist/style.css';
 import { motion } from 'framer-motion';
 import { workflowApi, agentApi } from '../../api';
+import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
 const PRIMARY = '#4F46E5';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 类型定义
+// \u7c7b\u578b\u5b9a\u4e49
 // ─────────────────────────────────────────────────────────────────────────────
 
 type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -91,7 +92,7 @@ interface SlotItem {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 图标映射
+// \u56fe\u6807\u6620\u5c04
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -101,34 +102,34 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
 };
 
 const CAT_ICON: Record<string, React.ComponentType<any>> = {
-  'PMBOK第6版·49过程': PartitionOutlined,
-  'PMBOK第8版·原则': CompassOutlined,
-  'PMBOK第8版·绩效域': ApartmentOutlined,
-  'PMBOK第8版·裁剪': NodeIndexOutlined,
-  'CPMAI·AI项目管理阶段': RobotOutlined,
-  'CPMAI·可信AI框架': SafetyOutlined,
-  '领域分析': ThunderboltOutlined,
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0036\u7248\u00b7\u0034\u0039\u8fc7\u7a0b': PartitionOutlined,
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0038\u7248\u00b7\u539f\u5219': CompassOutlined,
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0038\u7248\u00b7\u7ee9\u6548\u57df': ApartmentOutlined,
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0038\u7248\u00b7\u88c1\u526a': NodeIndexOutlined,
+  '\u0043\u0050\u004d\u0041\u0049\u00b7\u0041\u0049\u9879\u76ee\u7ba1\u7406\u9636\u6bb5': RobotOutlined,
+  '\u0043\u0050\u004d\u0041\u0049\u00b7\u53ef\u4fe1\u0041\u0049\u6846\u67b6': SafetyOutlined,
+  '\u9886\u57df\u5206\u6790': ThunderboltOutlined,
 };
 
 const CAT_COLOR: Record<string, string> = {
-  'PMBOK第6版·49过程': '#4F46E5',
-  'PMBOK第8版·原则': '#10B981',
-  'PMBOK第8版·绩效域': '#6366F1',
-  'PMBOK第8版·裁剪': '#06B6D4',
-  'CPMAI·AI项目管理阶段': '#F59E0B',
-  'CPMAI·可信AI框架': '#EF4444',
-  '领域分析': '#4F46E5',
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0036\u7248\u00b7\u0034\u0039\u8fc7\u7a0b': '#4F46E5',
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0038\u7248\u00b7\u539f\u5219': '#10B981',
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0038\u7248\u00b7\u7ee9\u6548\u57df': '#6366F1',
+  '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0038\u7248\u00b7\u88c1\u526a': '#06B6D4',
+  '\u0043\u0050\u004d\u0041\u0049\u00b7\u0041\u0049\u9879\u76ee\u7ba1\u7406\u9636\u6bb5': '#F59E0B',
+  '\u0043\u0050\u004d\u0041\u0049\u00b7\u53ef\u4fe1\u0041\u0049\u6846\u67b6': '#EF4444',
+  '\u9886\u57df\u5206\u6790': '#4F46E5',
 };
 
 const STATUS_META: Record<NodeStatus, { color: string; text: string; icon: React.ReactNode }> = {
-  idle:    { color: '#94A3B8', text: '待运行', icon: <LoadingOutlined style={{ opacity: 0 }} /> },
-  running: { color: '#F59E0B', text: '运行中', icon: <LoadingOutlined spin /> },
-  success: { color: '#10B981', text: '成功',   icon: <CheckCircleOutlined /> },
-  error:   { color: '#EF4444', text: '失败',   icon: <CloseCircleOutlined /> },
+  idle:    { color: '#94A3B8', text: '\u5f85\u8fd0\u884c', icon: <LoadingOutlined style={{ opacity: 0 }} /> },
+  running: { color: '#F59E0B', text: '\u8fd0\u884c\u4e2d', icon: <LoadingOutlined spin /> },
+  success: { color: '#10B981', text: '\u6210\u529f',   icon: <CheckCircleOutlined /> },
+  error:   { color: '#EF4444', text: '\u5931\u8d25',   icon: <CloseCircleOutlined /> },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 辅助函数
+// \u8f85\u52a9\u51fd\u6570
 // ─────────────────────────────────────────────────────────────────────────────
 
 let _counter = 0;
@@ -137,7 +138,7 @@ const uid = (prefix: string) => `${prefix}_${Date.now()}_${_counter++}`;
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 自定义节点组件
+// \u81ea\u5b9a\u4e49\u8282\u70b9\u7ec4\u4ef6
 // ─────────────────────────────────────────────────────────────────────────────
 
 const AgentNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) => {
@@ -185,9 +186,9 @@ const AgentNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) =
         </Text>
         {hasConfig && (
           <div style={{ marginTop: 6, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            {data.userInput && <Tag color="blue" style={{ fontSize: 9, padding: '0 4px' }}>输入</Tag>}
-            {data.selectedTools.length > 0 && <Tag color="purple" style={{ fontSize: 9, padding: '0 4px' }}>工具</Tag>}
-            {Object.keys(data.inputMapping).length > 0 && <Tag color="orange" style={{ fontSize: 9, padding: '0 4px' }}>映射</Tag>}
+            {data.userInput && <Tag color="blue" style={{ fontSize: 9, padding: '0 4px' }}>\u8f93\u5165</Tag>}
+            {data.selectedTools.length > 0 && <Tag color="purple" style={{ fontSize: 9, padding: '0 4px' }}>\u5de5\u5177</Tag>}
+            {Object.keys(data.inputMapping).length > 0 && <Tag color="orange" style={{ fontSize: 9, padding: '0 4px' }}>\u6620\u5c04</Tag>}
           </div>
         )}
       </div>
@@ -211,70 +212,71 @@ const StatusBadge: React.FC<{ status: NodeStatus }> = ({ status }) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 内部组件（需要 ReactFlowProvider）
+// \u5185\u90e8\u7ec4\u4ef6\uff08\u9700\u8981 ReactFlowProvider\uff09
 // ─────────────────────────────────────────────────────────────────────────────
 
 const WorkflowInner: React.FC = () => {
   const { message } = App.useApp();
+  const { t } = useTranslation('workflowAugmented');
   const [nodes, setNodes, onNodesChange] = useNodesState<AgentNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const { screenToFlowPosition } = useReactFlow();
-  
-  // Agent注册中心
+
+  // Agent\u6ce8\u518c\u4e2d\u5fc3
   const [registry, setRegistry] = useState<RegistryAgentItem[]>([]);
   const [regLoading, setRegLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState<'all' | 'domain' | 'pmbok'>('all');
   const [catFilter, setCatFilter] = useState('all');
   const [kaFilter, setKaFilter] = useState('all');
-  
-  // 工作流状态
+
+  // \u5de5\u4f5c\u6d41\u72b6\u6001
   const [workflowName, setWorkflowName] = useState('');
   const [currentWfId, setCurrentWfId] = useState<string | null>(null);
   const [saveOpen, setSaveOpen] = useState(false);
   const [saveDesc, setSaveDesc] = useState('');
-  
-  // 执行状态
+
+  // \u6267\u884c\u72b6\u6001
   const [executing, setExecuting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [lastRun, setLastRun] = useState<any>(null);
   const [log, setLog] = useState<LogEntry[]>([]);
-  
-  // 节点配置
+
+  // \u8282\u70b9\u914d\u7f6e
   const [configNode, setConfigNode] = useState<AgentNode | null>(null);
   const [cfgUserInput, setCfgUserInput] = useState('');
   const [cfgTools, setCfgTools] = useState<string[]>([]);
   const [cfgMapping, setCfgMapping] = useState<Record<string, string>>({});
   const [slotInfo, setSlotInfo] = useState({ inputs: [], tools: [], outputs: [] });
   const [slotLoading, setSlotLoading] = useState(false);
-  
-  // 工作流库
+
+  // \u5de5\u4f5c\u6d41\u5e93
   const [workflows, setWorkflows] = useState<any[]>([]);
   const [loadingLib, setLoadingLib] = useState(false);
-  
-  // 运行历史
+
+  // \u8fd0\u884c\u5386\u53f2
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [historyDetail, setHistoryDetail] = useState<any>(null);
 
-  // 分类和知识领域
+  // \u5206\u7c7b\u548c\u77e5\u8bc6\u9886\u57df
   const categories = useMemo(() => {
     const cats = new Set(registry.map(a => a.category).filter(Boolean));
     return ['all', ...Array.from(cats)];
   }, [registry]);
-  
+
   const knowledgeAreas = useMemo(() => {
     const areas = new Set(
       registry
-        .filter(a => a.category === 'PMBOK第6版·49过程')
+        .filter(a => a.category === '\u0050\u004d\u0042\u004f\u004b\u7b2c\u0036\u7248\u00b7\u0034\u0039\u8fc7\u7a0b')
         .map(a => a.extra?.knowledge_area)
         .filter(Boolean)
     );
     return Array.from(areas);
   }, [registry]);
 
-  // 工具栏过滤后的Agent列表
+  // \u5de5\u5177\u680f\u8fc7\u6ee4\u540e\u7684Agent\u5217\u8868
   const toolbox = useMemo(() => {
     let list = registry;
     if (sourceFilter === 'domain') list = list.filter(a => a.source === 'domain');
@@ -283,8 +285,8 @@ const WorkflowInner: React.FC = () => {
     if (kaFilter !== 'all') list = list.filter(a => a.extra?.knowledge_area === kaFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(a => 
-        a.name.toLowerCase().includes(q) || 
+      list = list.filter(a =>
+        a.name.toLowerCase().includes(q) ||
         a.id.toLowerCase().includes(q) ||
         a.description?.toLowerCase().includes(q)
       );
@@ -292,14 +294,14 @@ const WorkflowInner: React.FC = () => {
     return list;
   }, [registry, sourceFilter, catFilter, kaFilter, search]);
 
-  // 解析Agent元数据
+  // \u89e3\u6790Agent\u5143\u6570\u636e
   const resolveMeta = useCallback((a: RegistryAgentItem) => {
     const IconC = ICON_MAP[a.icon] || RobotOutlined;
     const color = a.color || CAT_COLOR[a.category] || PRIMARY;
     return { icon: IconC, color };
   }, []);
 
-  // 加载注册中心
+  // \u52a0\u8f7d\u6ce8\u518c\u4e2d\u5fc3
   const loadRegistry = useCallback(async () => {
     setRegLoading(true);
     try {
@@ -313,7 +315,7 @@ const WorkflowInner: React.FC = () => {
     }
   }, []);
 
-  // 加载工作流库
+  // \u52a0\u8f7d\u5de5\u4f5c\u6d41\u5e93
   const loadLibrary = useCallback(async () => {
     setLoadingLib(true);
     try {
@@ -327,7 +329,7 @@ const WorkflowInner: React.FC = () => {
     }
   }, []);
 
-  // 添加节点
+  // \u6dfb\u52a0\u8282\u70b9
   const addAgentNode = useCallback((agent: RegistryAgentItem) => {
     const { icon, color } = resolveMeta(agent);
     const node: AgentNode = {
@@ -349,7 +351,7 @@ const WorkflowInner: React.FC = () => {
     setNodes(nds => [...nds, node]);
   }, [screenToFlowPosition, resolveMeta, setNodes]);
 
-  // 连接处理
+  // \u8fde\u63a5\u5904\u7406
   const onConnect = useCallback((params: Connection) => {
     setEdges(eds => addEdge({
       ...params,
@@ -359,13 +361,13 @@ const WorkflowInner: React.FC = () => {
     }, eds));
   }, [setEdges]);
 
-  // 载入工作流
+  // \u8f7d\u5165\u5de5\u4f5c\u6d41
   const loadWorkflow = useCallback(async (id: string) => {
     try {
       const wf: any = await workflowApi.get(id);
       const steps = wf?.steps || [];
-      
-      // 构建节点映射
+
+      // \u6784\u5efa\u8282\u70b9\u6620\u5c04
       const oldToNew = new Map<string, string>();
       const newNodes: AgentNode[] = steps.map((s: any) => {
         const nid = uid('node');
@@ -389,15 +391,15 @@ const WorkflowInner: React.FC = () => {
           },
         };
       });
-      
-      // 重映射 input_mapping
+
+      // \u91cd\u6620\u5c04 input_mapping
       newNodes.forEach(n => {
         const m = n.data.inputMapping || {};
         const nm: Record<string, string> = {};
         Object.entries(m).forEach(([k, v]) => { nm[k] = oldToNew.get(v) || v; });
         n.data.inputMapping = nm;
       });
-      
+
       const newEdges: Edge[] = [];
       steps.forEach((s: any) => {
         const tid = oldToNew.get(s.label) || oldToNew.get(s.agent_type);
@@ -412,32 +414,32 @@ const WorkflowInner: React.FC = () => {
           }
         });
       });
-      
+
       setNodes(newNodes);
       setEdges(newEdges);
       setWorkflowName(wf.name || workflowName);
       setSaveDesc(wf.description || '');
       setCurrentWfId(wf.id || id);
       setLastRun(null);
-      message.success(`已载入「${wf.name || ''}」`);
+      message.success(t('messageWorkflowLoaded', { name: wf.name || '' }));
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || e?.message || '载入失败');
+      message.error(e?.response?.data?.detail || e?.message || t('messageLoadFailed'));
     }
-  }, [setNodes, setEdges, message, workflowName, registry, resolveMeta]);
+  }, [setNodes, setEdges, message, workflowName, registry, resolveMeta, t]);
 
-  // 删除工作流
+  // \u5220\u9664\u5de5\u4f5c\u6d41
   const handleDeleteWf = useCallback(async (id: string) => {
     try {
       await workflowApi.remove(id);
       if (currentWfId === id) setCurrentWfId(null);
-      message.success('已删除');
+      message.success(t('messageDeleteSuccess'));
       loadLibrary();
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || e?.message || '删除失败');
+      message.error(e?.response?.data?.detail || e?.message || t('messageDeleteFailed'));
     }
-  }, [currentWfId, message, loadLibrary]);
+  }, [currentWfId, message, loadLibrary, t]);
 
-  // 节点配置抽屉 useEffect
+  // \u8282\u70b9\u914d\u7f6e\u62bd\u5c49 useEffect
   useEffect(() => {
     if (!configNode) { setSlotInfo({ inputs: [], tools: [], outputs: [] }); return; }
     setCfgUserInput(configNode.data.userInput || '');
@@ -463,13 +465,13 @@ const WorkflowInner: React.FC = () => {
     return () => { cancelled = true; };
   }, [configNode]);
 
-  // 当前节点运行结果
+  // \u5f53\u524d\u8282\u70b9\u8fd0\u884c\u7ed3\u679c
   const currentNodeRun = useMemo(() => {
     if (!configNode || !lastRun?.results) return null;
     return (lastRun.results as any)[configNode.id] || null;
   }, [configNode, lastRun]);
 
-  // 上游选项
+  // \u4e0a\u6e38\u9009\u9879
   const upstreamOptions = useMemo(() => {
     if (!configNode) return [];
     return nodes
@@ -477,14 +479,14 @@ const WorkflowInner: React.FC = () => {
       .map(n => ({ value: n.id, label: n.data.label }));
   }, [configNode, nodes, edges]);
 
-  // 运行工作流
+  // \u8fd0\u884c\u5de5\u4f5c\u6d41
   const handleRun = useCallback(async () => {
-    if (nodes.length === 0) { message.warning('请先添加节点'); return; }
+    if (nodes.length === 0) { message.warning(t('messagePleaseAddNodes')); return; }
     setExecuting(true);
     setProgress(0);
     setLog([]);
     setLastRun(null);
-    
+
     const steps = nodes.map(n => ({
       agent_type: n.data.agentType,
       label: n.data.label,
@@ -495,21 +497,21 @@ const WorkflowInner: React.FC = () => {
       selected_tools: n.data.selectedTools,
       input_mapping: n.data.inputMapping,
     }));
-    
+
     try {
       const result: any = await workflowApi.execute({ steps });
       const runId = result?.run_id;
-      
+
       if (runId) {
-        // 轮询执行状态
+        // \u8f6e\u8be2\u6267\u884c\u72b6\u6001
         let pollCount = 0;
-        const maxPolls = 300; // 5分钟超时
-        
+        const maxPolls = 300; // \u0035\u5206\u949f\u8d85\u65f6
+
         const poll = async () => {
           try {
             const status: any = await workflowApi.getRunStatus(runId);
-            
-            // 更新节点状态
+
+            // \u66f4\u65b0\u8282\u70b9\u72b6\u6001
             if (status?.results) {
               setNodes(nds => nds.map(n => {
                 const r = status.results[n.id] || status.results[n.data.label];
@@ -518,42 +520,42 @@ const WorkflowInner: React.FC = () => {
                 if (r?.status === 'running') return { ...n, data: { ...n.data, status: 'running' } };
                 return n;
               }));
-              
+
               setLastRun(status);
               setProgress(Math.round((Object.values(status.results || {}).filter((r: any) => r?.status === 'completed').length / nodes.length) * 100));
             }
-            
+
             if (status?.status === 'completed' || status?.status === 'failed' || pollCount >= maxPolls) {
               setExecuting(false);
               if (status?.status === 'failed') {
-                message.error('工作流执行失败');
+                message.error(t('messageWorkflowExecutionFailed'));
               } else {
-                message.success('工作流执行完成');
+                message.success(t('messageWorkflowExecuted'));
               }
               return;
             }
-            
+
             pollCount++;
             setTimeout(poll, 2000);
           } catch (e) {
             setExecuting(false);
-            message.error('轮询执行状态失败');
+            message.error(t('messagePollingFailed'));
           }
         };
-        
+
         poll();
       }
     } catch (e: any) {
       setExecuting(false);
-      message.error(e?.response?.data?.detail || e?.message || '执行失败');
+      message.error(e?.response?.data?.detail || e?.message || t('messageExecutionFailed'));
     }
-  }, [nodes, edges, message]);
+  }, [nodes, edges, message, t]);
 
-  // 保存工作流
+  // \u4fdd\u5b58\u5de5\u4f5c\u6d41
   const handleSave = useCallback(async () => {
-    if (!workflowName.trim()) { message.warning('请输入工作流名称'); return; }
-    if (nodes.length === 0) { message.warning('请至少添加一个节点'); return; }
-    
+    if (!workflowName.trim()) { message.warning(t('messagePleaseEnterWorkflowName')); return; }
+    if (nodes.length === 0) { message.warning(t('messagePleaseAddAtLeastOneNode')); return; }
+
     const payload = {
       name: workflowName,
       description: saveDesc,
@@ -569,31 +571,31 @@ const WorkflowInner: React.FC = () => {
         input_mapping: n.data.inputMapping,
       })),
     };
-    
+
     try {
       if (currentWfId) {
         await workflowApi.update(currentWfId, payload);
-        message.success('工作流已更新');
+        message.success(t('messageWorkflowUpdated'));
       } else {
         const result: any = await workflowApi.create(payload);
         setCurrentWfId(result?.id);
-        message.success('工作流已保存');
+        message.success(t('messageWorkflowSaved'));
       }
       setSaveOpen(false);
       loadLibrary();
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || e?.message || '保存失败');
+      message.error(e?.response?.data?.detail || e?.message || t('messageSaveFailed'));
     }
-  }, [workflowName, saveDesc, nodes, edges, currentWfId, message, loadLibrary]);
+  }, [workflowName, saveDesc, nodes, edges, currentWfId, message, loadLibrary, t]);
 
-  // 清空画布
+  // \u6e05\u7a7a\u753b\u5e03
   const handleClear = useCallback(() => {
     if (nodes.length === 0) return;
     Modal.confirm({
-      title: '清空画布',
-      content: '确定要清空所有节点和连线吗？',
-      okText: '清空',
-      cancelText: '取消',
+      title: t('clearCanvas'),
+      content: t('areYouSure'),
+      okText: t('yes'),
+      cancelText: t('no'),
       onOk: () => {
         setNodes([]);
         setEdges([]);
@@ -601,37 +603,37 @@ const WorkflowInner: React.FC = () => {
         setLastRun(null);
         setLog([]);
         setCurrentWfId(null);
-        message.success('已清空');
+        message.success(t('canvasCleared'));
       },
     });
-  }, [nodes.length, setNodes, setEdges, message]);
+  }, [nodes.length, setNodes, setEdges, message, t]);
 
-  // 自动布局
+  // \u81ea\u52a8\u5e03\u5c40
   const handleAutoLayout = useCallback(() => {
     if (nodes.length === 0) return;
-    
-    // 简化版：按拓扑顺序排列
+
+    // \u7b80\u5316\u7248\uff1a\u6309\u62d3\u6251\u987a\u5e8f\u6392\u5217
     const colWidth = 220;
     const rowHeight = 140;
     const cols = Math.ceil(nodes.length / 3);
-    
+
     const laidOutNodes = nodes.map((n, i) => ({
       ...n,
       position: { x: 100 + (i % 3) * colWidth, y: 100 + Math.floor(i / 3) * rowHeight },
     }));
-    
-    setNodes(laidOutNodes);
-  }, [nodes, setNodes]);
 
-  // 删除选中
+    setNodes(laidOutNodes);
+  }, [nodes, setNodes, t]);
+
+  // \u5220\u9664\u9009\u4e2d
   const removeSelected = useCallback(() => {
-    // ReactFlow 选中的节点通过 onNodesChange 处理
-    message.info('点击节点后按 Delete 键删除');
+    // ReactFlow \u9009\u4e2d\u7684\u8282\u70b9\u901a\u8fc7 onNodesChange \u5904\u7406
+    message.info('\u70b9\u51fb\u8282\u70b9\u540e\u6309\u0020\u0044\u0065\u006c\u0065\u0074\u0065\u0020\u952e\u5220\u9664');
   }, [message]);
 
-  // 运行历史
+  // \u8fd0\u884c\u5386\u53f2
   const openHistory = useCallback(async () => {
-    if (!currentWfId) { message.warning('请先保存工作流以查看运行历史'); return; }
+    if (!currentWfId) { message.warning(t('messagePleaseSaveWorkflowFirst')); return; }
     setHistoryOpen(true);
     setHistoryDetail(null);
     setHistoryLoading(true);
@@ -639,19 +641,19 @@ const WorkflowInner: React.FC = () => {
       const r: any = await workflowApi.getRuns(currentWfId);
       setHistoryList(r?.items || []);
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || e?.message || '加载历史失败');
+      message.error(e?.response?.data?.detail || e?.message || t('messageLoadHistoryFailed'));
     } finally {
       setHistoryLoading(false);
     }
-  }, [currentWfId, message]);
+  }, [currentWfId, message, t]);
 
-  // 初始化
+  // \u521d\u59cb\u5316
   useEffect(() => {
     loadRegistry();
     loadLibrary();
   }, [loadRegistry, loadLibrary]);
 
-  // ── 渲染 ──
+  // ── \u6e32\u67d3 ──
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)' }}>
       {/* Header */}
@@ -664,35 +666,35 @@ const WorkflowInner: React.FC = () => {
               onChange={e => setWorkflowName(e.target.value)}
               variant="borderless"
               style={{ fontSize: 18, fontWeight: 600, padding: 0, height: 28, width: 320 }}
-              placeholder="工作流名称"
+              placeholder={t('workflowName')}
             />
             <div style={{ fontSize: 12, color: '#64748B' }}>
-              {nodes.length} 个 Agent 节点 · {edges.length} 条数据流连线
-              {currentWfId && <Tag color="blue" style={{ marginLeft: 6 }}>已保存</Tag>}
+              {nodes.length} {t('agentUnit')} · {edges.length} {t('connectionUnit')}
+              {currentWfId && <Tag color="blue" style={{ marginLeft: 6 }}>{t('saved')}</Tag>}
             </div>
           </div>
         </div>
         <Space>
           <Button icon={<HistoryOutlined />} onClick={openHistory} disabled={!currentWfId}>
-            运行历史
+            {t('historyDrawer')}
           </Button>
           <Button icon={<SaveOutlined />} onClick={() => setSaveOpen(true)} disabled={nodes.length === 0}>
-            {currentWfId ? '更新' : '保存'}
+            {currentWfId ? t('update') : t('save')}
           </Button>
         </Space>
       </div>
 
-      {/* 三栏布局 */}
+      {/* \u4e09\u680f\u5e03\u5c40 */}
       <div style={{ display: 'flex', flex: 1, gap: 12, overflow: 'hidden' }}>
-        {/* 左栏：Agent 工具箱 + 工作流库 */}
+        {/* \u5de6\u680f\uff1a\u005c\u0075\u0030\u0030\u0034\u0031\u005c\u0075\u0030\u0030\u0036\u0037\u005c\u0075\u0030\u0030\u0036\u0035\u005c\u0075\u0030\u0030\u0036\u0065\u005c\u0075\u0030\u0030\u0037\u0034\u005c\u0075\u0030\u0030\u0032\u0030\u005c\u0075\u0035\u0064\u0065\u0035\u005c\u0075\u0035\u0031\u0037\u0037\u005c\u0075\u0037\u0062\u0062\u0031\u005c\u0075\u0030\u0030\u0032\u0030\u005c\u0075\u0030\u0030\u0032\u0062\u005c\u0075\u0030\u0030\u0032\u0030\u005c\u0075\u0035\u0064\u0065\u0035\u005c\u0075\u0034\u0066\u0035\u0063\u005c\u0075\u0036\u0064\u0034\u0031\u005c\u0075\u0035\u0065\u0039\u0033 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 260, flexShrink: 0, overflow: 'hidden' }}>
           <Card
-            size="small" title={<Space><PlusOutlined /><span>Agent 工具箱</span></Space>}
+            size="small" title={<Space><PlusOutlined /><span>{t('agentToolbox')}</span></Space>}
             style={{ borderRadius: 12, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column', maxHeight: '64%' }}
             bodyStyle={{ padding: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
           >
             <Input
-              prefix={<SearchOutlined />} allowClear placeholder="搜索 Agent / 过程 id"
+              prefix={<SearchOutlined />} allowClear placeholder={t('searchAgentProcess')}
               value={search} onChange={e => setSearch(e.target.value)} size="small" style={{ marginBottom: 8 }}
             />
             <Segmented
@@ -700,25 +702,27 @@ const WorkflowInner: React.FC = () => {
               value={sourceFilter}
               onChange={(v) => { setSourceFilter(v as any); setCatFilter('all'); setKaFilter('all'); }}
               options={[
-                { label: '全部', value: 'all' },
-                { label: '领域', value: 'domain' },
-                { label: 'PMBOK', value: 'pmbok' },
+                { label: t('all'), value: 'all' },
+                { label: t('domain'), value: 'domain' },
+                { label: t('pmbok'), value: 'pmbok' },
               ]}
             />
             <Select
               size="small" style={{ marginBottom: 8 }} value={catFilter} onChange={(v) => { setCatFilter(v); setKaFilter('all'); }}
-              options={categories.map(c => ({ value: c, label: c === 'all' ? '全部体系' : c }))}
+              options={categories.map(c => ({ value: c, label: c === 'all' ? t('all') : c }))}
             />
-            {catFilter === 'PMBOK第6版·49过程' && knowledgeAreas.length > 0 && (
+            {catFilter === t('categoryPmbokV6Processes') && knowledgeAreas.length > 0 && (
               <Select
                 size="small" style={{ marginBottom: 8 }} value={kaFilter} onChange={setKaFilter}
-                options={[{ value: 'all', label: '全部知识领域' }, ...knowledgeAreas.map(k => ({ value: k, label: k }))]}
+                options={[{ value: 'all', label: t('all') }, ...knowledgeAreas.map(k => ({ value: k, label: k }))]}
               />
             )}
-            <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6 }}>点击添加节点（{toolbox.length}）</div>
+            <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6 }}>
+              {t('clickToAddNode', { count: toolbox.length })}
+            </div>
             <div style={{ overflow: 'auto', flex: 1 }}>
               {regLoading && <div style={{ textAlign: 'center', padding: 16 }}><Spin /></div>}
-              {!regLoading && toolbox.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="无匹配 Agent" />}
+              {!regLoading && toolbox.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('noMatchingAgent')} />}
               {toolbox.map(a => {
                 const { icon, color } = resolveMeta(a);
                 const IconC = icon;
@@ -746,31 +750,31 @@ const WorkflowInner: React.FC = () => {
           </Card>
 
           <Card
-            size="small" title={<Space><FolderOpenOutlined /><span>工作流库</span></Space>}
+            size="small" title={<Space><FolderOpenOutlined /><span>{t('workflowLibrary')}</span></Space>}
             style={{ borderRadius: 12, overflow: 'auto', flex: 1 }}
             bodyStyle={{ padding: 8 }}
             extra={<Button size="small" type="text" icon={<ReloadOutlined />} loading={loadingLib} onClick={loadLibrary} />}
           >
             {loadingLib && workflows.length === 0 && (
-              <div style={{ textAlign: 'center', padding: 16, color: '#94A3B8' }}><LoadingOutlined /> 加载中…</div>
+              <div style={{ textAlign: 'center', padding: 16, color: '#94A3B8' }}><LoadingOutlined /> \u52a0\u8f7d\u4e2d\u2026</div>
             )}
             {!loadingLib && workflows.length === 0 && (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无工作流" style={{ margin: '12px 0' }} />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('noWorkflows')} style={{ margin: '12px 0' }} />
             )}
             <List
               size="small" dataSource={workflows}
               renderItem={(w: any) => (
                 <List.Item
                   actions={[
-                    <Button key="load" type="link" size="small" icon={<FolderOpenOutlined />} onClick={() => loadWorkflow(w.id)}>载入</Button>,
-                    <Popconfirm key="del" title="确认删除该工作流？" onConfirm={() => handleDeleteWf(w.id)}>
-                      <Button type="link" size="small" danger icon={<DeleteOutlined />}>删除</Button>
+                    <Button key="load" type="link" size="small" icon={<FolderOpenOutlined />} onClick={() => loadWorkflow(w.id)}>{t('loadWorkflow')}</Button>,
+                    <Popconfirm key="del" title={t('confirmDeleteWorkflow')} onConfirm={() => handleDeleteWf(w.id)}>
+                      <Button type="link" size="small" danger icon={<DeleteOutlined />}>{t('deleteWorkflow')}</Button>
                     </Popconfirm>,
                   ]}
                 >
                   <List.Item.Meta
                     title={<Text style={{ fontSize: 12 }}>{w.name}</Text>}
-                    description={<Text type="secondary" style={{ fontSize: 10 }}>{(w.steps || []).length} 步</Text>}
+                    description={<Text type="secondary" style={{ fontSize: 10 }}>{t('steps', { count: (w.steps || []).length })}</Text>}
                   />
                 </List.Item>
               )}
@@ -778,17 +782,17 @@ const WorkflowInner: React.FC = () => {
           </Card>
         </div>
 
-        {/* 中栏：工具栏 + 画布 */}
+        {/* \u4e2d\u680f\uff1a\u005c\u0075\u0035\u0064\u0065\u0035\u005c\u0075\u0035\u0031\u0037\u0037\u005c\u0075\u0036\u0038\u0030\u0066\u005c\u0075\u0030\u0030\u0032\u0030\u005c\u0075\u0030\u0030\u0032\u0062\u005c\u0075\u0030\u0030\u0032\u0030\u005c\u0075\u0037\u0035\u0033\u0062\u005c\u0075\u0035\u0065\u0030\u0033 */}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <Button type="primary" icon={<PlayCircleOutlined />} loading={executing} onClick={handleRun}>
-              运行工作流
+              {t('runWorkflow')}
             </Button>
             <Button icon={<ReloadOutlined />} onClick={handleAutoLayout} disabled={nodes.length === 0}>
-              自动布局
+              {t('autoLayout')}
             </Button>
             <Button icon={<ClearOutlined />} onClick={handleClear} disabled={nodes.length === 0}>
-              清空
+              {t('clearCanvas')}
             </Button>
             <div style={{ flex: 1 }} />
             <Progress
@@ -824,15 +828,17 @@ const WorkflowInner: React.FC = () => {
           </Card>
         </div>
 
-        {/* 右栏：执行日志 / 进度 */}
+        {/* \u5de6\u680f\uff1a\u6267\u884c\u65e5\u5fd7\u0020\u002f\u0020\u8fdb\u5ea6 */}
         <Card
-          size="small" title={<Space><CheckCircleOutlined /><span>执行日志 / 进度</span></Space>}
+          size="small" title={<Space><CheckCircleOutlined /><span>{t('executionLog')}</span></Space>}
           style={{ width: 280, flexShrink: 0, borderRadius: 12, overflow: 'auto' }}
           bodyStyle={{ padding: 10 }}
         >
-          <Text style={{ fontSize: 11, fontWeight: 600, color: '#6B7280' }}>节点状态</Text>
+          <Text style={{ fontSize: 11, fontWeight: 600, color: '#6B7280' }}>
+            {t('nodeStatus')}
+          </Text>
           <div style={{ marginTop: 6 }}>
-            {nodes.length === 0 && <Text type="secondary" style={{ fontSize: 11 }}>暂无节点</Text>}
+            {nodes.length === 0 && <Text type="secondary" style={{ fontSize: 11 }}>{t('noNodes')}</Text>}
             {nodes.map(n => {
               const m = STATUS_META[n.data.status];
               const run = lastRun?.results?.[n.id];
@@ -843,7 +849,7 @@ const WorkflowInner: React.FC = () => {
                     {n.data.label}
                   </Text>
                   {run?.output_preview && (
-                    <Tooltip title="查看输出摘要">
+                    <Tooltip title={t('viewOutputSummary')}>
                       <EyeOutlined style={{ color: '#6366F1', cursor: 'pointer' }} onClick={() => setConfigNode(n)} />
                     </Tooltip>
                   )}
@@ -855,9 +861,11 @@ const WorkflowInner: React.FC = () => {
 
           <div style={{ height: 1, background: '#E2E8F0', margin: '10px 0' }} />
 
-          <Text style={{ fontSize: 11, fontWeight: 600, color: '#6B7280' }}>运行日志</Text>
+          <Text style={{ fontSize: 11, fontWeight: 600, color: '#6B7280' }}>
+            {t('executionLog')}
+          </Text>
           <div style={{ marginTop: 6, maxHeight: 260, overflow: 'auto' }}>
-            {log.length === 0 && <Text type="secondary" style={{ fontSize: 11 }}>运行后此处显示实时日志</Text>}
+            {log.length === 0 && <Text type="secondary" style={{ fontSize: 11 }}>{t('showRealTimeLog')}</Text>}
             {log.map(l => (
               <div key={l.id} style={{ marginBottom: 6, fontSize: 11 }}>
                 <span style={{ color: '#94A3B8' }}>{l.time}</span>{' '}
@@ -869,182 +877,194 @@ const WorkflowInner: React.FC = () => {
             ))}
           </div>
           <div style={{ marginTop: 8, fontSize: 10, color: '#94A3B8' }}>
-            <SwapIcon /> 连线即「依赖」：一个节点可连多个上游（扇入合并），也可被多个下游引用（扇出复用）。
+            <SwapIcon /> {t('connectionExplanation')}
           </div>
         </Card>
-      </div>
 
-      {/* 节点配置抽屉 */}
-      <Drawer
-        title={configNode ? (
-          <Space>
-            <span style={{ color: configNode.data.color }}>{configNode.data.icon}</span>
-            <span>{configNode.data.label}</span>
-            <Tag color={configNode.data.color}>{configNode.data.agentType}</Tag>
-          </Space>
-        ) : '节点配置'}
-        width={420}
-        open={!!configNode}
-        onClose={() => setConfigNode(null)}
-        extra={<Button type="primary" onClick={() => {
-          if (!configNode) return;
-          const id = configNode.id;
-          setNodes(nds => nds.map(n => n.id === id ? {
-            ...n, data: { ...n.data, userInput: cfgUserInput, selectedTools: cfgTools, inputMapping: cfgMapping },
-          } : n));
-          message.success('节点配置已保存');
-          setConfigNode(null);
-        }}>保存配置</Button>}
-      >
-        {configNode && (
-          <div>
-            <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>补充输入（内联文本）</Text>
-            <Input.TextArea
-              rows={3} value={cfgUserInput} onChange={e => setCfgUserInput(e.target.value)}
-              placeholder="可选：作为该 Agent 的内联补充输入，与上游输出拼接后一起喂入"
-            />
+        {/* \u8282\u70b9\u914d\u7f6e\u62bd\u5c49 */}
+        <Drawer
+          title={configNode ? (
+            <Space>
+              <span style={{ color: configNode.data.color }}>{configNode.data.icon}</span>
+              <span>{configNode.data.label}</span>
+              <Tag color={configNode.data.color}>{configNode.data.agentType}</Tag>
+            </Space>
+          ) : t('nodeConfiguration')}
+          width={420}
+          open={!!configNode}
+          onClose={() => setConfigNode(null)}
+          extra={<Button type="primary" onClick={() => {
+            if (!configNode) return;
+            const id = configNode.id;
+            setNodes(nds => nds.map(n => n.id === id ? {
+              ...n, data: { ...n.data, userInput: cfgUserInput, selectedTools: cfgTools, inputMapping: cfgMapping },
+            } : n));
+            message.success(t('messageNodeConfigSaved'));
+            setConfigNode(null);
+          }}>\u4fdd\u5b58\u914d\u7f6e</Button>}
+        >
+          {configNode && (
+            <div>
+              <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                {t('supplementaryInput')}
+              </Text>
+              <Input.TextArea
+                rows={3} value={cfgUserInput} onChange={e => setCfgUserInput(e.target.value)}
+                placeholder={t('supplementaryInputPlaceholder')}
+              />
 
-            <div style={{ height: 12 }} />
-            <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
-              工具技术（selected_tools）
-            </Text>
-            {slotLoading ? <Spin /> : (
-              slotInfo.tools.length === 0
-                ? <Text type="secondary" style={{ fontSize: 11 }}>该 Agent 无可选工具技术</Text>
-                : <Select
-                    mode="multiple" allowClear style={{ width: '100%' }}
-                    value={cfgTools} onChange={setCfgTools}
-                    options={slotInfo.tools.map(t => ({ value: t.key, label: `${t.label}${t.optional ? '（可选）' : ''}` }))}
-                    placeholder="勾选工具技术（空=全部）"
-                  />
-            )}
-
-            <div style={{ height: 12 }} />
-            <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
-              输入槽位映射（input_mapping）
-            </Text>
-            {slotLoading ? <Spin /> : (
-              <div>
-                {upstreamOptions.length === 0 && (
-                  <Text type="secondary" style={{ fontSize: 11 }}>
-                    该节点暂无上游（未连线）。不映射时，运行时将自动合并全部上游输出；无上游则仅用内联输入。
-                  </Text>
-                )}
-                {upstreamOptions.length > 0 && slotInfo.inputs.length === 0 && (
-                  <Text type="secondary" style={{ fontSize: 11 }}>该 Agent 无结构化输入槽位，无需映射（自动合并全部上游输出）。</Text>
-                )}
-                {slotInfo.inputs.map(slot => (
-                  <div key={slot.key} style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>
-                      {slot.label}{slot.optional ? '（可选）' : <Text type="danger" style={{ fontSize: 11 }}>（必填）</Text>}
-                    </div>
-                    <Select
-                      size="small" style={{ width: '100%' }} allowClear
-                      value={cfgMapping[slot.key] || undefined}
-                      onChange={(v) => setCfgMapping(prev => {
-                        const next = { ...prev };
-                        if (v) next[slot.key] = v; else delete next[slot.key];
-                        return next;
-                      })}
-                      options={upstreamOptions.map(o => ({ value: o.value, label: `绑定上游：${o.label}` }))}
-                      placeholder="不绑定（默认：自动合并全部上游输出）"
+              <div style={{ height: 12 }} />
+              <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                {t('toolsTech')}
+              </Text>
+              {slotLoading ? <Spin /> : (
+                slotInfo.tools.length === 0
+                  ? <Text type="secondary" style={{ fontSize: 11 }}>{t('noAvailableTools')}</Text>
+                  : <Select
+                      mode="multiple" allowClear style={{ width: '100%' }}
+                      value={cfgTools} onChange={setCfgTools}
+                      options={slotInfo.tools.map(t => ({ value: t.key, label: `${t.label}${t.optional ? '\uff08\u53ef\u9009\uff09' : ''}` }))}
+                      placeholder={t('selectTools')}
                     />
+              )}
+
+              <div style={{ height: 12 }} />
+              <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                {t('inputSlotMapping')}
+              </Text>
+              {slotLoading ? <Spin /> : (
+                <div>
+                  {upstreamOptions.length === 0 && (
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {t('noUpstream')}
+                    </Text>
+                  )}
+                  {upstreamOptions.length > 0 && slotInfo.inputs.length === 0 && (
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {t('noStructuredInput')}
+                    </Text>
+                  )}
+                  {slotInfo.inputs.map(slot => (
+                    <div key={slot.key} style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>
+                        {slot.label}{slot.optional ? '\uff08\u53ef\u9009\uff09' : <Text type="danger" style={{ fontSize: 11 }}>{t('required')}</Text>}
+                      </div>
+                      <Select
+                        size="small" style={{ width: '100%' }} allowClear
+                        value={cfgMapping[slot.key] || undefined}
+                        onChange={(v) => setCfgMapping(prev => {
+                          const next = { ...prev };
+                          if (v) next[slot.key] = v; else delete next[slot.key];
+                          return next;
+                        })}
+                        options={upstreamOptions.map(o => ({ value: o.value, label: t('bindUpstream', { label: o.label }) }))}
+                        placeholder={t('noBinding')}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ height: 12 }} />
+              <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                {t('outputSlot')}
+              </Text>
+              {slotLoading ? <Spin /> : (
+                slotInfo.outputs.length === 0
+                  ? <Text type="secondary" style={{ fontSize: 11 }}>{t('outputSlot')}</Text>
+                  : <div>{slotInfo.outputs.map(o => <Tag key={o.key} color="green" style={{ marginBottom: 4 }}>{o.label}</Tag>)}</div>
+              )}
+
+              {currentNodeRun?.output_preview && (
+                <>
+                  <div style={{ height: 12 }} />
+                  <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                    {t('recentRunOutput')}
+                  </Text>
+                  <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: 10, fontSize: 11, maxHeight: 200, overflow: 'auto', whiteSpace: 'pre-wrap', color: '#334155' }}>
+                    {currentNodeRun.output_preview}
                   </div>
+                </>
+              )}
+            </div>
+          )}
+        </Drawer>
+
+        {/* \u8fd0\u884c\u5386\u53f2\u62bd\u5c49 */}
+        <Drawer
+          title={t('historyDrawer')} width={460} open={historyOpen}
+          onClose={() => { setHistoryOpen(false); setHistoryDetail(null); }}
+        >
+          {historyLoading ? <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div> : (
+            historyDetail ? (
+              <div>
+                <Button size="small" icon={<ReloadOutlined />} onClick={() => setHistoryDetail(null)} style={{ marginBottom: 8 }}>
+                  {t('returnToList')}
+                </Button>
+                <div style={{ fontSize: 12, marginBottom: 8 }}>
+                  {t('status')}{' '}<Tag color={historyDetail.status === 'completed' ? 'green' : historyDetail.status === 'failed' ? 'red' : 'orange'}>{historyDetail.status}</Tag>
+                  {' '}{t('created')}{' '}{historyDetail.created_at}
+                </div>
+                {Object.entries(historyDetail.results || {}).map(([label, r]: any) => (
+                  <Card key={label} size="small" style={{ marginBottom: 8, borderRadius: 8 }}>
+                    <div style={{ fontWeight: 600, fontSize: 12 }}>{nodes.find(n => n.id === label)?.data.label || label}</div>
+                    <Tag color={r.status === 'completed' ? 'green' : r.status === 'failed' ? 'red' : 'default'} style={{ marginTop: 4 }}>
+                      {r.status}
+                    </Tag>
+                    {r.output_preview && (
+                      <div style={{ marginTop: 6, fontSize: 11, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, padding: 8, maxHeight: 160, overflow: 'auto', whiteSpace: 'pre-wrap', color: '#334155' }}>
+                        {r.output_preview}
+                      </div>
+                    )}
+                  </Card>
                 ))}
               </div>
-            )}
+            ) : (
+              <List
+                dataSource={historyList}
+                locale={{ emptyText: <Empty description={t('noHistory')} /> }}
+                renderItem={(h: any) => (
+                  <List.Item
+                    actions={[<Button key="v" type="link" size="small" onClick={() => setHistoryDetail(h)}>{t('viewDetails')}</Button>]}
+                  >
+                    <List.Item.Meta
+                      title={<Space>
+                        <Tag color={h.status === 'completed' ? 'green' : h.status === 'failed' ? 'red' : 'orange'}>{h.status}</Tag>
+                        <span style={{ fontSize: 12 }}>{h.run_id?.slice(0, 8)}</span>
+                      </Space>}
+                      description={<Text type="secondary" style={{ fontSize: 10 }}>{t('stepsHistory', { count: (h.steps || []).length })}</Text>}
+                    />
+                  </List.Item>
+                )}
+              />
+            )
+          )}
+        </Drawer>
 
-            <div style={{ height: 12 }} />
-            <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>输出槽位</Text>
-            {slotLoading ? <Spin /> : (
-              slotInfo.outputs.length === 0
-                ? <Text type="secondary" style={{ fontSize: 11 }}>—</Text>
-                : <div>{slotInfo.outputs.map(o => <Tag key={o.key} color="green" style={{ marginBottom: 4 }}>{o.label}</Tag>)}</div>
-            )}
-
-            {currentNodeRun?.output_preview && (
-              <>
-                <div style={{ height: 12 }} />
-                <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>最近运行输出（摘要）</Text>
-                <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: 10, fontSize: 11, maxHeight: 200, overflow: 'auto', whiteSpace: 'pre-wrap', color: '#334155' }}>
-                  {currentNodeRun.output_preview}
-                </div>
-              </>
-            )}
+        <Modal
+          title={currentWfId ? t('updateWorkflow') : t('saveWorkflow')}
+          open={saveOpen} onOk={handleSave} onCancel={() => setSaveOpen(false)}
+          okText={currentWfId ? t('update') : t('save')} cancelText={t('cancel')}
+        >
+          <div style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+              {t('name')}
+            </Text>
+            <Input value={workflowName} onChange={e => setWorkflowName(e.target.value)} placeholder={t('namePlaceholder')} />
           </div>
-        )}
-      </Drawer>
-
-      {/* 运行历史抽屉 */}
-      <Drawer
-        title="运行历史" width={460} open={historyOpen}
-        onClose={() => { setHistoryOpen(false); setHistoryDetail(null); }}
-      >
-        {historyLoading ? <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div> : (
-          historyDetail ? (
-            <div>
-              <Button size="small" icon={<ReloadOutlined />} onClick={() => setHistoryDetail(null)} style={{ marginBottom: 8 }}>
-                返回列表
-              </Button>
-              <div style={{ fontSize: 12, marginBottom: 8 }}>
-                状态：<Tag color={historyDetail.status === 'completed' ? 'green' : historyDetail.status === 'failed' ? 'red' : 'orange'}>{historyDetail.status}</Tag>
-                {' '}创建：{historyDetail.created_at}
-              </div>
-              {Object.entries(historyDetail.results || {}).map(([label, r]: any) => (
-                <Card key={label} size="small" style={{ marginBottom: 8, borderRadius: 8 }}>
-                  <div style={{ fontWeight: 600, fontSize: 12 }}>{nodes.find(n => n.id === label)?.data.label || label}</div>
-                  <Tag color={r.status === 'completed' ? 'green' : r.status === 'failed' ? 'red' : 'default'} style={{ marginTop: 4 }}>
-                    {r.status}
-                  </Tag>
-                  {r.output_preview && (
-                    <div style={{ marginTop: 6, fontSize: 11, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, padding: 8, maxHeight: 160, overflow: 'auto', whiteSpace: 'pre-wrap', color: '#334155' }}>
-                      {r.output_preview}
-                    </div>
-                  )}
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <List
-              dataSource={historyList}
-              locale={{ emptyText: <Empty description="暂无运行历史" /> }}
-              renderItem={(h: any) => (
-                <List.Item
-                  actions={[<Button key="v" type="link" size="small" onClick={() => setHistoryDetail(h)}>查看</Button>]}
-                >
-                  <List.Item.Meta
-                    title={<Space>
-                      <Tag color={h.status === 'completed' ? 'green' : h.status === 'failed' ? 'red' : 'orange'}>{h.status}</Tag>
-                      <span style={{ fontSize: 12 }}>{h.run_id?.slice(0, 8)}</span>
-                    </Space>}
-                    description={<Text type="secondary" style={{ fontSize: 10 }}>{h.created_at} · {(h.steps || []).length} 步</Text>}
-                  />
-                </List.Item>
-              )}
-            />
-          )
-        )}
-      </Drawer>
-
-      <Modal
-        title={currentWfId ? '更新工作流' : '保存工作流'}
-        open={saveOpen} onOk={handleSave} onCancel={() => setSaveOpen(false)}
-        okText={currentWfId ? '更新' : '保存'} cancelText="取消"
-      >
-        <div style={{ marginBottom: 12 }}>
-          <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>名称 *</Text>
-          <Input value={workflowName} onChange={e => setWorkflowName(e.target.value)} placeholder="例如：项目健康检查" />
-        </div>
-        <div style={{ marginBottom: 12 }}>
-          <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>描述</Text>
-          <Input.TextArea rows={3} value={saveDesc} onChange={e => setSaveDesc(e.target.value)} placeholder="描述工作流用途…" />
-        </div>
-        <div>
-          <Text type="secondary" style={{ fontSize: 11 }}>
-            {currentWfId ? '将更新当前工作流' : `将保存 ${nodes.length} 个节点的工作流定义`}
-          </Text>
-        </div>
-      </Modal>
+          <div style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+              {t('description')}
+            </Text>
+            <Input.TextArea rows={3} value={saveDesc} onChange={e => setSaveDesc(e.target.value)} placeholder={t('descriptionPlaceholder')} />
+          </div>
+          <div>
+            <Text type="secondary" style={{ fontSize: 11 }}>
+              {currentWfId ? t('willUpdateCurrent') : t('willSave', { count: nodes.length })}
+            </Text>
+          </div>
+        </Modal>
+      </div>
     </div>
   );
 };

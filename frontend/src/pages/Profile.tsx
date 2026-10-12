@@ -14,6 +14,7 @@ import {
 import dayjs from "dayjs";
 import { get, put, post } from "../api/http";
 import { useAuth } from "../store/AuthContext";
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 
@@ -95,6 +96,7 @@ const Profile: React.FC = () => {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [roleTarget, setRoleTarget] = useState<AdminUser | null>(null);
   const [roleForm] = Form.useForm();
+  const { t } = useTranslation('profile');
 
   const loadProfile = async () => {
     try {
@@ -107,7 +109,7 @@ const Profile: React.FC = () => {
         position: data.position,
       });
     } catch (e) {
-      message.error("加载个人信息失败");
+      message.error(t('profile.loadError'));
     }
   };
 
@@ -160,11 +162,11 @@ const Profile: React.FC = () => {
     try {
       const values = await form.validateFields();
       await put("/profile/me", values);
-      message.success("个人信息已更新");
+      message.success(t('profile.updateSuccess'));
       setEditing(false);
       await loadProfile();
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || "更新失败");
+      message.error(e?.response?.data?.detail || t('profile.updateFail'));
     }
   };
 
@@ -172,12 +174,12 @@ const Profile: React.FC = () => {
     try {
       const values = await rechargeForm.validateFields();
       const res = await post("/profile/recharge", values);
-      message.success("充值申请已提交");
+      message.success(t('profile.rechargeSuccess'));
       setRechargeOpen(false);
       rechargeForm.resetFields();
       await loadOrders();
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || "充值失败");
+      message.error(e?.response?.data?.detail || t('profile.rechargeFail'));
     }
   };
 
@@ -185,23 +187,23 @@ const Profile: React.FC = () => {
     try {
       const values = await refundForm.validateFields();
       const res = await post("/profile/refund", values);
-      message.success("退费申请已提交，等待管理员审批");
+      message.success(t('profile.refundSuccess'));
       setRefundOpen(false);
       refundForm.resetFields();
       await loadRefunds();
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || "退费失败");
+      message.error(e?.response?.data?.detail || t('profile.refundFail'));
     }
   };
 
   const handleUpdateUserRole = async (userId: string, values: any) => {
     try {
       await put(`/profile/users/${userId}/role`, values);
-      message.success("用户角色已更新");
+      message.success(t('profile.roleUpdateSuccess'));
       setRoleModalOpen(false);
       await loadAdminUsers();
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || "更新失败");
+      message.error(e?.response?.data?.detail || t('profile.roleUpdateFail'));
     }
   };
 
@@ -209,42 +211,42 @@ const Profile: React.FC = () => {
   const refundStatusColor = { pending: "orange", done: "green", rejected: "red" };
 
   const orderColumns = [
-    { title: "订单ID", dataIndex: "id", render: (v: string) => v.slice(0, 8) + "..." },
-    { title: "类型", dataIndex: "type", render: (v: string) => ({ subscription: "新购", renew: "续费", addon: "增购", topup: "充值" })[v] || v },
-    { title: "金额", dataIndex: "amount", render: (v: number) => "▥" + v.toFixed(2) },
-    { title: "状态", dataIndex: "status", render: (v: string) => <Tag color={orderStatusColor[v]}>{v}</Tag> },
-    { title: "创建时间", dataIndex: "created_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
-    { title: "支付时间", dataIndex: "paid_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
+    { title: t('profile.orderId'), dataIndex: "id", render: (v: string) => v.slice(0, 8) + "..." },
+    { title: t('profile.type'), dataIndex: "type", render: (v: string) => ({ subscription: t('profile.newPurchase'), renew: t('profile.renewal'), addon: t('profile.addon'), topup: t('profile.topup') })[v] || v },
+    { title: t('profile.amount'), dataIndex: "amount", render: (v: number) => "▥" + v.toFixed(2) },
+    { title: t('profile.status'), dataIndex: "status", render: (v: string) => <Tag color={orderStatusColor[v]}>{v}</Tag> },
+    { title: t('profile.createdAt'), dataIndex: "created_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
+    { title: t('profile.paidAt'), dataIndex: "paid_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
   ];
 
   const refundColumns = [
-    { title: "订单ID", dataIndex: "order_id", render: (v: string) => v.slice(0, 8) + "..." },
-    { title: "金额", dataIndex: "amount", render: (v: number) => "▥" + v.toFixed(2) },
-    { title: "原因", dataIndex: "reason" },
-    { title: "状态", dataIndex: "status", render: (v: string) => <Tag color={refundStatusColor[v]}>{v}</Tag> },
-    { title: "申请时间", dataIndex: "created_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
-    { title: "处理时间", dataIndex: "handled_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
+    { title: t('profile.orderId'), dataIndex: "order_id", render: (v: string) => v.slice(0, 8) + "..." },
+    { title: t('profile.amount'), dataIndex: "amount", render: (v: number) => "▥" + v.toFixed(2) },
+    { title: t('profile.reason'), dataIndex: "reason" },
+    { title: t('profile.status'), dataIndex: "status", render: (v: string) => <Tag color={refundStatusColor[v]}>{v}</Tag> },
+    { title: t('profile.applyTime'), dataIndex: "created_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
+    { title: t('profile.handleTime'), dataIndex: "handled_at", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
   ];
 
   const adminUserColumns = [
-    { title: "用户名", dataIndex: "username" },
-    { title: "姓名", dataIndex: "full_name", render: (v: string) => v || "-" },
-    { title: "邮箱", dataIndex: "email" },
-    { title: "等级", dataIndex: "level_code", render: (v: string) => <Tag>{v}</Tag> },
-    { title: "角色", dataIndex: "is_superuser", render: (_: any, r: AdminUser) => (
-      r.is_superuser ? <Tag color="purple">系统管理</Tag> :
-      r.is_org_admin ? <Tag color="blue">组织管理</Tag> :
-      <Tag>用户</Tag>
+    { title: t('profile.username'), dataIndex: "username" },
+    { title: t('profile.name'), dataIndex: "full_name", render: (v: string) => v || "-" },
+    { title: t('profile.email'), dataIndex: "email" },
+    { title: t('profile.level'), dataIndex: "level_code", render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('profile.role'), dataIndex: "is_superuser", render: (_: any, r: AdminUser) => (
+      r.is_superuser ? <Tag color="purple">{t('profile.systemAdmin')}</Tag> :
+      r.is_org_admin ? <Tag color="blue">{t('profile.orgAdmin')}</Tag> :
+      <Tag>{t('profile.user')}</Tag>
     ) },
-    { title: "状态", dataIndex: "is_active", render: (v: boolean) => v ? <Badge status="success" text="正常" /> : <Badge status="error" text="禁用" /> },
-    { title: "最后登录", dataIndex: "last_login", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "从未登录" },
+    { title: t('profile.status'), dataIndex: "is_active", render: (v: boolean) => v ? <Badge status="success" text={t('profile.active')} /> : <Badge status="error" text={t('profile.disabled')} /> },
+    { title: t('profile.lastLogin'), dataIndex: "last_login", render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : t('profile.neverLogin') },
     {
-      title: "操作", key: "action", render: (_: any, r: AdminUser) => (
+      title: t('profile.action'), key: "action", render: (_: any, r: AdminUser) => (
         <Button size="small" onClick={() => {
           setRoleTarget(r);
           roleForm.setFieldsValue({ is_superuser: r.is_superuser, is_org_admin: r.is_org_admin, is_active: r.is_active });
           setRoleModalOpen(true);
-        }}>管理角色</Button>
+        }}>{t('profile.manageRole')}</Button>
       ),
     },
   ];
@@ -253,12 +255,12 @@ const Profile: React.FC = () => {
     key: org.org_id,
     label: org.org_name,
     children: (
-      <Card size="small" title="组织信息">
+      <Card size="small" title={t("profile.orgInfo")}>
         <Descriptions column={2} size="small">
-          <Descriptions.Item label="组织名称">{org.org_name}</Descriptions.Item>
-          <Descriptions.Item label="组织内角色">{org.role_in_org}</Descriptions.Item>
-          <Descriptions.Item label="当前套餐">{org.plan_name}</Descriptions.Item>
-          <Descriptions.Item label="到期时间">{org.expire_at ? dayjs(org.expire_at).format("YYYY-MM-DD") : "永久"}</Descriptions.Item>
+          <Descriptions.Item label={t("profile.orgName")}>{org.org_name}</Descriptions.Item>
+          <Descriptions.Item label={t("profile.orgRole")}>{org.role_in_org}</Descriptions.Item>
+          <Descriptions.Item label={t("profile.currentPlan")}>{org.plan_name}</Descriptions.Item>
+          <Descriptions.Item label={t("profile.expireAt")}>{org.expire_at ? dayjs(org.expire_at).format("YYYY-MM-DD") : t("profile.permanent")}</Descriptions.Item>
         </Descriptions>
       </Card>
     ),
@@ -266,49 +268,49 @@ const Profile: React.FC = () => {
 
   return (
     <div style={{ padding: "24px" }}>
-      <Title level={2}>个人中心</Title>
+      <Title level={2}>{t('profile.title')}</Title>
 
       <Tabs items={[
         {
           key: "profile",
-          label: "个人信息",
+          label: t('profile.info'),
           children: (
             <Card
-              title="基本信息"
+              title={t('profile.basicInfo')}
               extra={
                 <Button icon={editing ? <SaveOutlined /> : <EditOutlined />} onClick={() => editing ? handleSaveProfile() : setEditing(true)}>
-                  {editing ? "保存" : "编辑"}
+                  {editing ? t('profile.save') : t('profile.edit')}
                 </Button>
               }
             >
               <Form form={form} layout="vertical" disabled={!editing}>
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Form.Item name="full_name" label="姓名">
-                      <Input prefix={<UserOutlined />} placeholder="请输入姓名" />
+                    <Form.Item name="full_name" label={t('profile.name')}>
+                      <Input prefix={<UserOutlined />} placeholder={t('profile.namePlaceholder')} />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item name="phone" label="电话">
-                      <Input prefix={<PhoneOutlined />} placeholder="请输入电话" />
+                    <Form.Item name="phone" label={t('profile.phone')}>
+                      <Input prefix={<PhoneOutlined />} placeholder={t('profile.phonePlaceholder')} />
                     </Form.Item>
                   </Col>
                 </Row>
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Form.Item name="department" label="部门">
-                      <Input placeholder="请输入部门" />
+                    <Form.Item name="department" label={t('profile.department')}>
+                      <Input placeholder="\u8bf7\u8f93\u5165\u90e8\u95e8" />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item name="position" label="职位">
-                      <Input placeholder="请输入职位" />
+                    <Form.Item name="position" label={t('profile.position')}>
+                      <Input placeholder="\u8bf7\u8f93\u5165\u804c\u4f4d" />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Form.Item name="email" label="邮箱">
+                <Form.Item name="email" label={t('profile.email')}>
                   <Input prefix={<MailOutlined />} disabled />
-                  <Text type="secondary" style={{ fontSize: 12 }}>邮箱不可修改，请联系管理员</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{t('profile.emailNote')}</Text>
                 </Form.Item>
               </Form>
             </Card>
@@ -316,17 +318,17 @@ const Profile: React.FC = () => {
         },
         {
           key: "orgs",
-          label: "我的组织",
-          children: orgTabs.length > 0 ? <Tabs items={orgTabs} /> : <Alert message="您尚未加入任何组织" type="info" />,
+          label: t('profile.orgs'),
+          children: orgTabs.length > 0 ? <Tabs items={orgTabs} /> : <Alert message={t('profile.noOrg')} type="info" />,
         },
         {
           key: "orders",
-          label: "充值记录",
+          label: t('profile.orders'),
           children: (
             <div>
               <Space style={{ marginBottom: 16 }}>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setRechargeOpen(true)}>申请充值</Button>
-                <Button icon={<ReloadOutlined />} onClick={loadOrders}>刷新</Button>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setRechargeOpen(true)}>{t('profile.recharge')}</Button>
+                <Button icon={<ReloadOutlined />} onClick={loadOrders}>{t('profile.refresh')}</Button>
               </Space>
               <Table columns={orderColumns} dataSource={orders} rowKey="id" loading={loading} />
             </div>
@@ -334,12 +336,12 @@ const Profile: React.FC = () => {
         },
         {
           key: "refunds",
-          label: "退费申请",
+          label: t('profile.refunds'),
           children: (
             <div>
               <Space style={{ marginBottom: 16 }}>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setRefundOpen(true)}>申请退费</Button>
-                <Button icon={<ReloadOutlined />} onClick={loadRefunds}>刷新</Button>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setRefundOpen(true)}>{t('profile.refundApply')}</Button>
+                <Button icon={<ReloadOutlined />} onClick={loadRefunds}>{t('profile.refresh')}</Button>
               </Space>
               <Table columns={refundColumns} dataSource={refunds} rowKey="id" loading={loading} />
             </div>
@@ -347,11 +349,11 @@ const Profile: React.FC = () => {
         },
         ...(user?.is_superuser ? [{
           key: "admin",
-          label: "用户管理",
+          label: t('profile.admin'),
           children: (
             <div>
               <Space style={{ marginBottom: 16 }}>
-                <Button icon={<ReloadOutlined />} onClick={loadAdminUsers}>刷新</Button>
+                <Button icon={<ReloadOutlined />} onClick={loadAdminUsers}>{t('profile.refresh')}</Button>
               </Space>
               <Table columns={adminUserColumns} dataSource={adminUsers} rowKey="id" loading={loading} />
             </div>
@@ -359,58 +361,58 @@ const Profile: React.FC = () => {
         }] : []),
       ]} />
 
-      {/* 充值Modal */}
-      <Modal title="申请充值" open={rechargeOpen} onOk={handleRecharge} onCancel={() => setRechargeOpen(false)} width={520}>
+      {/* \u5145\u503c\u004d\u006f\u0064\u0061\u006c */}
+      <Modal title={t('profile.rechargeTitle')} open={rechargeOpen} onOk={handleRecharge} onCancel={() => setRechargeOpen(false)} width={520}>
         <Form form={rechargeForm} layout="vertical">
-          <Form.Item name="org_id" label="选择组织" rules={[{ required: true }]}>
-            <Select placeholder="选择组织" options={orgs.map((o: any) => ({ label: o.name, value: o.id }))} />
+          <Form.Item name="org_id" label={t('profile.selectOrg')} rules={[{ required: true }]}>
+            <Select placeholder={t('profile.selectOrgPlaceholder')} options={orgs.map((o: any) => ({ label: o.name, value: o.id }))} />
           </Form.Item>
-          <Form.Item name="plan_id" label="选择套餐" rules={[{ required: true }]}>
-            <Select placeholder="选择套餐" options={plans.map((p: any) => ({
+          <Form.Item name="plan_id" label={t('profile.selectPlan')} rules={[{ required: true }]}>
+            <Select placeholder={t('profile.selectPlanPlaceholder')} options={plans.map((p: any) => ({
               label: p.name,
               value: p.id,
             }))} />
           </Form.Item>
-          <Form.Item name="billing_cycle" label="账期" rules={[{ required: true }]}>
-            <Select options={[{ label: "月付", value: "monthly" }, { label: "年付", value: "yearly" }]} />
+          <Form.Item name="billing_cycle" label={t('profile.billingCycle')} rules={[{ required: true }]}>
+            <Select options={[{ label: t('profile.monthly'), value: "monthly" }, { label: t('profile.yearly'), value: "yearly" }]} />
           </Form.Item>
-          <Form.Item name="payment_method" label="支付方式" rules={[{ required: true }]}>
+          <Form.Item name="payment_method" label={t('profile.paymentMethod')} rules={[{ required: true }]}>
             <Select options={[
-              { label: "银行转账", value: "manual_bank" },
-              { label: "支付宝", value: "alipay" },
-              { label: "微信支付", value: "wechat" },
+              { label: t('profile.bankTransfer'), value: "manual_bank" },
+              { label: t('profile.alipay'), value: "alipay" },
+              { label: t('profile.wechat'), value: "wechat" },
             ]} />
           </Form.Item>
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={2} placeholder="如：合同编号、转账流水号" />
+          <Form.Item name="remark" label={t('profile.remark')}>
+            <Input.TextArea rows={2} placeholder={t('profile.remarkPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* 退费Modal */}
-      <Modal title="申请退费" open={refundOpen} onOk={handleRefund} onCancel={() => setRefundOpen(false)} width={520}>
+      {/* \u9000\u8d39\u004d\u006f\u0064\u0061\u006c */}
+      <Modal title={t('profile.refundTitle')} open={refundOpen} onOk={handleRefund} onCancel={() => setRefundOpen(false)} width={520}>
         <Form form={refundForm} layout="vertical">
-          <Form.Item name="order_id" label="订单ID" rules={[{ required: true, message: "请输入订单ID" }]}>
-            <Input placeholder="请输入要退费的订单ID（前8位即可）" />
+          <Form.Item name="order_id" label={t('profile.orderId')} rules={[{ required: true, message: t('profile.orderIdRequired') }]}>
+            <Input placeholder={t('profile.orderIdPlaceholder')} />
           </Form.Item>
-          <Form.Item name="amount" label="退费金额" rules={[{ required: true }]}>
-            <InputNumber prefix={<BankOutlined />} min={0} style={{ width: "100%" }} placeholder="请输入退费金额" />
+          <Form.Item name="amount" label={t('profile.refundAmount')} rules={[{ required: true }]}>
+            <InputNumber prefix={<BankOutlined />} min={0} style={{ width: "100%" }} placeholder={t('profile.refundAmountPlaceholder')} />
           </Form.Item>
-          <Form.Item name="reason" label="退费原因" rules={[{ required: true }]}>
-            <Input.TextArea rows={3} placeholder="请说明退费原因" />
+          <Form.Item name="reason" label={t('profile.refundReason')} rules={[{ required: true }]}>
+            <Input.TextArea rows={3} placeholder={t('profile.refundReasonPlaceholder')} />
           </Form.Item>
-          <Form.Item name="method" label="退费方式" rules={[{ required: true }]}>
+          <Form.Item name="method" label={t('profile.refundMethod')} rules={[{ required: true }]}>
             <Select options={[
-              { label: "原路退回", value: "original_method" },
-              { label: "银行转账", value: "bank_transfer" },
+              { label: t('profile.originalMethod'), value: "original_method" },
+              { label: t('profile.bankTransfer'), value: "bank_transfer" },
             ]} />
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* 角色管理Modal */}
+      {/* \u89d2\u8272\u7ba1\u7406\u004d\u006f\u0064\u0061\u006c */}
       <Modal
-        title="管理用户角色"
+        title={t('profile.roleManagement')}
         open={roleModalOpen}
         onOk={() => roleTarget && handleUpdateUserRole(roleTarget.id, roleForm.getFieldsValue())}
         onCancel={() => setRoleModalOpen(false)}
@@ -420,23 +422,23 @@ const Profile: React.FC = () => {
           <Alert
             style={{ marginBottom: 16 }}
             type="info"
-            message="请选择要充值的组织"
+            message={t('profile.selectOrgForRecharge')}
           />
         )}
         <Form form={roleForm} layout="vertical">
           <Form.Item name="is_superuser" valuePropName="checked">
             <Tag.CheckableTag checked={false} onChange={(c) => roleForm.setFieldValue("is_superuser", c)}>
-              系统管理员（可操作系统全部功能）
+              {t('profile.superAdmin')}
             </Tag.CheckableTag>
           </Form.Item>
           <Form.Item name="is_org_admin" valuePropName="checked">
             <Tag.CheckableTag checked={false} onChange={(c) => roleForm.setFieldValue("is_org_admin", c)}>
-              组织管理员（可管理用户和收费）
+              {t('profile.orgAdmin')}
             </Tag.CheckableTag>
           </Form.Item>
           <Form.Item name="is_active" valuePropName="checked">
             <Tag.CheckableTag checked={roleTarget?.is_active ?? true} onChange={(c) => roleForm.setFieldValue("is_active", c)}>
-              账号正常（勾选=禁用，取消=启用）
+              {t('profile.accountStatus')}
             </Tag.CheckableTag>
           </Form.Item>
         </Form>

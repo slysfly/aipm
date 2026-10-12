@@ -4,12 +4,14 @@ import AIAssistButton from "../components/AIAssistButton";
 import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, FundProjectionScreenOutlined, FilterOutlined, ClearOutlined } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { projectApi, projectTypeApi } from "../api";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
 const Projects: React.FC = () => {
+  const { t } = useTranslation("projects");
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { message } = App.useApp();
@@ -27,7 +29,7 @@ const Projects: React.FC = () => {
     try {
       const data = await projectTypeApi.list();
       setTypes(Array.isArray(data) ? data : []);
-    } catch { /* 忽略，类型缺失时回退显示 code */ }
+    } catch { /* ignore: fall back to code when type is missing */ }
   };
 
   useEffect(() => { loadTypes(); }, []);
@@ -48,7 +50,7 @@ const Projects: React.FC = () => {
       const res = await projectApi.list(params);
       setProjects(res?.items || []);
     } catch (e: any) {
-      message.error("加载项目列表失败");
+      message.error(t("messages.loadError"));
     } finally {
       setLoading(false);
     }
@@ -91,22 +93,22 @@ const Projects: React.FC = () => {
       else payload.budget = Number(values.budget);
       if (editingProject) {
         await projectApi.update(editingProject.id, payload);
-        message.success("项目已更新");
+        message.success(t("messages.updateSuccess"));
       } else {
         await projectApi.create(payload);
-        message.success("项目已创建");
+        message.success(t("messages.createSuccess"));
       }
       setModalOpen(false);
       load();
-    } catch (e: any) { message.error(e?.response?.data?.detail || "操作失败"); }
+    } catch (e: any) { message.error(e?.response?.data?.detail || t("messages.opError")); }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await projectApi.remove(id);
-      message.success("项目已删除");
+      message.success(t("messages.deleteSuccess"));
       load();
-    } catch { message.error("删除失败"); }
+    } catch { message.error(t("messages.deleteError")); }
   };
 
   const filtered = projects.filter(p => {
@@ -116,21 +118,38 @@ const Projects: React.FC = () => {
   });
 
   const getStatusColor = (s: string) => s === "active" ? "green" : s === "planning" ? "blue" : s === "done" ? "default" : "default";
+  const statusLabel = (s: string) =>
+    s === "active" ? t("statusInProgress") :
+    s === "planning" ? t("statusPlanning") :
+    s === "done" ? t("statusDone") :
+    t("statusArchived");
+  const priorityLabel = (p: number) => p <= 2 ? t("priorityHigh") : p === 3 ? t("priorityMedium") : t("priorityLow");
 
   return (
     <div>
       <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <Title level={4} style={{ margin: 0 }}>项目</Title>
-          <Text type="secondary">管理所有项目，支持瀑布、敏捷、混合等多种方法论</Text>
+          <Title level={4} style={{ margin: 0 }}>{t("title")}</Title>
+          <Text type="secondary">{t("subtitle")}</Text>
         </div>
         <Space wrap>
-          <Input prefix={<SearchOutlined />} placeholder="搜索项目..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: 200, borderRadius: 10 }} allowClear />
-          <Select placeholder="状态筛选" allowClear style={{ width: 120 }} value={statusFilter || undefined} onChange={v => setStatusFilter(v || "")}
-            options={[{ label: "全部", value: "" }, { label: "进行中", value: "active" }, { label: "规划", value: "planning" }, { label: "已完成", value: "done" }, { label: "已归档", value: "archived" }]} />
-          <Select placeholder="优先级" allowClear style={{ width: 110 }} value={priorityFilter || undefined} onChange={(v) => setPriorityFilter(v ?? "")}
-            options={[{ label: "全部", value: "" }, { label: "高", value: 1 }, { label: "中", value: 3 }, { label: "低", value: 5 }]} />
-          <Button data-tour="proj-new" type="primary" icon={<PlusOutlined />} onClick={handleCreate}>新建项目</Button>
+          <Input prefix={<SearchOutlined />} placeholder={t("searchPlaceholder")} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 200, borderRadius: 10 }} allowClear />
+          <Select placeholder={t("filterStatusPlaceholder")} allowClear style={{ width: 120 }} value={statusFilter || undefined} onChange={v => setStatusFilter(v || "")}
+            options={[
+              { label: t("filterAll"), value: "" },
+              { label: t("statusInProgress"), value: "active" },
+              { label: t("statusPlanning"), value: "planning" },
+              { label: t("statusDone"), value: "done" },
+              { label: t("statusArchived"), value: "archived" },
+            ]} />
+          <Select placeholder={t("filterPriorityPlaceholder")} allowClear style={{ width: 110 }} value={priorityFilter || undefined} onChange={(v) => setPriorityFilter(v ?? "")}
+            options={[
+              { label: t("filterAll"), value: "" },
+              { label: t("priorityHigh"), value: 1 },
+              { label: t("priorityMedium"), value: 3 },
+              { label: t("priorityLow"), value: 5 },
+            ]} />
+          <Button data-tour="proj-new" type="primary" icon={<PlusOutlined />} onClick={handleCreate}>{t("newProject")}</Button>
         </Space>
       </div>
 
@@ -139,10 +158,10 @@ const Projects: React.FC = () => {
       ) : filtered.length === 0 ? (
         <div className="enhanced-empty">
           <div style={{ fontSize: 60, marginBottom: 16 }}>🚀</div>
-          <h3>{search || statusFilter || priorityFilter ? "没有匹配的项目" : "还没有项目"}</h3>
-          <p>{search || statusFilter || priorityFilter ? "尝试调整筛选条件" : "创建第一个项目，开启你的项目管理之旅"}</p>
+          <h3>{search || statusFilter || priorityFilter ? t("emptyNoMatch") : t("emptyNone")}</h3>
+          <p>{search || statusFilter || priorityFilter ? t("emptyNoMatchHint") : t("emptyNoneHint")}</p>
           {!search && !statusFilter && !priorityFilter && (
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>创建第一个项目</Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>{t("createFirst")}</Button>
           )}
         </div>
       ) : (
@@ -157,11 +176,11 @@ const Projects: React.FC = () => {
                   <EditOutlined key="edit" onClick={e => { e.stopPropagation(); handleEdit(p); }} />,
                   <Popconfirm
                     key="delete"
-                    title="确认删除该项目？"
-                    description="将一并删除其下所有任务与文档，且不可恢复。"
-                    okText="删除"
+                    title={t("deleteTitle")}
+                    description={t("deleteDescription")}
+                    okText={t("deleteOk")}
                     okType="danger"
-                    cancelText="取消"
+                    cancelText={t("deleteCancel")}
                     onConfirm={() => handleDelete(p.id)}
                   >
                     <DeleteOutlined onClick={e => e.stopPropagation()} />
@@ -173,17 +192,17 @@ const Projects: React.FC = () => {
                     <Text strong style={{ fontSize: 15 }}>{p.name}</Text>
                     <div style={{ marginTop: 4, display: "flex", gap: 4, flexWrap: "wrap" }}>
                       <Tag color={getStatusColor(p.status)} style={{ borderRadius: 6 }}>
-                        {p.status === "active" ? "进行中" : p.status === "planning" ? "规划" : p.status === "done" ? "已完成" : "归档"}
+                        {statusLabel(p.status)}
                       </Tag>
                       <Tag color={p.priority <= 2 ? "red" : p.priority === 3 ? "orange" : "blue"} style={{ borderRadius: 6 }}>
-                        {p.priority <= 2 ? "高" : p.priority === 3 ? "中" : "低"}
+                        {priorityLabel(p.priority)}
                       </Tag>
                       {renderTypeTag(p.project_type)}
                     </div>
                   </div>
                 </div>
                 <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 12, height: 36, overflow: "hidden" }} ellipsis>
-                  {p.description || "暂无描述"}
+                  {p.description || t("noDescription")}
                 </Text>
                 <Progress percent={p.progress || 0} size="small" strokeColor={{ from: "#4F46E5", to: "#7C3AED" }} showInfo={false} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
@@ -196,7 +215,7 @@ const Projects: React.FC = () => {
         </div>
       )}
 
-      <Modal title={editingProject ? "编辑项目" : "新建项目"} open={modalOpen} onCancel={() => setModalOpen(false)} footer={null} destroyOnClose width={640}>
+      <Modal title={editingProject ? t("edit") : t("create")} open={modalOpen} onCancel={() => setModalOpen(false)} footer={null} destroyOnClose width={640}>
         <Form form={form} layout="vertical" onFinish={handleSave}>
           <div style={{ marginBottom: 12 }}>
             <AIAssistButton
@@ -208,20 +227,29 @@ const Projects: React.FC = () => {
                 return v;
               }}
               onApply={(s) => form.setFieldsValue(s)}
-              // 把项目类型的合法 code 下发给后端，AI 只会在这些取值里选，
-              // 避免回填一个 Select 里不存在的值导致下拉框空白
+              // \u628a\u9879\u76ee\u7c7b\u578b\u7684\u5408\u6cd5 code \u4e0b\u53d1\u7ed9\u540e\u7aef\uff0cAI \u53ea\u4f1a\u5728\u8fd9\u4e9b\u53d6\u503c\u91cc\u9009\uff0c
+              // \u907f\u514d\u56de\u586b\u4e00\u4e2a Select \u91cc\u4e0d\u5b58\u5728\u7684\u503c\u5bfc\u81f4\u4e0b\u62c9\u6846\u7a7a\u767d
               options={{ project_type: types.map((t) => ({ value: t.code, label: t.name })) }}
               dateFields={["start_date", "end_date"]}
             />
           </div>
-          <Form.Item label="项目名称" name="name" rules={[{ required: true, message: "请输入项目名称" }]}><Input placeholder="例如：智慧城市管理系统 / 官网改版项目" /></Form.Item>
-          <Form.Item label="描述" name="description"><Input.TextArea rows={2} placeholder="例如：在6个月内完成一期建设，覆盖门禁、停车、能耗三大子系统" /></Form.Item>
+          <Form.Item label={t("form.name")} name="name" rules={[{ required: true, message: t("form.nameRequired") }]}><Input placeholder="e.g.: Smart City Management System / Website Revamp" /></Form.Item>
+          <Form.Item label={t("form.description")} name="description"><Input.TextArea rows={2} placeholder={t("form.descriptionPlaceholder")} /></Form.Item>
           <Space style={{ width: "100%" }}>
-            <Form.Item label="状态" name="status" initialValue="planning"><Select style={{ width: 140 }} options={[{ label: "规划", value: "planning" }, { label: "进行中", value: "active" }, { label: "已完成", value: "done" }, { label: "已归档", value: "archived" }]} /></Form.Item>
-            <Form.Item label="优先级" name="priority" initialValue={3}><Select style={{ width: 120 }} options={[{ label: "高", value: 1 }, { label: "中", value: 3 }, { label: "低", value: 5 }]} /></Form.Item>
-            <Form.Item label="项目类型" name="project_type">
+            <Form.Item label={t("form.status")} name="status" initialValue="planning"><Select style={{ width: 140 }} options={[
+              { label: t("statusPlanning"), value: "planning" },
+              { label: t("statusInProgress"), value: "active" },
+              { label: t("statusDone"), value: "done" },
+              { label: t("statusArchived"), value: "archived" },
+            ]} /></Form.Item>
+            <Form.Item label={t("form.priority")} name="priority" initialValue={3}><Select style={{ width: 120 }} options={[
+              { label: t("priorityHigh"), value: 1 },
+              { label: t("priorityMedium"), value: 3 },
+              { label: t("priorityLow"), value: 5 },
+            ]} /></Form.Item>
+            <Form.Item label={t("form.projectType")} name="project_type">
               <Select
-                placeholder="选择项目类型"
+                placeholder={t("form.projectTypePlaceholder")}
                 allowClear
                 showSearch
                 optionFilterProp="label"
@@ -238,13 +266,13 @@ const Projects: React.FC = () => {
             </Form.Item>
           </Space>
           <Space style={{ width: "100%" }}>
-            <Form.Item label="行业" name="industry_type"><Input placeholder="例如：IT软件 / 金融 / 制造 / 建筑" style={{ width: 150 }} /></Form.Item>
-            <Form.Item label="预算" name="budget"><InputNumber min={0} prefix="¥" style={{ width: 150 }} placeholder="预算金额" /></Form.Item>
+            <Form.Item label={t("form.industry")} name="industry_type"><Input placeholder={t("form.industryPlaceholder")} style={{ width: 150 }} /></Form.Item>
+            <Form.Item label={t("form.budget")} name="budget"><InputNumber min={0} prefix="¥" style={{ width: 150 }} placeholder={t("form.budgetPlaceholder")} /></Form.Item>
           </Space>
           <Space style={{ width: "100%" }}>
-            <Form.Item label="开始日期" name="start_date"><DatePicker style={{ width: 150 }} /></Form.Item>
+            <Form.Item label={t("form.startDate")} name="start_date"><DatePicker style={{ width: 150 }} /></Form.Item>
             <Form.Item
-              label="结束日期"
+              label={t("form.endDate")}
               name="end_date"
               dependencies={["start_date"]}
               rules={[
@@ -252,7 +280,7 @@ const Projects: React.FC = () => {
                   validator: async (_rule, value) => {
                     const s = form.getFieldValue("start_date");
                     if (value && s && value.isBefore(s, "day")) {
-                      throw new Error("结束日期不能早于开始日期");
+                      throw new Error(t("form.endDateAfterStart"));
                     }
                   },
                 },
@@ -267,7 +295,7 @@ const Projects: React.FC = () => {
               />
             </Form.Item>
           </Space>
-          <Form.Item><Button type="primary" htmlType="submit" block>{editingProject ? "保存变更" : "创建项目"}</Button></Form.Item>
+          <Form.Item><Button type="primary" htmlType="submit" block>{editingProject ? t("saveChanges") : t("create")}</Button></Form.Item>
         </Form>
       </Modal>
     </div>

@@ -21,13 +21,14 @@ import {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { workflowApi, agentApi, pmbokV3Api } from "../api";
 
 const { Text } = Typography;
 const PRIMARY = "#4F46E5";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 类型定义
+// Type definitions
 // ─────────────────────────────────────────────────────────────────────────────
 
 type NodeStatus = "idle" | "running" | "success" | "error";
@@ -39,13 +40,13 @@ interface AgentNodeData {
   icon: React.ReactNode;
   color: string;
   status: NodeStatus;
-  // 新增：节点级运行配置（支撑上游输出→下游输入的精确绑定）
-  userInput: string;                 // 内联补充输入文本
-  selectedTools: string[];           // 勾选的工具技术 key
-  inputMapping: Record<string, string>; // {输入槽key: 上游节点id}
-  // 新增：PMI 三层映射元数据（兼容旧结构，均为可选）
+  // New: node-level runtime config (supports precise upstream output -> downstream input binding)
+  userInput: string;                 // inline supplementary input text
+  selectedTools: string[];           // selected tool/technique keys
+  inputMapping: Record<string, string>; // {input slot key: upstream node id}
+  // New: PMI 3-layer mapping metadata (backward compatible, all optional)
   nodeKind?: "agent" | "skill" | "gate";
-  refId?: string;                    // 指向 agent / skill 的 id
+  refId?: string;                    // points to agent / skill id
   note?: string;
 }
 
@@ -59,7 +60,7 @@ interface LogEntry {
   level: "info" | "success" | "error";
 }
 
-/** prepare 端点返回的结构化 ITTO 槽位 */
+/** Structured ITTO slots returned by the prepare endpoint */
 interface SlotItem {
   key: string;
   label: string;
@@ -69,7 +70,7 @@ interface SlotItem {
   exists?: boolean;
 }
 
-/** PMBOK V3 节点面板库条目（agent / skill） */
+/** PMBOK V3 node panel library entry (agent / skill) */
 interface PmbokAgentItem {
   id: string;
   code?: string;
@@ -117,7 +118,7 @@ interface PmbokWorkflowItem {
   nodes?: PmbokWorkflowNode[];
 }
 
-/** 属性面板选中的节点信息（快照，用于拉取 ITTO） */
+/** Selected node info snapshot (used to fetch ITTO) */
 interface Selection {
   id: string;
   kind: "agent" | "skill" | "gate";
@@ -134,7 +135,7 @@ interface NodeDetail {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 图标 / 配色映射
+// Icon / color mapping
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -149,18 +150,30 @@ const uid = (prefix: string) => `${prefix}_${Date.now()}_${_counter++}`;
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 自定义节点（含 Handle 连接点 + framer-motion 状态微动效 + 配置指示点）
+// Custom node (with Handle connection points + framer-motion micro-animations + config indicator)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const STATUS_META: Record<NodeStatus, { color: string; text: string; icon: React.ReactNode }> = {
-  idle:    { color: "#94A3B8", text: "待运行", icon: <LoadingOutlined style={{ opacity: 0 }} /> },
-  running: { color: "#F59E0B", text: "运行中", icon: <LoadingOutlined spin /> },
-  success: { color: "#10B981", text: "成功",   icon: <CheckCircleOutlined /> },
-  error:   { color: "#EF4444", text: "失败",   icon: <CloseCircleOutlined /> },
+const STATUS_META_COLORS: Record<NodeStatus, { color: string; key: "idle" | "running" | "success" | "error" }> = {
+  idle:    { color: "#94A3B8", key: "idle" },
+  running: { color: "#F59E0B", key: "running" },
+  success: { color: "#10B981", key: "success" },
+  error:   { color: "#EF4444", key: "error" },
 };
 
-const StatusBadge: React.FC<{ status: NodeStatus }> = ({ status }) => {
-  const m = STATUS_META[status];
+const STATUS_ICONS: Record<NodeStatus, React.ReactNode> = {
+  idle: <LoadingOutlined style={{ opacity: 0 }} />,
+  running: <LoadingOutlined spin />,
+  success: <CheckCircleOutlined />,
+  error: <CloseCircleOutlined />,
+};
+
+const getStatusMeta = (t: (k: string) => string, status: NodeStatus) => {
+  const meta = STATUS_META_COLORS[status];
+  return { color: meta.color, text: t(`agentWorkflow.status.${meta.key}`), icon: STATUS_ICONS[status] };
+};
+
+const StatusBadge: React.FC<{ status: NodeStatus; t: (k: string) => string }> = ({ status, t }) => {
+  const m = getStatusMeta(t, status);
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 4,
@@ -178,6 +191,7 @@ const hasConfig = (d: AgentNodeData) =>
   (d.inputMapping && Object.keys(d.inputMapping).length > 0);
 
 const AgentNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) => {
+  const { t } = useTranslation("agentWorkflow");
   const status = data.status;
   const ring =
     status === "idle" ? (selected ? data.color : "#E2E8F0")
@@ -213,7 +227,7 @@ const AgentNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) =
               {data.label}
             </div>
           </div>
-          <StatusBadge status={status} />
+          <StatusBadge status={status} t={t} />
         </div>
         <div style={{ fontSize: 10, color: "#64748B", marginTop: 4, lineHeight: 1.4 }}>
           {data.description}
@@ -223,7 +237,7 @@ const AgentNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) =
             {data.agentType}
           </span>
           {hasConfig(data) && (
-            <Tooltip title="已配置输入/工具/槽位映射">
+            <Tooltip title={t("agentWorkflow.configTooltip")}>
               <span style={{ color: "#6366F1", fontSize: 11 }}><SettingOutlined /></span>
             </Tooltip>
           )}
@@ -235,7 +249,7 @@ const AgentNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) =
   );
 };
 
-/** Gate（判断/分支）节点：橙色菱形风格，作为流程判断节点 */
+/** Gate (decision/branch) node: orange diamond style, used as a flow decision node */
 const GateNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) => (
   <div style={{
     width: 168, borderRadius: 10, background: "#FFF7ED",
@@ -253,7 +267,7 @@ const GateNodeView: React.FC<NodeProps<AgentNodeData>> = ({ data, selected }) =>
 
 const nodeTypes = { agent: AgentNodeView, gate: GateNodeView };
 
-// 通用分组工具
+// Generic grouping utility
 function groupBy<T>(arr: T[], key: (t: T) => string): { key: string; items: T[] }[] {
   const m = new Map<string, T[]>();
   for (const it of arr) {
@@ -264,7 +278,7 @@ function groupBy<T>(arr: T[], key: (t: T) => string): { key: string; items: T[] 
   return Array.from(m.entries()).map(([k, items]) => ({ key: k, items }));
 }
 
-// 左侧面板节点项
+// Left panel node item
 const PanelItem: React.FC<{
   label: string; sub?: string; desc?: string; color: string;
   icon: React.ComponentType<any>; onClick: () => void;
@@ -293,7 +307,7 @@ const PanelItem: React.FC<{
   );
 };
 
-// 属性面板块
+// t("agentWorkflow.rightPanel.title")块
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div style={{ marginBottom: 12 }}>
     <div style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", marginBottom: 4, letterSpacing: 0.5 }}>
@@ -318,28 +332,29 @@ function renderSlot(items?: any[]): React.ReactNode {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 主页面（内层，使用 React Flow hooks）
+// Main page (inner, uses React Flow hooks)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const WorkflowInner: React.FC = () => {
   const { message } = App.useApp();
+  const { t } = useTranslation("agentWorkflow");
   const { fitView, zoomIn, zoomOut, getZoom } = useReactFlow();
 
   const initial = useMemo(() => ({ nodes: [] as AgentNode[], edges: [] as Edge[] }), []);
   const [nodes, setNodes, onNodesChange] = useNodesState<AgentNodeData>(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initial.edges);
 
-  const [workflowName, setWorkflowName] = useState("PMI 三层映射 · 工作流编排");
+  const [workflowName, setWorkflowName] = useState(t("agentWorkflow.defaultName"));
   const [executing, setExecuting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [log, setLog] = useState<LogEntry[]>([]);
 
   // ── 全屏 / 悬浮展示 ─────────────────────────────────────────────
-  // 全屏时整块工作流（节点面板 + 画布 + 属性面板）铺满屏幕，属性面板保持可用
+  // 全屏时整块工作流（节点面板 + 画布 + t("agentWorkflow.rightPanel.title")）铺满屏幕，t("agentWorkflow.rightPanel.title")保持可用
   const rootRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomPct, setZoomPct] = useState(100);
-  // ── 侧栏抽屉（全屏时节点面板/属性面板可收起/展开，也可保持固定）──
+  // ── 侧栏抽屉（全屏时节点面板/t("agentWorkflow.rightPanel.title")可收起/展开，也可保持固定）──
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const toggleFullscreen = useCallback(() => {
@@ -363,7 +378,7 @@ const WorkflowInner: React.FC = () => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [isFullscreen]);
-  // 跟踪当前缩放百分比（节流）
+  // Track current zoom percentage (throttled)
   useEffect(() => {
     let raf = 0;
     const loop = () => { setZoomPct(Math.round(getZoom() * 100)); raf = requestAnimationFrame(loop); };
@@ -374,12 +389,12 @@ const WorkflowInner: React.FC = () => {
   const handleZoomOut = useCallback(() => { zoomOut({ duration: 200 }); setZoomPct(Math.max(20, Math.round(getZoom() * 100) - 20)); }, [zoomOut, getZoom]);
   const handleZoomFit = useCallback(() => { fitView({ duration: 300, padding: 0.15 }); }, [fitView]);
 
-  // 工作流保存（多租户，沿用 workflowApi）
+  // Workflow save (multi-tenant, uses workflowApi)
   const [currentWfId, setCurrentWfId] = useState<string | null>(null);
   const [saveOpen, setSaveOpen] = useState(false);
   const [saveDesc, setSaveDesc] = useState("");
 
-  // 节点配置抽屉
+  // Node configuration drawer
   const [configNode, setConfigNode] = useState<AgentNode | null>(null);
   const [slotInfo, setSlotInfo] = useState<{ inputs: SlotItem[]; tools: SlotItem[]; outputs: SlotItem[] }>({ inputs: [], tools: [], outputs: [] });
   const [cfgUserInput, setCfgUserInput] = useState("");
@@ -388,10 +403,10 @@ const WorkflowInner: React.FC = () => {
   const [cfgOutputSlots, setCfgOutputSlots] = useState<Record<string, boolean>>({});
   const [slotLoading, setSlotLoading] = useState(false);
 
-  // 运行结果（供节点抽屉展示输出）
+  // Run results (for node drawer to display output)
   const [lastRun, setLastRun] = useState<any | null>(null);
 
-  // PMBOK V3 节点面板库 + 工作流模板
+  // PMBOK V3 node panel library + workflow templates
   const [pmbokAgents, setPmbokAgents] = useState<PmbokAgentItem[]>([]);
   const [pmbokAgentsLoading, setPmbokAgentsLoading] = useState(true);
   const [pmbokSkills, setPmbokSkills] = useState<PmbokSkillItem[]>([]);
@@ -403,7 +418,7 @@ const WorkflowInner: React.FC = () => {
   const autoLoadedRef = React.useRef(false);
   const [panelSearch, setPanelSearch] = useState("");
 
-  // 属性面板：当前选中节点 + 拉取的 ITTO 详情
+  // t("agentWorkflow.rightPanel.title")：当前选中节点 + 拉取的 ITTO 详情
   const [selection, setSelection] = useState<Selection | null>(null);
   const [nodeDetail, setNodeDetail] = useState<NodeDetail | null>(null);
   const [nodeDetailLoading, setNodeDetailLoading] = useState(false);
@@ -415,7 +430,7 @@ const WorkflowInner: React.FC = () => {
     }]);
   }, []);
 
-  // 加载 PMBOK V3 节点面板库 + 工作流模板（try/catch，失败不崩溃）
+  // Load PMBOK V3 node panel library + workflow templates (try/catch, don't crash on failure)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -431,7 +446,7 @@ const WorkflowInner: React.FC = () => {
         setPmbokSkills((s as any)?.items || (s as any) || []);
         setPmbokWorkflows((w as any)?.items || (w as any) || []);
       } catch {
-        // 接口异常时保持空列表，画布显示空提示
+        // Keep empty list on API errors, show empty hint in canvas
       } finally {
         if (!cancelled) {
           setPmbokAgentsLoading(false);
@@ -452,15 +467,15 @@ const WorkflowInner: React.FC = () => {
     return { icon, color };
   }, []);
 
-  // 过滤（按搜索词）
+  // Filter (by search keyword)
   const filteredAgents = useMemo(() => {
     const kw = panelSearch.trim().toLowerCase();
     return pmbokAgents.filter(a =>
       !kw || `${a.name_cn || ""} ${a.name || ""} ${a.code || ""} ${a.summary || ""}`.toLowerCase().includes(kw));
   }, [pmbokAgents, panelSearch]);
   const groupedAgents = useMemo(
-    () => groupBy(filteredAgents, a => a.process_group || "未分组过程组"),
-    [filteredAgents]);
+    () => groupBy(filteredAgents, a => a.process_group || t("agentWorkflow.leftPanel.defaultGroup")),
+    [filteredAgents, t]);
 
   const filteredSkills = useMemo(() => {
     const kw = panelSearch.trim().toLowerCase();
@@ -468,16 +483,16 @@ const WorkflowInner: React.FC = () => {
       !kw || `${s.name_cn || ""} ${s.name || ""} ${s.code || ""} ${s.summary || ""}`.toLowerCase().includes(kw));
   }, [pmbokSkills, panelSearch]);
   const groupedSkills = useMemo(
-    () => groupBy(filteredSkills, s => s.category || "未分类"),
-    [filteredSkills]);
+    () => groupBy(filteredSkills, s => s.category || t("agentWorkflow.leftPanel.defaultCategory")),
+    [filteredSkills, t]);
 
-  // ── 从左侧节点面板点击新增节点 ──
+  // Add a new node by clicking from the left panel
   const addNodeFromPanel = useCallback((item: PmbokAgentItem | PmbokSkillItem, kind: "agent" | "skill") => {
     const meta = resolvePmbokMeta(item, kind);
     const id = uid(kind === "agent" ? "agent" : "skill");
     const idx = nodes.length;
     const position = { x: 40 + (idx % 4) * 250, y: 40 + Math.floor(idx / 4) * 150 };
-    const label = (item as any).name_cn || (item as any).name || (item as any).code || "节点";
+    const label = (item as any).name_cn || (item as any).name || (item as any).code || t("agentWorkflow.leftPanel.untitledNode");
     const desc = (item as any).summary || (item as any).description || "";
     const newNode: AgentNode = {
       id, type: "agent", position,
@@ -489,10 +504,10 @@ const WorkflowInner: React.FC = () => {
       },
     };
     setNodes(nds => [...nds, newNode]);
-    message.success(`已添加「${label}」节点`);
-  }, [nodes.length, setNodes, message, resolvePmbokMeta]);
+    message.success(t("agentWorkflow.leftPanel.addNodeSuccess", { name: label }));
+  }, [nodes.length, setNodes, message, resolvePmbokMeta, t]);
 
-  // ── 载入工作流模板：把 nodes 渲染成画布节点 + 按 seq 连边 ──
+  // Load workflow template: render nodes to canvas + connect edges by seq
   const loadWorkflowTemplate = useCallback(async (id: string) => {
     try {
       console.log('[Workflow] Loading template:', id);
@@ -506,7 +521,7 @@ const WorkflowInner: React.FC = () => {
           return {
             id: uid("gate"), type: "gate", position,
             data: {
-              agentType: n.ref || "gate", label: n.name || "判断", description: "",
+              agentType: n.ref || "gate", label: n.name || t("agentWorkflow.loadTemplate.defaultGate"), description: "",
               icon: React.createElement(SwapOutlined), color: "#F59E0B", status: "idle",
               userInput: "", selectedTools: [], inputMapping: {},
               nodeKind: "gate", refId: n.ref_id || n.ref || "", note: n.note || "",
@@ -526,7 +541,7 @@ const WorkflowInner: React.FC = () => {
         };
       });
       const newEdges: Edge[] = [];
-      // 尝试使用ITTO边，如果API没有edges字段则回退到线性连接
+      // Try ITTO edges, fall back to linear connection if API has no edges field
       const ittoEdges = (wf as any).edges;
       if (ittoEdges && ittoEdges.length > 0) {
         const nodeMap = new Map<string, AgentNode>();
@@ -543,7 +558,7 @@ const WorkflowInner: React.FC = () => {
           }
         });
       }
-      // 如果没有匹配到边，使用线性连接作为降级
+      // If no edges matched, use linear connection as fallback
       if (newEdges.length === 0 && newNodes.length > 1) {
         for (let i = 0; i < newNodes.length - 1; i++) {
           newEdges.push({
@@ -558,13 +573,13 @@ const WorkflowInner: React.FC = () => {
       setEdges(newEdges);
       setSelection(null);
       setTimeout(() => fitView({ padding: 0.2 }), 60);
-      message.success(`已载入模板「${wf?.name_cn || wf?.name || wf?.code || ""}」`);
+      message.success(t("agentWorkflow.loadTemplate.success", { name: wf?.name_cn || wf?.name || wf?.code || "" }));
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || e?.message || "载入工作流模板失败");
+      message.error(e?.response?.data?.detail || e?.message || t("agentWorkflow.loadTemplate.fail"));
     }
-  }, [setNodes, setEdges, message, fitView, resolvePmbokMeta]);
+  }, [setNodes, setEdges, message, fitView, resolvePmbokMeta, t]);
 
-  // ── 连线（边 = 依赖；支持扇入/扇出）──
+  // Connect (edge = dependency; supports fan-in/fan-out)
   const onConnect = useCallback((connection: Connection) => {
     setEdges(eds => addEdge({
       ...connection, animated: true,
@@ -585,7 +600,7 @@ const WorkflowInner: React.FC = () => {
   }, []);
   const onPaneClick = useCallback(() => setSelection(null), []);
 
-  // -- 页面加载后自动载入第一个工作流模板 --
+  // -- Auto-load the first workflow template after page load --
   useEffect(() => {
     if (pmbokWorkflows.length > 0 && nodes.length === 0 && !autoLoadedRef.current) {
       autoLoadedRef.current = true;
@@ -598,7 +613,7 @@ const WorkflowInner: React.FC = () => {
 
 
 
-  // ── 属性面板：根据 selection 拉取 ITTO / definition ──
+  // ── t("agentWorkflow.rightPanel.title")：根据 selection 拉取 ITTO / definition ──
   useEffect(() => {
     if (!selection) { setNodeDetail(null); return; }
     if (selection.kind === "gate") {
@@ -637,8 +652,8 @@ const WorkflowInner: React.FC = () => {
     setProgress(0);
     setLastRun(null);
     setSelection(null);
-    message.info("画布已清空");
-  }, [setNodes, setEdges, message]);
+    message.info(t("agentWorkflow.clear"));
+  }, [setNodes, setEdges, message, t]);
 
   // ── 自动布局：按 DAG 分层 ──
   const handleAutoLayout = useCallback(() => {
@@ -683,7 +698,7 @@ const WorkflowInner: React.FC = () => {
 
   // ── 运行工作流（异步调度）──
   const handleRun = useCallback(async () => {
-    if (nodes.length === 0) { message.warning("请先添加工作流节点"); return; }
+    if (nodes.length === 0) { message.warning(t("agentWorkflow.run.needNodes")); return; }
     setExecuting(true);
     setProgress(0);
     setLog([]);
@@ -692,17 +707,17 @@ const WorkflowInner: React.FC = () => {
 
     const steps = buildSteps();
     const nodeLabelById = new Map(nodes.map(n => [n.id, n.data.label]));
-    addLog("工作流", `提交执行，共 ${steps.length} 个节点（异步 DAG 调度）`, "info");
+    addLog(t("agentWorkflow.log.workflow"), t("agentWorkflow.run.submit", { count: steps.length }), "info");
 
     let runId: string | undefined;
     try {
       const res: any = await workflowApi.execute({ steps });
       runId = res?.run_id;
-      if (!runId) throw new Error("后端未返回 run_id");
-      addLog("工作流", `已提交，run_id=${runId.slice(0, 8)}…`, "info");
+      if (!runId) throw new Error(t("agentWorkflow.run.noRunId"));
+      addLog(t("agentWorkflow.log.workflow"), t("agentWorkflow.run.submitted", { id: runId.slice(0, 8) }), "info");
     } catch (e: any) {
-      addLog("工作流", `提交失败: ${e?.response?.data?.detail || e?.message}`, "error");
-      message.error("提交执行失败");
+      addLog(t("agentWorkflow.log.workflow"), t("agentWorkflow.run.submitFail", { error: e?.response?.data?.detail || e?.message }), "error");
+      message.error(t("agentWorkflow.run.submitError"));
       setExecuting(false);
       return;
     }
@@ -716,7 +731,7 @@ const WorkflowInner: React.FC = () => {
         try {
           st = await workflowApi.getRunStatus(runId!);
         } catch (e: any) {
-          if ((e as any)?.response?.status === 404) { addLog("工作流", "运行记录已过期（持久化文件可能已被清理）", "error"); break; }
+          if ((e as any)?.response?.status === 404) { addLog(t("agentWorkflow.log.workflow"), t("agentWorkflow.run.runExpired"), "error"); break; }
           await sleep(1500); continue;
         }
         const results = st?.results || {};
@@ -731,10 +746,10 @@ const WorkflowInner: React.FC = () => {
 
           if ((rr.status === "completed" || rr.status === "failed") && !seen.has(label)) {
             seen.add(label);
-            if (rr.status === "failed") { failed++; addLog(disp, `失败: ${rr.error || "未知错误"}`, "error"); }
-            else addLog(disp, "执行完成", "success");
+            if (rr.status === "failed") { failed++; addLog(disp, t("agentWorkflow.run.nodeFail", { error: rr.error || t("agentWorkflow.run.unknownError") }), "error"); }
+            else addLog(disp, t("agentWorkflow.run.completed"), "success");
             const out = rr.output_preview as string | undefined;
-            if (out) addLog(disp, `输出摘要: ${out.slice(0, 160)}${out.length > 160 ? "…" : ""}`, "info");
+            if (out) addLog(disp, t("agentWorkflow.run.output", { text: out.slice(0, 160) + (out.length > 160 ? "…" : "") }), "info");
           }
         }
         const finished = Object.values(results).filter((r: any) => r.status === "completed" || r.status === "failed").length;
@@ -749,16 +764,16 @@ const WorkflowInner: React.FC = () => {
       }
       const finalSt: any = await workflowApi.getRunStatus(runId!).catch(() => lastRun);
       const fstatus = finalSt?.status || "unknown";
-      addLog("工作流", `执行结束，状态: ${fstatus}${failed ? `，失败 ${failed} 步` : ""}`, failed ? "error" : "success");
-      message.success(`工作流执行完成（状态：${fstatus}）`);
+      addLog(t("agentWorkflow.log.workflow"), t("agentWorkflow.run.finished", { status: fstatus }) + (failed ? t("agentWorkflow.run.failedCount", { count: failed }) : ""), failed ? "error" : "success");
+      message.success(t("agentWorkflow.run.runSuccess", { status: fstatus }));
       setTimeout(() => fitView({ padding: 0.2 }), 60);
     } catch (e: any) {
-      addLog("工作流", `轮询异常: ${e?.message || "超时"}`, "error");
-      message.error("运行查询失败");
+      addLog(t("agentWorkflow.log.workflow"), t("agentWorkflow.run.pollError", { error: e?.message || t("agentWorkflow.run.unknownError") }), "error");
+      message.error(t("agentWorkflow.run.queryError"));
     } finally {
       setExecuting(false);
     }
-  }, [nodes, edges, setNodes, message, addLog, fitView, buildSteps, lastRun]);
+  }, [nodes, edges, setNodes, message, addLog, fitView, buildSteps, lastRun, t]);
 
   // ── 删除选中的边/节点 ──
   const removeSelected = useCallback(() => {
@@ -768,23 +783,23 @@ const WorkflowInner: React.FC = () => {
 
   // ── 保存 / 更新工作流 ──
   const handleSave = useCallback(async () => {
-    if (!workflowName.trim()) { message.warning("请输入工作流名称"); return; }
+    if (!workflowName.trim()) { message.warning(t("agentWorkflow.save.needName")); return; }
     const steps = buildSteps();
     const payload = { name: workflowName, description: saveDesc, steps };
     try {
       if (currentWfId) {
         await workflowApi.update(currentWfId, payload);
-        message.success("工作流已更新");
+        message.success(t("agentWorkflow.save.updated"));
       } else {
         const res: any = await workflowApi.create(payload);
         setCurrentWfId(res?.workflow?.id || res?.id || null);
-        message.success("工作流已保存");
+        message.success(t("agentWorkflow.save.created"));
       }
       setSaveOpen(false);
     } catch (e: any) {
-      message.error(e?.response?.data?.detail || e?.message || "保存失败");
+      message.error(e?.response?.data?.detail || e?.message || t("agentWorkflow.save.fail"));
     }
-  }, [workflowName, saveDesc, currentWfId, message, buildSteps]);
+  }, [workflowName, saveDesc, currentWfId, message, buildSteps, t]);
 
   // ── 节点配置抽屉：打开时拉取结构化 ITTO 槽位 ──
   useEffect(() => {
@@ -831,7 +846,7 @@ const WorkflowInner: React.FC = () => {
   // ── 渲染 ──
   return (
     <div ref={rootRef} style={{ display: "flex", flexDirection: "column", height: isFullscreen ? "100vh" : "calc(100vh - 112px)", background: isFullscreen ? "#F8FAFC" : "transparent", position: isFullscreen ? "relative" : "static", overflow: "hidden" }}>
-      {/* Header：工作流名称 + 保存 */}
+      {/* Header: workflow name + save */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 12, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <ApartmentOutlined style={{ color: PRIMARY, fontSize: 22 }} />
@@ -841,41 +856,41 @@ const WorkflowInner: React.FC = () => {
               onChange={e => setWorkflowName(e.target.value)}
               variant="borderless"
               style={{ fontSize: 18, fontWeight: 600, padding: 0, height: 28, width: 360 }}
-              placeholder="工作流名称"
+              placeholder={t("agentWorkflow.saveModal.name")}
             />
             <div style={{ fontSize: 12, color: "#64748B" }}>
-              {nodes.length} 个节点 · {edges.length} 条数据流连线
-              {currentWfId && <Tag color="blue" style={{ marginLeft: 6 }}>已保存</Tag>}
+              {t("agentWorkflow.header.nodesEdges", { nodes: nodes.length, edges: edges.length })}
+              {currentWfId && <Tag color="blue" style={{ marginLeft: 6 }}>{t("agentWorkflow.header.saved")}</Tag>}
             </div>
           </div>
         </div>
         <Space>
-          <Tooltip title={isFullscreen ? "退出全屏 (Esc)" : "全屏展示（属性面板可用）"}>
+          <Tooltip title={isFullscreen ? t("agentWorkflow.header.fullscreenTooltipActive") : t("agentWorkflow.header.fullscreenTooltip")}>
             <Button icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} onClick={toggleFullscreen}>
-              {isFullscreen ? "退出全屏" : "全屏"}
+              {isFullscreen ? t("agentWorkflow.header.exitFullscreen") : t("agentWorkflow.header.fullscreen")}
             </Button>
           </Tooltip>
           <Button icon={<SaveOutlined />} onClick={() => setSaveOpen(true)} disabled={nodes.length === 0}>
-            {currentWfId ? "更新" : "保存"}
+            {currentWfId ? t("agentWorkflow.header.update") : t("agentWorkflow.header.save")}
           </Button>
         </Space>
       </div>
 
-      {/* 三栏布局 */}
+      {/* Three-column layout */}
       <div style={{ display: "flex", flex: 1, gap: 12, overflow: "hidden", position: "relative" }}>
-        {/* 左栏：节点面板（PMBOK Agent 库 + Skill 库） */}
+        {/* Left column: node panel (PMBOK Agent library + Skill library) */}
         <div style={{ width: leftPanelOpen ? 260 : 0, flexShrink: 0, overflow: "hidden", transition: "width 0.2s ease", border: leftPanelOpen ? "1px solid #E2E8F0" : "none", borderRadius: 12, background: "#fff" }}>
           <div style={{ width: 260, height: "100%", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "10px 12px", borderBottom: "1px solid #E2E8F0", fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
-              <PartitionOutlined style={{ color: PRIMARY }} /> 节点面板
+              <PartitionOutlined style={{ color: PRIMARY }} /> {t("agentWorkflow.leftPanel.title")}
               <div style={{ flex: 1 }} />
-              <Tooltip title="收起面板">
+              <Tooltip title={t("agentWorkflow.leftPanel.collapse")}>
                 <Button type="text" size="small" icon={<LeftOutlined />} onClick={() => setLeftPanelOpen(false)} />
               </Tooltip>
             </div>
           <div style={{ padding: 8 }}>
             <Input
-              prefix={<SearchOutlined />} allowClear placeholder="搜索 Agent / Skill"
+              prefix={<SearchOutlined />} allowClear placeholder={t("agentWorkflow.leftPanel.searchPlaceholder")}
               value={panelSearch} onChange={e => setPanelSearch(e.target.value)} size="small"
             />
           </div>
@@ -883,14 +898,14 @@ const WorkflowInner: React.FC = () => {
             {(pmbokAgentsLoading || pmbokSkillsLoading) && (
               <div style={{ textAlign: "center", padding: 16 }}><Spin /></div>
             )}
-            {/* ① PMBOK 5 大过程组 · Agent 库 */}
+            {/* ① PMBOK 5 process groups · Agent library */}
             <div style={{ fontSize: 12, fontWeight: 600, color: "#475569", margin: "8px 4px 4px" }}>
-              <PartitionOutlined /> PMBOK 5 大过程组 · Agent
+              <PartitionOutlined /> {t("agentWorkflow.leftPanel.agentsTitle")}
             </div>
             {groupedAgents.map(g => (
               <div key={g.key} style={{ marginBottom: 8 }}>
                 <div style={{ fontSize: 11, color: "#94A3B8", margin: "4px 0", fontWeight: 600 }}>
-                  {g.key}（{g.items.length}）
+                  {t("agentWorkflow.leftPanel.groupCount", { group: g.key, count: g.items.length })}
                 </div>
                 {g.items.map(a => {
                   const m = resolvePmbokMeta(a, "agent");
@@ -904,14 +919,14 @@ const WorkflowInner: React.FC = () => {
                 })}
               </div>
             ))}
-            {/* ② Skill 库（按 category 分组） */}
+            {/* ② Skill library (grouped by category) */}
             <div style={{ fontSize: 12, fontWeight: 600, color: "#475569", margin: "8px 4px 4px" }}>
-              <ThunderboltOutlined /> Skill 库
+              <ThunderboltOutlined /> {t("agentWorkflow.leftPanel.skillsTitle")}
             </div>
             {groupedSkills.map(g => (
               <div key={g.key} style={{ marginBottom: 8 }}>
                 <div style={{ fontSize: 11, color: "#94A3B8", margin: "4px 0", fontWeight: 600 }}>
-                  {g.key}（{g.items.length}）
+                  {t("agentWorkflow.leftPanel.groupCount", { group: g.key, count: g.items.length })}
                 </div>
                 {g.items.map(s => {
                   const m = resolvePmbokMeta(s, "skill");
@@ -926,13 +941,13 @@ const WorkflowInner: React.FC = () => {
               </div>
             ))}
             {!pmbokAgentsLoading && !pmbokSkillsLoading && groupedAgents.length === 0 && groupedSkills.length === 0 && (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="无可用节点" style={{ margin: "16px 0" }} />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("agentWorkflow.leftPanel.noNodes")} style={{ margin: "16px 0" }} />
             )}
           </div>
           </div>
         </div>
         {!leftPanelOpen && (
-          <Tooltip title="展开节点面板">
+          <Tooltip title={t("agentWorkflow.zoom.expandLeft")}>
             <div
               onClick={() => setLeftPanelOpen(true)}
               style={{ position: "absolute", top: 88, left: 8, zIndex: 5, cursor: "pointer",
@@ -944,11 +959,11 @@ const WorkflowInner: React.FC = () => {
           </Tooltip>
         )}
 
-        {/* 中栏：工具栏（模板下拉）+ 画布 */}
+        {/* Middle column: toolbar (template dropdown) + canvas */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center", flexWrap: "wrap" }}>
             <Select
-              style={{ width: 280 }} placeholder="选择工作流模板" loading={pmbokWorkflowsLoading}
+              style={{ width: 280 }} placeholder={t("agentWorkflow.toolbar.templatePlaceholder")} loading={pmbokWorkflowsLoading}
               value={selectedTemplateId || undefined}
               onChange={(v) => { setSelectedTemplateId(v); loadWorkflowTemplate(v); }}
               options={pmbokWorkflows.map(w => ({
@@ -957,16 +972,16 @@ const WorkflowInner: React.FC = () => {
               }))}
             />
             <Button type="primary" icon={<PlayCircleOutlined />} loading={executing} onClick={handleRun}>
-              运行工作流
+              {t("agentWorkflow.toolbar.run")}
             </Button>
             <Button icon={<ReloadOutlined />} onClick={handleAutoLayout} disabled={nodes.length === 0}>
-              自动布局
+              {t("agentWorkflow.toolbar.autoLayout")}
             </Button>
             <Button icon={<ClearOutlined />} onClick={handleClear} disabled={nodes.length === 0}>
-              清空
+              {t("agentWorkflow.toolbar.clear")}
             </Button>
             <Button icon={<DeleteOutlined />} onClick={removeSelected} disabled={nodes.length === 0}>
-              删除选中
+              {t("agentWorkflow.toolbar.deleteSelected")}
             </Button>
             <div style={{ flex: 1 }} />
             <Progress percent={progress} size="small" style={{ width: 160 }}
@@ -1002,7 +1017,7 @@ const WorkflowInner: React.FC = () => {
                   maskColor="rgba(241,245,249,0.6)"
                   style={{ borderRadius: 8 }}
                 />
-                {/* 悬浮控制条：放大/缩小/适应/全屏 + 缩放百分比 */}
+                {/* Floating control bar: zoom in/out/fit/fullscreen + zoom percent */}
                 <div
                   style={{
                     position: "absolute", left: 12, bottom: 12, zIndex: 10,
@@ -1011,53 +1026,53 @@ const WorkflowInner: React.FC = () => {
                     borderRadius: 10, padding: "4px 8px",
                   }}
                 >
-                  <Tooltip title="缩小">
+                  <Tooltip title={t("agentWorkflow.zoom.out")}>
                     <Button size="small" type="text" icon={<ZoomOutOutlined />} onClick={handleZoomOut} />
                   </Tooltip>
                   <Text style={{ fontSize: 12, minWidth: 44, textAlign: "center" }} type="secondary">{zoomPct}%</Text>
-                  <Tooltip title="放大">
+                  <Tooltip title={t("agentWorkflow.zoom.in")}>
                     <Button size="small" type="text" icon={<ZoomInOutlined />} onClick={handleZoomIn} />
                   </Tooltip>
-                  <Tooltip title="适应画布">
+                  <Tooltip title={t("agentWorkflow.zoom.fit")}>
                     <Button size="small" type="text" icon={<CompassOutlined />} onClick={handleZoomFit} />
                   </Tooltip>
-                  <Tooltip title={leftPanelOpen ? "收起节点面板" : "展开节点面板"}>
+                  <Tooltip title={leftPanelOpen ? t("agentWorkflow.zoom.collapseLeft") : t("agentWorkflow.zoom.expandLeft")}>
                     <Button size="small" type="text" icon={<PartitionOutlined />}
                       style={{ opacity: leftPanelOpen ? 1 : 0.45, color: leftPanelOpen ? undefined : PRIMARY }}
                       onClick={() => setLeftPanelOpen(v => !v)} />
                   </Tooltip>
-                  <Tooltip title={rightPanelOpen ? "收起属性面板" : "展开属性面板"}>
+                  <Tooltip title={rightPanelOpen ? t("agentWorkflow.zoom.collapseRight") : t("agentWorkflow.zoom.expandRight")}>
                     <Button size="small" type="text" icon={<SettingOutlined />}
                       style={{ opacity: rightPanelOpen ? 1 : 0.45, color: rightPanelOpen ? undefined : PRIMARY }}
                       onClick={() => setRightPanelOpen(v => !v)} />
                   </Tooltip>
-                  <Tooltip title={isFullscreen ? "退出全屏 (Esc)" : "全屏展示（属性面板可用）"}>
+                  <Tooltip title={isFullscreen ? t("agentWorkflow.zoom.fullscreenOff") : t("agentWorkflow.zoom.fullscreenOn")}>
                     <Button size="small" type="text" icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} onClick={toggleFullscreen} />
                   </Tooltip>
                 </div>
               </ReactFlow>
               {nodes.length === 0 && (
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                  <Empty description="画布为空：从左侧节点面板添加，或选择上方工作流模板" />
+                  <Empty description={t("agentWorkflow.canvas.empty")} />
                 </div>
               )}
             </div>
           </Card>
         </div>
 
-        {/* 右栏：属性面板（选中节点的 ITTO） */}
+        {/* Right column: properties panel (ITTO of selected node) */}
         <div style={{ width: rightPanelOpen ? 300 : 0, flexShrink: 0, overflow: "hidden", transition: "width 0.2s ease", border: rightPanelOpen ? "1px solid #E2E8F0" : "none", borderRadius: 12, background: "#fff" }}>
           <div style={{ width: 300, height: "100%", display: "flex", flexDirection: "column" }}>
           <div style={{ padding: "10px 12px", borderBottom: "1px solid #E2E8F0", fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
-            <SettingOutlined style={{ color: PRIMARY }} /> 属性面板
+            <SettingOutlined style={{ color: PRIMARY }} /> {t("agentWorkflow.rightPanel.title")}
             <div style={{ flex: 1 }} />
-            <Tooltip title="收起面板">
+            <Tooltip title={t("agentWorkflow.rightPanel.collapse")}>
               <Button type="text" size="small" icon={<RightOutlined />} onClick={() => setRightPanelOpen(false)} />
             </Tooltip>
           </div>
           <div style={{ overflow: "auto", flex: 1, padding: 12 }}>
             {!selection && (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="点击画布节点查看 ITTO 属性" style={{ margin: "24px 0" }} />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("agentWorkflow.rightPanel.empty")} style={{ margin: "24px 0" }} />
             )}
             {selection && nodeDetailLoading && (
               <div style={{ textAlign: "center", padding: 24 }}><Spin /></div>
@@ -1066,7 +1081,7 @@ const WorkflowInner: React.FC = () => {
               <div>
                 <Space style={{ marginBottom: 8 }}>
                   <Tag color={nodeDetail.kind === "gate" ? "orange" : nodeDetail.kind === "skill" ? "cyan" : "blue"}>
-                    {nodeDetail.kind === "gate" ? "判断节点 Gate" : nodeDetail.kind === "skill" ? "Skill" : "Agent"}
+                    {nodeDetail.kind === "gate" ? t("agentWorkflow.rightPanel.kindGate") : nodeDetail.kind === "skill" ? t("agentWorkflow.rightPanel.kindSkill") : t("agentWorkflow.rightPanel.kindAgent")}
                   </Tag>
                   <Text code style={{ fontSize: 11 }}>{nodeDetail.type}</Text>
                 </Space>
@@ -1074,33 +1089,33 @@ const WorkflowInner: React.FC = () => {
                   {selNode?.data.label || nodeDetail.type}
                 </div>
 
-                <Section title="备注 Note">
+                <Section title={t("agentWorkflow.rightPanel.note")}>
                   {nodeDetail.note
                     ? <div style={{ fontSize: 12, color: "#475569", whiteSpace: "pre-wrap" }}>{nodeDetail.note}</div>
                     : <Text type="secondary" style={{ fontSize: 11 }}>—</Text>}
                 </Section>
 
                 {nodeDetail.kind === "skill" ? (
-                  <Section title="定义 Definition">
+                  <Section title={t("agentWorkflow.rightPanel.definition")}>
                     {nodeDetail.definition
                       ? <div style={{ fontSize: 12, color: "#475569", whiteSpace: "pre-wrap" }}>{nodeDetail.definition}</div>
                       : <Text type="secondary" style={{ fontSize: 11 }}>—</Text>}
                   </Section>
                 ) : nodeDetail.kind === "gate" ? (
-                  <Section title="说明">
-                    <Text type="secondary" style={{ fontSize: 11 }}>Gate 为流程判断 / 分支节点，连接上下游以控制流向。</Text>
+                  <Section title={t("agentWorkflow.rightPanel.description")}>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{t("agentWorkflow.rightPanel.gateDesc")}</Text>
                   </Section>
                 ) : (
                   <>
-                    <Section title="输入 Inputs">{renderSlot(nodeDetail.itto?.inputs)}</Section>
-                    <Section title="工具技术 Tools">{renderSlot(nodeDetail.itto?.tools)}</Section>
-                    <Section title="输出 Outputs">{renderSlot(nodeDetail.itto?.outputs)}</Section>
+                    <Section title={t("agentWorkflow.rightPanel.inputs")}>{renderSlot(nodeDetail.itto?.inputs)}</Section>
+                    <Section title={t("agentWorkflow.rightPanel.tools")}>{renderSlot(nodeDetail.itto?.tools)}</Section>
+                    <Section title={t("agentWorkflow.rightPanel.outputs")}>{renderSlot(nodeDetail.itto?.outputs)}</Section>
                   </>
                 )}
 
                 <Button icon={<SettingOutlined />} style={{ marginTop: 12, width: "100%" }}
                   onClick={() => { if (selNode) setConfigNode(selNode); }}>
-                  配置该节点
+                  {t("agentWorkflow.rightPanel.config")}
                 </Button>
               </div>
             )}
@@ -1108,7 +1123,7 @@ const WorkflowInner: React.FC = () => {
           </div>
         </div>
         {!rightPanelOpen && (
-          <Tooltip title="展开属性面板">
+          <Tooltip title={t("agentWorkflow.rightPanel.expand")}>
             <div
               onClick={() => setRightPanelOpen(true)}
               style={{ position: "absolute", top: 88, right: 8, zIndex: 5, cursor: "pointer",
@@ -1121,7 +1136,7 @@ const WorkflowInner: React.FC = () => {
         )}
       </div>
 
-      {/* 节点配置抽屉 */}
+      {/* Node configuration drawer */}
       <Drawer
         title={configNode ? (
           <Space>
@@ -1129,7 +1144,7 @@ const WorkflowInner: React.FC = () => {
             <span>{configNode.data.label}</span>
             <Tag color={configNode.data.color}>{configNode.data.agentType}</Tag>
           </Space>
-        ) : "节点配置"}
+        ) : t("agentWorkflow.config.title")}
         width={420}
         open={!!configNode}
         onClose={() => setConfigNode(null)}
@@ -1139,51 +1154,51 @@ const WorkflowInner: React.FC = () => {
           setNodes(nds => nds.map(n => n.id === id ? {
             ...n, data: { ...n.data, userInput: cfgUserInput, selectedTools: cfgTools, inputMapping: cfgMapping },
           } : n));
-          message.success("节点配置已保存");
+          message.success(t("agentWorkflow.config.saved"));
           setConfigNode(null);
-        }}>保存配置</Button>}
+        }}>{t("agentWorkflow.config.save")}</Button>}
       >
         {configNode && (
           <div>
-            <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>补充输入（内联文本）</Text>
+            <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>{t("agentWorkflow.config.extraInput")}</Text>
             <Input.TextArea
               rows={3} value={cfgUserInput} onChange={e => setCfgUserInput(e.target.value)}
-              placeholder="可选：作为该 Agent 的内联补充输入，与上游输出拼接后一起喂入"
+              placeholder={t("agentWorkflow.config.extraInputPlaceholder")}
             />
 
             <div style={{ height: 12 }} />
             <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>
-              工具技术（selected_tools）
+              {t("agentWorkflow.config.tools")}
             </Text>
             {slotLoading ? <Spin /> : (
               slotInfo.tools.length === 0
-                ? <Text type="secondary" style={{ fontSize: 11 }}>该 Agent 无可选工具技术</Text>
+                ? <Text type="secondary" style={{ fontSize: 11 }}>{t("agentWorkflow.config.noTools")}</Text>
                 : <Select
                     mode="multiple" allowClear style={{ width: "100%" }}
                     value={cfgTools} onChange={setCfgTools}
-                    options={slotInfo.tools.map(t => ({ value: t.key, label: `${t.label}${t.optional ? "（可选）" : ""}` }))}
-                    placeholder="勾选工具技术（空=全部）"
+                    options={slotInfo.tools.map(tool => ({ value: tool.key, label: `${tool.label}${tool.optional ? t("agentWorkflow.config.optional") : ""}` }))}
+                    placeholder={t("agentWorkflow.config.toolsPlaceholder")}
                   />
             )}
 
             <div style={{ height: 12 }} />
             <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>
-              输入槽位映射（input_mapping）
+              {t("agentWorkflow.config.mapping")}
             </Text>
             {slotLoading ? <Spin /> : (
               <div>
                 {upstreamOptions.length === 0 && (
                   <Text type="secondary" style={{ fontSize: 11 }}>
-                    该节点暂无上游（未连线）。不映射时，运行时将自动合并全部上游输出；无上游则仅用内联输入。
+                    t("agentWorkflow.config.noUpstream")
                   </Text>
                 )}
                 {upstreamOptions.length > 0 && slotInfo.inputs.length === 0 && (
-                  <Text type="secondary" style={{ fontSize: 11 }}>该 Agent 无结构化输入槽位，无需映射（自动合并全部上游输出）。</Text>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{t("agentWorkflow.config.noSlots")}</Text>
                 )}
                 {slotInfo.inputs.map(slot => (
                   <div key={slot.key} style={{ marginBottom: 8 }}>
                     <div style={{ fontSize: 11, color: "#475569", marginBottom: 2 }}>
-                      {slot.label}{slot.optional ? "（可选）" : <Text type="danger" style={{ fontSize: 11 }}>（必填）</Text>}
+                      {slot.label}{slot.optional ? t("agentWorkflow.config.optional") : <Text type="danger" style={{ fontSize: 11 }}>{t("agentWorkflow.config.required")}</Text>}
                     </div>
                     <Select
                       size="small" style={{ width: "100%" }} allowClear
@@ -1193,8 +1208,8 @@ const WorkflowInner: React.FC = () => {
                         if (v) next[slot.key] = v; else delete next[slot.key];
                         return next;
                       })}
-                      options={upstreamOptions.map(o => ({ value: o.value, label: `绑定上游：${o.label}` }))}
-                      placeholder="不绑定（默认：自动合并全部上游输出）"
+                      options={upstreamOptions.map(o => ({ value: o.value, label: t("agentWorkflow.config.bindUpstream", { name: o.label }) }))}
+                      placeholder={t("agentWorkflow.config.mappingPlaceholder")}
                     />
                   </div>
                 ))}
@@ -1202,20 +1217,20 @@ const WorkflowInner: React.FC = () => {
             )}
 
             <div style={{ height: 12 }} />
-            <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>输出槽位</Text>
-            <Text type="secondary" style={{ fontSize: 11, display: "block", marginBottom: 8 }}>勾选"必选"表示该输出必须包含在结果中，未勾选则为可选输出。</Text>
+            <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>{t("agentWorkflow.config.outputs")}</Text>
+            <Text type="secondary" style={{ fontSize: 11, display: "block", marginBottom: 8 }}>{t("agentWorkflow.config.outputsHint")}</Text>
             {slotLoading ? <Spin /> : (
               slotInfo.outputs.length === 0
                 ? <Text type="secondary" style={{ fontSize: 11 }}>—</Text>
                 : <div style={{ maxHeight: 200, overflowY: "auto" }}>
                     {slotInfo.outputs.map((o, idx) => {
-                      const isRequired = cfgOutputSlots[o.key] !== false && idx === 0; // 第一个默认必选
+                      const isRequired = cfgOutputSlots[o.key] !== false && idx === 0; // First slot defaults to required
                       return (
                         <div key={o.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 8px", marginBottom: 4, background: isRequired ? "#F0FFF4" : "#FFF", border: `1px solid ${isRequired ? "#9AE6B4" : "#E2E8F0"}`, borderRadius: 6 }}>
                           <span style={{ fontSize: 12 }}>{o.label}</span>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            {isRequired && <Tag color="green" style={{ fontSize: 10, margin: 0 }}>必选</Tag>}
-                            {!isRequired && idx > 0 && <Tag color="default" style={{ fontSize: 10, margin: 0 }}>可选</Tag>}
+                            {isRequired && <Tag color="green" style={{ fontSize: 10, margin: 0 }}>{t("agentWorkflow.config.requiredTag")}</Tag>}
+                            {!isRequired && idx > 0 && <Tag color="default" style={{ fontSize: 10, margin: 0 }}>{t("agentWorkflow.config.optionalTag")}</Tag>}
                             <Switch
                               size="small"
                               checked={isRequired}
@@ -1231,7 +1246,7 @@ const WorkflowInner: React.FC = () => {
             {currentNodeRun?.output_preview && (
               <>
                 <div style={{ height: 12 }} />
-                <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>最近运行输出（摘要）</Text>
+                <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>{t("agentWorkflow.config.lastRun")}</Text>
                 <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 8, padding: 10, fontSize: 11, maxHeight: 200, overflow: "auto", whiteSpace: "pre-wrap", color: "#334155" }}>
                   {currentNodeRun.output_preview}
                 </div>
@@ -1242,21 +1257,21 @@ const WorkflowInner: React.FC = () => {
       </Drawer>
 
       <Modal
-        title={currentWfId ? "更新工作流" : "保存工作流"}
+        title={currentWfId ? t("agentWorkflow.saveModal.titleUpdate") : t("agentWorkflow.saveModal.titleCreate")}
         open={saveOpen} onOk={handleSave} onCancel={() => setSaveOpen(false)}
-        okText={currentWfId ? "更新" : "保存"} cancelText="取消"
+        okText={currentWfId ? t("agentWorkflow.saveModal.okUpdate") : t("agentWorkflow.saveModal.okCreate")} cancelText={t("common.cancel")}
       >
         <div style={{ marginBottom: 12 }}>
-          <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>名称 *</Text>
-          <Input value={workflowName} onChange={e => setWorkflowName(e.target.value)} placeholder="例如：项目健康检查" />
+          <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>{t("agentWorkflow.saveModal.name")}</Text>
+          <Input value={workflowName} onChange={e => setWorkflowName(e.target.value)} placeholder={t("agentWorkflow.saveModal.namePlaceholder")} />
         </div>
         <div style={{ marginBottom: 12 }}>
-          <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>描述</Text>
-          <Input.TextArea rows={3} value={saveDesc} onChange={e => setSaveDesc(e.target.value)} placeholder="描述工作流用途…" />
+          <Text style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>{t("agentWorkflow.saveModal.description")}</Text>
+          <Input.TextArea rows={3} value={saveDesc} onChange={e => setSaveDesc(e.target.value)} placeholder={t("agentWorkflow.saveModal.descPlaceholder")} />
         </div>
         <div>
           <Text type="secondary" style={{ fontSize: 11 }}>
-            {currentWfId ? "将更新当前工作流" : `将保存 ${nodes.length} 个节点的工作流定义`}
+            {currentWfId ? t("agentWorkflow.saveModal.willUpdate") : t("agentWorkflow.saveModal.willCreate", { count: nodes.length })}
           </Text>
         </div>
       </Modal>

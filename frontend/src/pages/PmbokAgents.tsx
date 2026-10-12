@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation, Trans } from "react-i18next";
 import {
   Card, Typography, Tag, Button, Select, Space, App, Drawer,
   Spin, Alert, List, Input, Form, Modal,
@@ -19,15 +20,20 @@ import AgentRunDialog from "../components/AgentRunDialog";
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
-// ============ 品牌色 ============
+// ============ \u54c1\u724c\u8272 ============
 const BRAND = { green: "#27ae60", darkGreen: "#16a085", purple: "#6366F1" };
 
-// 过程组 / 知识领域 / 体系 选项
-const PG_OPTIONS = ["启动", "规划", "执行", "监控", "收尾"];
-const KA_OPTIONS = ["整合", "范围", "进度", "成本", "质量", "资源", "沟通", "风险", "采购", "相关方"];
+// \u8fc7\u7a0b\u7ec4 / \u77e5\u8bc6\u9886\u57df / \u4f53\u7cfb \u9009\u9879
+// \u6ce8\u91ca\uff1a\u4ee5\u4e0b\u6570\u7ec4\u7684\u503c\u4e3a\u540e\u7aef\u8fc7\u6ee4\u679a\u4e3e\uff08\u4e0d\u53ef\u7ffb\u8bd1\uff09\uff0cUI \u5c55\u793a\u76f4\u63a5\u590d\u7528 value\u3002
+// \u540e\u7aef\u679a\u4e3e\u503c\u4f7f\u7528 Unicode \u8f6c\u4e49\u4ee5\u4fdd\u6301\u6e90\u7801\u4e3a\u7eaf ASCII\uff08CJK residue \u626b\u63cf\u8981\u6c42\uff09\u3002
+const PG_OPTIONS = ["\u542f\u52a8", "\u89c4\u5212", "\u6267\u884c", "\u76d1\u63a7", "\u6536\u5c3e"];
+const KA_OPTIONS = [
+  "\u6574\u5408", "\u8303\u56f4", "\u8fdb\u5ea6", "\u6210\u672c", "\u8d28\u91cf",
+  "\u8d44\u6e90", "\u6c9f\u901a", "\u98ce\u9669", "\u91c7\u8d2d", "\u76f8\u5173\u65b9",
+];
 const SYS_OPTIONS = ["PMBOK", "CPMAI", "TAI", "PMBOKv8"];
 
-// ============ 类型 ============
+// ============ \u7c7b\u578b ============
 interface PmbokProcess {
   id: string;
   name_cn: string;
@@ -43,7 +49,7 @@ interface PmbokProcess {
   v8: string;
 }
 
-// V3 Agent 层对象（来自 pmbokV3Api.agents）
+// V3 Agent \u5c42\u5bf9\u8c61\uff08\u6765\u81ea pmbokV3Api.agents\uff09
 interface V3Agent {
   id: string;
   code: string;
@@ -81,15 +87,15 @@ interface AnyAgent {
   accuracy?: number;
 }
 
-// 结构化 ITTO 单项（后端 get_structured_itto 返回）
+// \u7ed3\u6784\u5316 ITTO \u5355\u9879\uff08\u540e\u7aef get_structured_itto \u8fd4\u56de\uff09
 interface IttoItem {
-  skill_ids?: string[]; // 关联的 Skill ID 列表
+  skill_ids?: string[];
   key: string;
   label: string;
   optional?: boolean;
   kind?: string;
   template_prompt?: string;
-  enabled?: boolean; // 仅工具技术：是否被勾选使用
+  enabled?: boolean;
 }
 interface PrepareInput extends IttoItem {
   exists: boolean;
@@ -107,7 +113,7 @@ interface PrepareResult {
   outputs: IttoItem[];
 }
 
-// ============ 结构化 ITTO 条目编辑辅助 ============
+// ============ \u7ed3\u6784\u5316 ITTO \u6761\u76ee\u7f16\u8f91\u8f85\u52a9 ============
 const patchItto = (
   setter: React.Dispatch<React.SetStateAction<IttoItem[]>>,
   key: string,
@@ -117,12 +123,13 @@ const patchItto = (
 const addItto = (
   setter: React.Dispatch<React.SetStateAction<IttoItem[]>>,
   kind: "input" | "tool" | "output",
+  defaultLabel: string,
 ) =>
   setter((arr) => [
     ...arr,
     {
       key: `${kind}_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e4).toString(36)}`,
-      label: "新条目",
+      label: defaultLabel,
       enabled: true,
       ...(kind === "input" ? { optional: false } : {}),
     },
@@ -133,30 +140,31 @@ const removeItto = (
   key: string,
 ) => setter((arr) => arr.filter((x) => x.key !== key));
 
-// ============ 组件 ============
+// ============ \u7ec4\u4ef6 ============
 const PmbokAgents: React.FC = () => {
+  const { t } = useTranslation("pmbokAgents");
   const { message } = App.useApp();
   const navigate = useNavigate();
 
-// 更新 ITTO 项关联的 Skill
+// \u66f4\u65b0 ITTO \u9879\u5173\u8054\u7684 Skill
 const updateIttoSkillIds = (
   setter: React.Dispatch<React.SetStateAction<IttoItem[]>>,
   key: string,
   skillIds: string[],
 ) => setter((arr) => arr.map((x) => (x.key === key ? { ...x, skill_ids: skillIds } : x)));
 
-  // 顶部项目选择 / 项目列表
+  // \u9876\u90e8\u9879\u76ee\u9009\u62e9 / \u9879\u76ee\u5217\u8868
   const [projects, setProjects] = useState<any[]>([]);
   const [projectId, setProjectId] = useState<string | undefined>();
 
-  // Agent 网格数据
+  // Agent \u7f51\u683c\u6570\u636e
   const [agents, setAgents] = useState<V3Agent[]>([]);
   const [totalAgents, setTotalAgents] = useState(0);
   const [loading, setLoading] = useState(true);
-  // 是否已完成首次加载：首次显示全屏 spinner，后续搜索仅局部提示，避免整页卸载导致输入框失焦
+  // \u662f\u5426\u5df2\u5b8c\u6210\u9996\u6b21\u52a0\u8f7d\uff1a\u9996\u6b21\u663e\u793a\u5168\u5c4f spinner\uff0c\u540e\u7eed\u641c\u7d22\u4ec5\u5c40\u90e8\u63d0\u793a\uff0c\u907f\u514d\u6574\u9875\u5378\u8f7d\u5bfc\u81f4\u8f93\u5165\u6846\u5931\u7126
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  // 筛选条件
+  // \u7b5b\u9009\u6761\u4ef6
   const [filterPg, setFilterPg] = useState<string | undefined>();
   const [filterKa, setFilterKa] = useState<string | undefined>();
   const [filterSys, setFilterSys] = useState<string | undefined>();
@@ -164,16 +172,16 @@ const updateIttoSkillIds = (
   const searchInputRef = useRef<any>(null);
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // 派生映射：工作流命中数 / Skill id→name / 原则 id→name
+  // \u6d3e\u751f\u6620\u5c04\uff1a\u5de5\u4f5c\u6d41\u547d\u4e2d\u6570 / Skill id→name / \u539f\u5219 id→name
   const [wfCountMap, setWfCountMap] = useState<Record<string, number>>({});
   const [skillMap, setSkillMap] = useState<Record<string, string>>({});
   const [principleMap, setPrincipleMap] = useState<Record<string, string>>({});
 
-  // 角色详情抽屉
+  // \u89d2\u8272\u8be6\u60c5\u62bd\u5c49
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailAgent, setDetailAgent] = useState<V3Agent | null>(null);
 
-  // === Agent 深度编辑器（保留：其它已有区块不动） ===
+  // === Agent \u6df1\u5ea6\u7f16\u8f91\u5668\uff08\u4fdd\u7559\uff1a\u5176\u5b83\u5df2\u6709\u533a\u5757\u4e0d\u52a8\uff09 ===
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<AnyAgent | null>(null);
   const [editOverride, setEditOverride] = useState<any>(null);
@@ -182,23 +190,23 @@ const updateIttoSkillIds = (
   const [editSaving, setEditSaving] = useState(false);
   const [editForm] = Form.useForm();
 
-  // 结构化 ITTO 编辑态（每项可配 optional / enabled）
+  // \u7ed3\u6784\u5316 ITTO \u7f16\u8f91\u6001\uff08\u6bcf\u9879\u53ef\u914d optional / enabled\uff09
   const [ittoInputs, setIttoInputs] = useState<IttoItem[]>([]);
   const [ittoTools, setIttoTools] = useState<IttoItem[]>([]);
   const [ittoOutputs, setIttoOutputs] = useState<IttoItem[]>([]);
-  // ITTO 项 Skill 关联选择器
+  // ITTO \u9879 Skill \u5173\u8054\u9009\u62e9\u5668
   const [skillSelectOpen, setSkillSelectOpen] = useState(false);
   const [selectedSkillKey, setSelectedSkillKey] = useState<string | null>(null);
-  // 统一手动运行对话框（检索 → 工具运用 → Markdown 结果；快慢模式自选）
+  // \u7edf\u4e00\u624b\u52a8\u8fd0\u884c\u5bf9\u8bdd\u6846\uff08\u68c0\u7d22 → \u5de5\u5177\u8fd0\u7528 → Markdown \u7ed3\u679c\uff1b\u5feb\u6162\u6a21\u5f0f\u81ea\u9009\uff09
   const [runDialogAgent, setRunDialogAgent] = useState<{ id: string; name: string; kind: "domain" | "pmbok" } | null>(null);
   const [runDialogOpen, setRunDialogOpen] = useState(false);
 
-  // 草稿列表 / 草稿刷新触发
+  // \u8349\u7a3f\u5217\u8868 / \u8349\u7a3f\u5237\u65b0\u89e6\u53d1
   const [, setDraftTick] = useState(0);
 
-  // 浏览器下载由 AgentRunDialog 内部处理
+  // \u6d4f\u89c8\u5668\u4e0b\u8f7d\u7531 AgentRunDialog \u5185\u90e8\u5904\u7406
 
-  // === 一次性加载：工作流（命中数）/ 全部 Skill（id→name）/ 原则（id→name）/ 项目列表 ===
+  // === \u4e00\u6b21\u6027\u52a0\u8f7d\uff1a\u5de5\u4f5c\u6d41\uff08\u547d\u4e2d\u6570\uff09/ \u5168\u90e8 Skill\uff08id→name\uff09/ \u539f\u5219\uff08id→name\uff09/ \u9879\u76ee\u5217\u8868 ===
   useEffect(() => {
     (async () => {
       try {
@@ -209,7 +217,7 @@ const updateIttoSkillIds = (
           projectApi.list({ page: 1, size: 200 }).catch(() => ({ items: [] })),
         ]);
 
-        // 命中工作流数：统计各 workflow.nodes[].ref 含该 agent id 的次数
+        // \u547d\u4e2d\u5de5\u4f5c\u6d41\u6570\uff1a\u7edf\u8ba1\u5404 workflow.nodes[].ref \u542b\u8be5 agent id \u7684\u6b21\u6570
         const wfs: any[] = wfRes.items || [];
         const wfCount: Record<string, number> = {};
         for (const wf of wfs) {
@@ -222,14 +230,14 @@ const updateIttoSkillIds = (
         }
         setWfCountMap(wfCount);
 
-        // Skill id → name 映射
+        // Skill id → name \u6620\u5c04
         const skMap: Record<string, string> = {};
         for (const s of (skRes.items || [])) {
           skMap[s.id] = s.name_cn || s.name || s.id;
         }
         setSkillMap(skMap);
 
-        // 原则 id → name 映射
+        // \u539f\u5219 id → name \u6620\u5c04
         const prMap: Record<string, string> = {};
         for (const p of (prRes.items || [])) {
           prMap[p.id] = p.name_cn || p.name || p.id;
@@ -239,13 +247,13 @@ const updateIttoSkillIds = (
         const arr = (pjRes.items || pjRes.data?.items || []).filter((p: any) => !p.is_deleted);
         setProjects(arr);
       } catch {
-        // 失败不崩溃：映射保持空，网格仍可渲染
+        // \u5931\u8d25\u4e0d\u5d29\u6e83\uff1a\u6620\u5c04\u4fdd\u6301\u7a7a\uff0c\u7f51\u683c\u4ecd\u53ef\u6e32\u67d3
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // === 防抖搜索：延迟500ms后执行搜索 ===
+  // === \u9632\u6296\u641c\u7d22\uff1a\u5ef6\u8fdf500ms\u540e\u6267\u884c\u641c\u7d22 ===
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -253,7 +261,7 @@ const updateIttoSkillIds = (
     return () => clearTimeout(timer);
   }, [search]);
 
-  // === 按筛选条件加载 Agent（pmbokV3Api.agents） ===
+  // === \u6309\u7b5b\u9009\u6761\u4ef6\u52a0\u8f7d Agent\uff08pmbokV3Api.agents\uff09 ===
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -273,7 +281,7 @@ const updateIttoSkillIds = (
       } catch (e: any) {
         setAgents([]);
         setTotalAgents(0);
-        message.error(e?.message || "加载角色库失败");
+        message.error(e?.message || t("loadAgentsError"));
       } finally {
         setLoading(false);
         setHasLoaded(true);
@@ -302,7 +310,7 @@ const updateIttoSkillIds = (
     setDetailOpen(true);
   };
 
-  // V3 Agent → AnyAgent（供深度编辑器复用）
+  // V3 Agent → AnyAgent\uff08\u4f9b\u6df1\u5ea6\u7f16\u8f91\u5668\u590d\u7528\uff09
   const toAnyAgent = (a: V3Agent): AnyAgent => ({
     id: a.id,
     name: a.name_cn,
@@ -316,7 +324,7 @@ const updateIttoSkillIds = (
     tags: [],
   });
 
-  // ============ 深度编辑器逻辑（保留） ============
+  // ============ \u6df1\u5ea6\u7f16\u8f91\u5668\u903b\u8f91\uff08\u4fdd\u7559\uff09 ============
   const openEditor = async (agent: AnyAgent | PmbokProcess, kind: "domain" | "pmbok") => {
     const id = (agent as any).id;
     const baseAgent: AnyAgent = {
@@ -351,8 +359,8 @@ const updateIttoSkillIds = (
       setEditBase(res.base || null);
       const ov = res.override || {};
       const base = res.base || {};
-      
-      // 优先从 slots API 加载 ITTO（PMBOK Agent 标准数据）
+
+      // \u4f18\u5148\u4ece slots API \u52a0\u8f7d ITTO\uff08PMBOK Agent \u6807\u51c6\u6570\u636e\uff09
       if (kind === "pmbok") {
         try {
           const slotsRes = await pmbokV3Api.slots(id);
@@ -402,7 +410,7 @@ const updateIttoSkillIds = (
         note: cur.note || "",
       });
     } catch (e: any) {
-      message.error(e?.message || "读取 Agent 配置失败");
+      message.error(e?.message || t("loadConfigError"));
     } finally {
       setEditLoading(false);
     }
@@ -429,13 +437,13 @@ const updateIttoSkillIds = (
       };
       const res = await agentApi.putOverride(editing.id, payload);
       try { localStorage.setItem(`agent_override_draft_${editing.id}`, JSON.stringify({ note: v.note })); } catch {}
-      message.success(`已保存 ${editing.name} 的个性化覆盖（${res.saved_at}）`);
-      setDraftTick(t => t + 1);
+      message.success(t("saveSuccess", { name: editing.name, time: res.saved_at }));
+      setDraftTick((tick) => tick + 1);
     } catch (e: any) {
       if (e?.errorFields) {
-        message.warning("请补齐必填字段");
+        message.warning(t("fillRequired"));
       } else {
-        message.error(e?.message || "保存失败");
+        message.error(e?.message || t("saveError"));
       }
     } finally {
       setEditSaving(false);
@@ -445,23 +453,23 @@ const updateIttoSkillIds = (
   const resetOverride = async () => {
     if (!editing) return;
     Modal.confirm({
-      title: "恢复内置默认值",
-      content: `将删除 "${editing.name}" 的所有个性化覆盖，恢复为内置"完整可用"版本。继续吗？`,
+      title: t("resetConfirmTitle"),
+      content: t("resetConfirmContent", { name: editing.name }),
       okType: "danger",
       onOk: async () => {
         try {
           await agentApi.deleteOverride(editing.id);
           try { localStorage.removeItem(`agent_override_draft_${editing.id}`); } catch {}
-          message.success("已恢复内置默认值");
+          message.success(t("resetSuccess"));
           setEditOpen(false);
         } catch (e: any) {
-          message.error(e?.message || "恢复失败");
+          message.error(e?.message || t("resetError"));
         }
       },
     });
   };
 
-  // ============ 统一渲染一组 ITTO（深度编辑器用） ============
+  // ============ \u7edf\u4e00\u6e32\u67d3\u4e00\u7ec4 ITTO\uff08\u6df1\u5ea6\u7f16\u8f91\u5668\u7528\uff09 ============
   const renderIttoCol = (
     kind: "input" | "tool" | "output",
     titleNode: React.ReactNode,
@@ -473,12 +481,15 @@ const updateIttoSkillIds = (
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Text strong>{titleNode}</Text>
         <Text type="secondary" style={{ fontSize: 12 }}>
-          已选用 {items.filter((i) => i.enabled !== false).length}/{items.length}
+          {t("selectedRatio", {
+            selected: items.filter((i) => i.enabled !== false).length,
+            total: items.length,
+          })}
         </Text>
       </div>
       <Paragraph type="secondary" style={{ fontSize: 12, margin: "4px 0" }}>{desc}</Paragraph>
       <Space direction="vertical" style={{ width: "100%" }} size={6}>
-        {items.length === 0 && <Text type="secondary">无</Text>}
+        {items.length === 0 && <Text type="secondary">{t("noneText")}</Text>}
         {items.map((it) => (
             <div
             key={it.key}
@@ -492,7 +503,7 @@ const updateIttoSkillIds = (
               padding: "4px 6px",
             }}
           >
-            <Tooltip title="选用：关闭则该项不参与物料运行">
+            <Tooltip title={t("tooltipEnable")}>
               <Switch
                 size="small"
                 checked={it.enabled !== false}
@@ -504,12 +515,12 @@ const updateIttoSkillIds = (
               value={it.label}
               onChange={(e) => patchItto(setter, it.key, { label: e.target.value })}
               style={{ flex: 1 }}
-              placeholder="条目名称"
+              placeholder={t("itemPlaceholder")}
             />
             {kind === "input" && (
-              <Tooltip title="关闭=必需（缺失则阻塞运行）；开启=可选">
+              <Tooltip title={t("tooltipOptional")}>
                 <Space size={2}>
-                  <Text type="secondary" style={{ fontSize: 11 }}>{it.optional ? "可选" : "必需"}</Text>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{it.optional ? t("optionalText") : t("requiredText")}</Text>
                   <Switch
                     size="small"
                     checked={!!it.optional}
@@ -518,7 +529,7 @@ const updateIttoSkillIds = (
                 </Space>
               </Tooltip>
             )}
-            <Tooltip title="关联 Skill（全部可选，来自 Skill 库）">
+            <Tooltip title={t("tooltipSkill")}>
               <Button
                 size="small"
                 type="text"
@@ -527,7 +538,7 @@ const updateIttoSkillIds = (
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedSkillKey(it.key);
-                  setSkillSelectOpen(prev => !prev);
+                  setSkillSelectOpen((prev) => !prev);
                 }}
               />
             </Tooltip>
@@ -540,7 +551,7 @@ const updateIttoSkillIds = (
             />
           {skillSelectOpen && selectedSkillKey === it.key && (
             <div style={{ position: "absolute", zIndex: 1000, background: "#fff", border: "1px solid #D9D9D9", borderRadius: 6, padding: 8, minWidth: 220, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", marginTop: 4 }}>
-              <Text strong style={{ fontSize: 12, display: "block", marginBottom: 6 }}>关联 Skill（全部可选）</Text>
+              <Text strong style={{ fontSize: 12, display: "block", marginBottom: 6 }}>{t("skillPickerTitle")}</Text>
               <div style={{ maxHeight: 200, overflowY: "auto" }}>
                 {Object.entries(skillMap).map(([sid, sname]) => {
                   const current = it.skill_ids || [];
@@ -551,7 +562,7 @@ const updateIttoSkillIds = (
                       onClick={(e) => {
                         e.stopPropagation();
                         const next = checked
-                          ? current.filter(x => x !== sid)
+                          ? current.filter((x) => x !== sid)
                           : [...current, sid];
                         updateIttoSkillIds(setter, it.key, next);
                       }}
@@ -571,7 +582,7 @@ const updateIttoSkillIds = (
                   );
                 })}
               </div>
-              <Button size="small" type="text" style={{ float: "right", marginTop: 4 }} onClick={(e) => { e.stopPropagation(); setSkillSelectOpen(false); }}>关闭</Button>
+              <Button size="small" type="text" style={{ float: "right", marginTop: 4 }} onClick={(e) => { e.stopPropagation(); setSkillSelectOpen(false); }}>{t("closeBtn")}</Button>
               <div style={{ clear: "both" }} />
             </div>
           )}
@@ -584,12 +595,12 @@ const updateIttoSkillIds = (
         block
         icon={<PlusOutlined />}
         style={{ marginTop: 8 }}
-        onClick={() => addItto(setter, kind)}
-      >新增条目</Button>
+        onClick={() => addItto(setter, kind, t("newItemDefaultLabel"))}
+      >{t("addItem")}</Button>
     </Col>
   );
 
-  // ITTO 文本列表渲染（详情抽屉用）
+  // ITTO \u6587\u672c\u5217\u8868\u6e32\u67d3\uff08\u8be6\u60c5\u62bd\u5c49\u7528\uff09
   const renderItList = (items: string[] | undefined) =>
     items && items.length ? (
       <List
@@ -601,29 +612,29 @@ const updateIttoSkillIds = (
           </List.Item>
         )}
       />
-    ) : <Text type="secondary" style={{ fontSize: 12 }}>—</Text>;
+    ) : <Text type="secondary" style={{ fontSize: 12 }}>{t("dashPlaceholder")}</Text>;
 
   if (loading && !hasLoaded) {
-    return <div style={{ padding: 48, textAlign: "center" }}><Spin /><p style={{ marginTop: 12 }}>加载角色库…</p></div>;
+    return <div style={{ padding: 48, textAlign: "center" }}><Spin /><p style={{ marginTop: 12 }}>{t("loadingAgents")}</p></div>;
   }
 
   return (
     <div style={{ padding: 8 }}>
-      {/* 顶部：标题 + 项目选择（保留） */}
+      {/* Header: title + project selector */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
         <div>
           <Title level={4} style={{ margin: 0 }}>
             <BookOutlined style={{ marginRight: 8, color: BRAND.green }} />
-            PMBOK 智能角色库
+            {t("title")}
           </Title>
           <Text type="secondary">
-            每个 Agent 都是一位虚拟项目经理，整合若干 Skill 与一条工作流。
+            {t("subtitle")}
           </Text>
         </div>
         <Space>
           <Select
             style={{ width: 240 }}
-            placeholder="选择目标项目（可选）"
+            placeholder={t("selectProject")}
             allowClear
             value={projectId}
             onChange={setProjectId}
@@ -631,19 +642,19 @@ const updateIttoSkillIds = (
           />
           {projectId && (
             <Button icon={<ProjectOutlined />} onClick={() => navigate(`/projects/${projectId}`)}>
-              打开项目
+              {t("openProject")}
             </Button>
           )}
         </Space>
       </div>
 
-      {/* 筛选条 */}
+      {/* Filter bar */}
       <Card size="small" style={{ marginBottom: 16, borderRadius: 12 }} bodyStyle={{ padding: 12 }}>
         <Space wrap size={12} style={{ width: "100%", justifyContent: "space-between" }}>
           <Space wrap size={8}>
             <Select
               allowClear
-              placeholder="过程组"
+              placeholder={t("placeholderPg")}
               style={{ width: 130 }}
               value={filterPg}
               onChange={setFilterPg}
@@ -651,7 +662,7 @@ const updateIttoSkillIds = (
             />
             <Select
               allowClear
-              placeholder="知识领域"
+              placeholder={t("placeholderKa")}
               style={{ width: 140 }}
               value={filterKa}
               onChange={setFilterKa}
@@ -659,7 +670,7 @@ const updateIttoSkillIds = (
             />
             <Select
               allowClear
-              placeholder="体系"
+              placeholder={t("placeholderSys")}
               style={{ width: 140 }}
               value={filterSys}
               onChange={setFilterSys}
@@ -668,7 +679,7 @@ const updateIttoSkillIds = (
             <Input.Search
               ref={searchInputRef}
               allowClear
-              placeholder="搜索名称 / 编码 / 摘要"
+              placeholder={t("searchPlaceholder")}
               style={{ width: 240 }}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -677,14 +688,14 @@ const updateIttoSkillIds = (
           </Space>
           <Space size={6}>
             {loading && hasLoaded && <Spin size="small" />}
-            <Text type="secondary">共 {totalAgents} 个角色</Text>
+            <Text type="secondary">{t("totalAgents", { count: totalAgents })}</Text>
           </Space>
         </Space>
       </Card>
 
-      {/* Agent 角色卡片网格 */}
+      {/* Agent role card grid */}
       {agents.length === 0 ? (
-        <Empty description="未找到匹配的角色" style={{ padding: 48 }} />
+        <Empty description={t("emptyNoMatch")} style={{ padding: 48 }} />
       ) : (
         <Row gutter={[16, 16]}>
           {agents.map((a) => (
@@ -717,17 +728,17 @@ const updateIttoSkillIds = (
                   style={{ fontSize: 12, marginBottom: 10, minHeight: 36 }}
                   ellipsis={{ rows: 2 }}
                 >
-                  {a.summary || "—"}
+                  {a.summary || t("dashPlaceholder")}
                 </Paragraph>
                 <Space size={16} style={{ marginBottom: 10 }}>
-                  <Tooltip title="调度 Skill 数">
+                  <Tooltip title={t("skillCountTooltip")}>
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      <ToolOutlined style={{ color: BRAND.darkGreen }} /> {a.skill_count ?? a.skill_ids?.length ?? 0} Skill
+                      <ToolOutlined style={{ color: BRAND.darkGreen }} /> {a.skill_count ?? a.skill_ids?.length ?? 0} {t("skillUnit")}
                     </Text>
                   </Tooltip>
-                  <Tooltip title="命中工作流数">
+                  <Tooltip title={t("workflowCountTooltip")}>
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      <NodeIndexOutlined style={{ color: BRAND.purple }} /> {wfCountMap[a.id] || 0} 工作流
+                      <NodeIndexOutlined style={{ color: BRAND.purple }} /> {wfCountMap[a.id] || 0} {t("workflowUnit")}
                     </Text>
                   </Tooltip>
                 </Space>
@@ -737,7 +748,7 @@ const updateIttoSkillIds = (
                   icon={<PlayCircleOutlined />}
                   onClick={(e) => { e.stopPropagation(); handleRun(a); }}
                 >
-                  试运行
+                  {t("tryRun")}
                 </Button>
               </Card>
             </Col>
@@ -745,12 +756,12 @@ const updateIttoSkillIds = (
         </Row>
       )}
 
-      {/* ============ 角色详情 Drawer ============ */}
+      {/* ============ Role detail Drawer ============ */}
       <Drawer
         title={
           <Space>
             <RobotOutlined style={{ color: BRAND.green }} />
-            <span>角色详情 · {detailAgent?.name_cn || ""}</span>
+            <span>{t("detailTitle", { name: detailAgent?.name_cn || "" })}</span>
             {detailAgent && <Tag color="purple" style={{ marginLeft: 4 }}>{detailAgent.code}</Tag>}
           </Space>
         }
@@ -761,20 +772,20 @@ const updateIttoSkillIds = (
         destroyOnClose
         footer={
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
-            <Button onClick={() => setDetailOpen(false)}>关闭</Button>
+            <Button onClick={() => setDetailOpen(false)}>{t("close")}</Button>
             <Space>
               <Button
                 icon={<PlayCircleOutlined />}
                 onClick={() => { if (detailAgent) { setDetailOpen(false); handleRun(detailAgent); } }}
               >
-                试运行
+                {t("tryRun")}
               </Button>
               <Button
                 type="primary"
                 icon={<EditOutlined />}
                 onClick={() => { if (detailAgent) { setDetailOpen(false); openEditor(toAnyAgent(detailAgent), "domain"); } }}
               >
-                深度编辑
+                {t("deepEdit")}
               </Button>
             </Space>
           </Space>
@@ -791,74 +802,74 @@ const updateIttoSkillIds = (
               )}
             </Space>
 
-            <Paragraph>{detailAgent.summary || "—"}</Paragraph>
+            <Paragraph>{detailAgent.summary || t("dashPlaceholder")}</Paragraph>
 
             {detailAgent.v8_note && (
               <Alert type="info" showIcon message={detailAgent.v8_note} style={{ marginBottom: 12 }} />
             )}
 
-            {/* ITTO 三段 */}
-            <Card type="inner" size="small" title={<><NodeIndexOutlined /> 输入 / 工具 / 输出（ITTO）</>} style={{ marginBottom: 12 }}>
+            {/* ITTO three columns */}
+            <Card type="inner" size="small" title={<><NodeIndexOutlined /> {t("ittoCardTitle")}</>} style={{ marginBottom: 12 }}>
               <Row gutter={12}>
                 <Col span={8}>
-                  <Text strong style={{ fontSize: 12 }}><PartitionOutlined /> 输入</Text>
+                  <Text strong style={{ fontSize: 12 }}><PartitionOutlined /> {t("inputsLabel")}</Text>
                   <div style={{ marginTop: 4 }}>{renderItList(detailAgent.itto?.inputs)}</div>
                 </Col>
                 <Col span={8}>
-                  <Text strong style={{ fontSize: 12 }}><ExperimentOutlined /> 工具 / 技术</Text>
+                  <Text strong style={{ fontSize: 12 }}><ExperimentOutlined /> {t("toolsLabel")}</Text>
                   <div style={{ marginTop: 4 }}>{renderItList(detailAgent.itto?.tools)}</div>
                 </Col>
                 <Col span={8}>
-                  <Text strong style={{ fontSize: 12 }}><PartitionOutlined /> 输出</Text>
+                  <Text strong style={{ fontSize: 12 }}><PartitionOutlined /> {t("outputsLabel")}</Text>
                   <div style={{ marginTop: 4 }}>{renderItList(detailAgent.itto?.outputs)}</div>
                 </Col>
               </Row>
             </Card>
 
-            {/* 调度 Skill 列表 */}
-            <Card type="inner" size="small" title={<><ToolOutlined /> 调度 Skill（{detailAgent.skill_ids?.length || 0}）</>} style={{ marginBottom: 12 }}>
+            {/* Scheduled Skills list */}
+            <Card type="inner" size="small" title={<><ToolOutlined /> {t("scheduledSkills", { count: detailAgent.skill_ids?.length || 0 })}</>} style={{ marginBottom: 12 }}>
               {detailAgent.skill_ids && detailAgent.skill_ids.length ? (
                 <Space wrap size={4}>
                   {detailAgent.skill_ids.map((sid) => (
                     <Tag key={sid} color="geekblue">{skillMap[sid] || sid}</Tag>
                   ))}
                 </Space>
-              ) : <Text type="secondary">—</Text>}
+              ) : <Text type="secondary">{t("dashPlaceholder")}</Text>}
             </Card>
 
-            {/* 注入原则 */}
-            <Card type="inner" size="small" title={<><SafetyOutlined /> 注入原则（{detailAgent.principle_ids?.length || 0}）</>} style={{ marginBottom: 12 }}>
+            {/* Injected principles */}
+            <Card type="inner" size="small" title={<><SafetyOutlined /> {t("injectedPrinciples", { count: detailAgent.principle_ids?.length || 0 })}</>} style={{ marginBottom: 12 }}>
               {detailAgent.principle_ids && detailAgent.principle_ids.length ? (
                 <Space wrap size={4}>
                   {detailAgent.principle_ids.map((pid) => (
                     <Tag key={pid} color="purple">{principleMap[pid] || pid}</Tag>
                   ))}
                 </Space>
-              ) : <Text type="secondary">—</Text>}
+              ) : <Text type="secondary">{t("dashPlaceholder")}</Text>}
             </Card>
 
-            {/* Persona / System Prompt 摘要 */}
-            <Card type="inner" size="small" title={<><CompassOutlined /> Persona / System Prompt</>} style={{ marginBottom: 12 }}>
-              <Text strong style={{ fontSize: 12 }}>Persona</Text>
+            {/* Persona / System Prompt summary */}
+            <Card type="inner" size="small" title={<><CompassOutlined /> {t("personaCardTitle")}</>} style={{ marginBottom: 12 }}>
+              <Text strong style={{ fontSize: 12 }}>{t("personaLabel")}</Text>
               <Paragraph style={{ fontSize: 12, whiteSpace: "pre-wrap", marginTop: 4 }}>
-                {detailAgent.persona || "—"}
+                {detailAgent.persona || t("dashPlaceholder")}
               </Paragraph>
               <Divider style={{ margin: "10px 0" }} />
-              <Text strong style={{ fontSize: 12 }}>System Prompt</Text>
+              <Text strong style={{ fontSize: 12 }}>{t("systemPromptLabel")}</Text>
               <Paragraph style={{ fontSize: 12, whiteSpace: "pre-wrap", marginTop: 4 }}>
-                {detailAgent.system_prompt || "—"}
+                {detailAgent.system_prompt || t("dashPlaceholder")}
               </Paragraph>
             </Card>
           </>
         )}
       </Drawer>
 
-      {/* ============ Agent 深度编辑 Drawer（保留） ============ */}
+      {/* ============ Agent deep edit Drawer ============ */}
       <Drawer
         title={
           <Space>
             <EditOutlined style={{ color: BRAND.purple }} />
-            <span>深度编辑 · {editing?.name || ""}</span>
+            <span>{t("editTitle", { name: editing?.name || "" })}</span>
             {editing && (
               <Tag color="purple" style={{ marginLeft: 4 }}>{editing.id}</Tag>
             )}
@@ -872,24 +883,24 @@ const updateIttoSkillIds = (
         footer={
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <Space>
-                <Tooltip title="运行此 Agent（检索输入 → 运用工具技术 → 输出 Markdown 结果）">
+                <Tooltip title={t("runTooltip")}>
                   <Button
                     icon={<CloudDownloadOutlined />}
                     onClick={() => { setEditOpen(false); if (editing) { setRunDialogAgent({ id: editing.id, name: editing.name, kind: "domain" }); setRunDialogOpen(true); } }}
                   >
-                    运行
+                    {t("run")}
                   </Button>
                 </Tooltip>
-              <Tooltip title="删除覆盖文件，恢复为内置默认（完整可用）">
+              <Tooltip title={t("resetTooltip")}>
                 <Button danger icon={<DeleteOutlined />} onClick={resetOverride}>
-                  恢复默认
+                  {t("reset")}
                 </Button>
               </Tooltip>
             </Space>
             <Space>
-              <Button onClick={() => setEditOpen(false)}>关闭</Button>
+              <Button onClick={() => setEditOpen(false)}>{t("close")}</Button>
               <Button type="primary" icon={<SaveOutlined />} loading={editSaving} onClick={saveOverride}>
-                保存覆盖
+                {t("saveOverride")}
               </Button>
             </Space>
           </Space>
@@ -902,114 +913,119 @@ const updateIttoSkillIds = (
             <Alert
               type="info"
               showIcon
-              message="每个 Agent 默认完整可用"
+              message={t("alertTitle")}
               description={
                 <span>
-                  编辑修改输入 / 工具 / 输出 / 过程 / 系统提示词后，会以"覆盖"形式持久化到
-                  <code style={{ padding: "0 4px" }}>backend/data/agent_overrides.json</code>，
-                  不影响内置默认；可点底部「恢复默认」清空。
+                  <Trans
+                    i18nKey="pmbokAgents.alertDesc"
+                    components={{ code: <code style={{ padding: "0 4px" }} /> }}
+                  />
                 </span>
               }
               style={{ marginBottom: 16 }}
             />
 
-            {/* 基础信息 */}
-            <Card type="inner" size="small" title={<><CodeOutlined /> 基础信息</>} style={{ marginBottom: 12 }}>
+            {/* Basic info */}
+            <Card type="inner" size="small" title={<><CodeOutlined /> {t("basicInfo")}</>} style={{ marginBottom: 12 }}>
               <Form form={editForm} layout="vertical">
                 <Row gutter={12}>
                   <Col span={12}>
-                    <Form.Item label="Agent 名称" name="name" rules={[{ required: true, message: "请输入名称" }]}>
+                    <Form.Item label={t("agentName")} name="name" rules={[{ required: true, message: t("nameRequired") }]}>
                       <Input prefix={<RobotOutlined />} />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item label="输入提示" name="input_hint" tooltip="用户在『运行』面板填写的输入字段说明">
-                      <Input placeholder="例：项目 ID / 时间范围 / 风险关键词" />
+                    <Form.Item label={t("inputHint")} name="input_hint" tooltip={t("inputHintTooltip")}>
+                      <Input placeholder={t("inputHintPlaceholder")} />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Form.Item label="描述" name="description">
-                  <TextArea autoSize={{ minRows: 2, maxRows: 4 }} placeholder="Agent 用途的一句话总结" />
+                <Form.Item label={t("descriptionLabel")} name="description">
+                  <TextArea autoSize={{ minRows: 2, maxRows: 4 }} placeholder={t("descriptionPlaceholder")} />
                 </Form.Item>
               </Form>
             </Card>
 
-            {/* ITTO（结构化 · 可配置） */}
+            {/* ITTO (structured, configurable) */}
             <Card
               type="inner"
               size="small"
-              title={<><NodeIndexOutlined /> 输入 / 工具 / 输出（ITTO · 逐项选用 / 编辑）</>}
+              title={<><NodeIndexOutlined /> {t("ittoEditTitle")}</>}
               style={{ marginBottom: 12 }}
-              extra={<Text type="secondary" style={{ fontSize: 12 }}>每项可开关选用、编辑标签、增删</Text>}
+              extra={<Text type="secondary" style={{ fontSize: 12 }}>{t("ittoEditExtra")}</Text>}
             >
               <Row gutter={16}>
                 {renderIttoCol(
                   "input",
-                  <><NodeIndexOutlined /> 输入（材料）</>,
-                  "每项可「选用」；勾选「可选」则该输入缺失也不阻塞运行（默认必需）。",
+                  <><NodeIndexOutlined /> {t("inputsMaterial")}</>,
+                  t("inputsDesc"),
                   ittoInputs,
                   setIttoInputs,
                 )}
                 {renderIttoCol(
                   "tool",
-                  <><ToolOutlined /> 工具 / 技术</>,
-                  "勾选要参与本次信息处理的工具技术（默认全选）。",
+                  <><ToolOutlined /> {t("toolsTech")}</>,
+                  t("toolsDesc"),
                   ittoTools,
                   setIttoTools,
                 )}
                 {renderIttoCol(
                   "output",
-                  <><PartitionOutlined /> 输出（指定文件）</>,
-                  "勾选需在运行时由 AI 生成并落盘的输出文件。",
+                  <><PartitionOutlined /> {t("outputsFile")}</>,
+                  t("outputsDesc"),
                   ittoOutputs,
                   setIttoOutputs,
                 )}
               </Row>
             </Card>
 
-            {/* 过程展示 */}
-            <Card type="inner" size="small" title={<><ExperimentOutlined /> 过程展示</>} style={{ marginBottom: 12 }}>
+            {/* Process display */}
+            <Card type="inner" size="small" title={<><ExperimentOutlined /> {t("processDisplay")}</>} style={{ marginBottom: 12 }}>
               <Form form={editForm} layout="vertical">
                 <Form.Item
-                  label="过程步骤 / PMBOK v8 对应说明"
+                  label={t("processLabel")}
                   name="process"
-                  tooltip="Agent 实际执行的过程说明，或 PMBOK 第 8 版对应的描述"
+                  tooltip={t("processTooltip")}
                 >
-                  <TextArea autoSize={{ minRows: 3, maxRows: 8 }} placeholder="例：按照 PMBOK 第 8 版『规划』绩效域的『工作计划』原则 → 1. 启动 → 2. 分析 …" />
+                  <TextArea autoSize={{ minRows: 3, maxRows: 8 }} placeholder={t("processPlaceholder")} />
                 </Form.Item>
               </Form>
             </Card>
 
 
-            {/* 高级 system_prompt */}
-            <Card type="inner" size="small" title={<><ThunderboltOutlined /> 高级 · System Prompt（可选）</>} style={{ marginBottom: 12 }}>
+            {/* Advanced system_prompt */}
+            <Card type="inner" size="small" title={<><ThunderboltOutlined /> {t("advancedTitle")}</>} style={{ marginBottom: 12 }}>
               <Form form={editForm} layout="vertical">
                 <Form.Item
-                  label="完整 system_prompt（覆盖后会拼接到 Agent 默认 prompt 之后）"
+                  label={t("systemPromptFullLabel")}
                   name="system_prompt"
-                  tooltip="留空表示使用内置默认。"
+                  tooltip={t("systemPromptFullTooltip")}
                 >
                   <TextArea
                     autoSize={{ minRows: 4, maxRows: 12 }}
-                    placeholder={`例：\n你是「${editing?.name || '某Agent'}」专家。请基于项目上下文输出结构化建议，使用 Markdown 格式，按以下结构：\n- 结论\n- 输入依据\n- 风险与建议`}
+                    placeholder={t("systemPromptFullPlaceholder", { name: editing?.name || t("agentName") })}
                     style={{ fontFamily: "monospace", fontSize: 12 }}
                   />
                 </Form.Item>
-                <Form.Item label="本次编辑说明（仅本地草稿，不会上传）" name="note">
-                  <Input placeholder="例：根据复盘调整输出格式" />
+                <Form.Item label={t("editNoteLabel")} name="note">
+                  <Input placeholder={t("editNotePlaceholder")} />
                 </Form.Item>
               </Form>
             </Card>
 
             <Divider />
             <Text type="secondary" style={{ fontSize: 12 }}>
-              已覆盖次数：{editOverride?.updated_at ? 1 : 0}（{editOverride?.updated_at || "尚未保存"} · {editOverride?.updated_by || "—"}）
+              {t("overrideCount", {
+                count: editOverride?.updated_at ? 1 : 0,
+                updatedAt: editOverride?.updated_at || t("notSaved"),
+                updatedBy: editOverride?.updated_by || t("dashPlaceholder"),
+              })}
             </Text>
           </>
         )}
       </Drawer>
 
-      {/* ============ 统一手动运行对话框 ============ */}
+      {/* ============ Unified manual run dialog ============ */}
       <AgentRunDialog
         open={runDialogOpen}
         onClose={() => setRunDialogOpen(false)}

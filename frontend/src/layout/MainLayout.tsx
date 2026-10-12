@@ -78,7 +78,7 @@ const superAdminMenuItems = [
   { key: "/admin/levels", icon: <AimOutlined />, label: "nav.levels" },
 ];
 
-// 用户管理（org_admin）只能看到：用户管理、用户级别管理（功能开通/管理权限仅系统管理员可见）
+// \u7528\u6237\u7ba1\u7406\uff08org_admin\uff09\u53ea\u80fd\u770b\u5230\uff1a\u7528\u6237\u7ba1\u7406\u3001\u7528\u6237\u7ea7\u522b\u7ba1\u7406\uff08\u529f\u80fd\u5f00\u901a/\u7ba1\u7406\u6743\u9650\u4ec5\u7cfb\u7edf\u7ba1\u7406\u5458\u53ef\u89c1\uff09
 const userAdminMenuItems = [
   { key: "/admin/users", icon: <TeamOutlined />, label: "nav.users" },
   { key: "/admin/levels", icon: <AimOutlined />, label: "nav.levels" },
@@ -151,9 +151,9 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     refreshUnread();
-    // 实时：任意数据变更（任务/项目/通知等）后刷新未读角标
+    // \u5b9e\u65f6\uff1a\u4efb\u610f\u6570\u636e\u53d8\u66f4\uff08\u4efb\u52a1/\u9879\u76ee/\u901a\u77e5\u7b49\uff09\u540e\u5237\u65b0\u672a\u8bfb\u89d2\u6807
     const off = onDataChanged(null, () => refreshUnread());
-    // 兜底：每 45s 轮询一次，确保弱网/断线重连期间也不漏
+    // \u515c\u5e95\uff1a\u6bcf 45s \u8f6e\u8be2\u4e00\u6b21\uff0c\u786e\u4fdd\u5f31\u7f51/\u65ad\u7ebf\u91cd\u8fde\u671f\u95f4\u4e5f\u4e0d\u6f0f
     const timer = setInterval(refreshUnread, 45000);
     return () => { off(); clearInterval(timer); };
   }, []);
@@ -164,16 +164,16 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return matched?.key || (location.pathname === "/" ? "/" : "/");
   })();
 
-  // 运营管理板块：根据管理角色显示不同菜单
+  // \u8fd0\u8425\u7ba1\u7406\u677f\u5757\uff1a\u6839\u636e\u7ba1\u7406\u89d2\u8272\u663e\u793a\u4e0d\u540c\u83dc\u5355
   const isSuper = !!user?.is_superuser;
   const isOrgAdmin = !!user?.is_org_admin && !user?.is_superuser;
   const adminItems = isSuper ? superAdminMenuItems : isOrgAdmin ? userAdminMenuItems : null;
-  const adminTitle = isSuper ? "运营管理" : "用户管理";
+  const adminTitle = isSuper ? t("nav.adminDashboard") : t("nav.users");
 
   const userMenu = {
     items: [
-      { key: "profile", icon: <UserOutlined />, label: "个人信息" },
-      { key: "logout", icon: <LogoutOutlined />, label: "退出登录", danger: true },
+      { key: "profile", icon: <UserOutlined />, label: "\u4e2a\u4eba\u4fe1\u606f" },
+      { key: "logout", icon: <LogoutOutlined />, label: "\u9000\u51fa\u767b\u5f55", danger: true },
     ],
     onClick: ({ key }: { key: string }) => {
       if (key === "logout") { logout(); navigate("/login"); }
@@ -217,11 +217,11 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           )}
         </div>
         <div className="sider-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", padding: "8px 0", overscrollBehavior: "contain" }}>
-          <MenuGroup title="概览" items={topMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
-          <MenuGroup title="PMBOK 智能体" items={pmbokMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
-          <MenuGroup title="规划" items={planMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
-          <MenuGroup title="管控体系" items={twMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
-          <MenuGroup title="工具" items={toolMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
+          <MenuGroup title="\u6982\u89c8" items={topMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
+          <MenuGroup title="\u0050\u004d\u0042\u004f\u004b\u0020\u667a\u80fd\u4f53" items={pmbokMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
+          <MenuGroup title="\u89c4\u5212" items={planMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
+          <MenuGroup title="\u7ba1\u63a7\u4f53\u7cfb" items={twMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
+          <MenuGroup title="\u5de5\u5177" items={toolMenuItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
           {adminItems && (
             <MenuGroup title={adminTitle} items={adminItems} collapsed={collapsed} selectedKey={selectedKey} onNavigate={navigate} />
           )}
@@ -238,16 +238,16 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Button type="text" icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)} style={{ fontSize: 16, color: "#64748B" }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Tooltip title="本页操作教程">
+            <Tooltip title="\u672c\u9875\u64cd\u4f5c\u6559\u7a0b">
               <Button type="text" icon={<BookOutlined style={{ fontSize: 18 }} />} onClick={() => window.dispatchEvent(new CustomEvent("tw:open-tour"))} style={{ color: "#64748B" }} />
             </Tooltip>
-            <Tooltip title={mode === "dark" ? "切换浅色模式" : "切换深色模式"}>
+            <Tooltip title={mode === "dark" ? "\u5207\u6362\u6d45\u8272\u6a21\u5f0f" : "\u5207\u6362\u6df1\u8272\u6a21\u5f0f"}>
               <Button type="text" icon={mode === "dark" ? <SunOutlined style={{ fontSize: 18 }} /> : <MoonOutlined style={{ fontSize: 18 }} />} onClick={toggle} style={{ color: "#64748B" }} />
             </Tooltip>
             <Tooltip title={t("lang.switch")}>
               <Button type="text" onClick={() => setLanguage(i18n.language === "zh" ? "en" : "zh")}
                 style={{ color: "#64748B", fontSize: 13, fontWeight: 600, width: 44 }}>
-                {i18n.language === "zh" ? "EN" : "中"}
+                {i18n.language === "zh" ? "EN" : "\u4e2d"}
               </Button>
             </Tooltip>
             <Badge count={unread} size="small" offset={[-2, 2]}>
@@ -259,7 +259,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               >
                 <Avatar icon={<UserOutlined />} src={user?.avatar_url} style={{ background: "#4F46E5" }} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>{user?.full_name || user?.username || "用户"}</span>
+                <span style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>{user?.full_name || user?.username || "\u7528\u6237"}</span>
               </div>
             </Dropdown>
           </div>
